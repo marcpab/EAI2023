@@ -26,6 +26,8 @@ namespace EAI.General.Cache
                     if (item.ExpiresOn < DateTimeOffset.UtcNow)
                     {
                         _cache.Remove(key);
+
+                        (item as IDisposable)?.Dispose();
                         item = null;
                     }
 

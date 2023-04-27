@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EAI.General.ExtendableHttp;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -7,68 +8,46 @@ using System.Threading.Tasks;
 
 namespace EAI.Rest
 {
-    public class RestRequest : IDisposable
+    public class RestRequest // : IDisposable
     {
-        private Func<Task<HttpClient>> _getHttpClientAsync;
-        private Uri _uri;
         private HttpMethod _method;
-        private JsonSerializerSettings _serializerSettings;
-        private IMessageHandler _messageHandler;
+        private object _path;
         private object _requestData;
 
-        private List<IDisposable> _disposables;
+        public HttpMethod Method { get => _method; set => _method = value; }
+        public object Path { get => _path; set => _path = value; }
+        public object Content { get => _requestData; set => _requestData = value; }
 
-        public Uri Uri { get => _uri; }
-
-        public RestRequest(Func<Task<HttpClient>> getHttpClientAsync, Uri uri, HttpMethod method, JsonSerializerSettings serializerSettings, IMessageHandler messageHandler, object requestData)
+        public RestRequest()
         {
-            _disposables = new List<IDisposable>();
-
-            _getHttpClientAsync = getHttpClientAsync;
-            _uri = uri;
-            _method = method;
-            _serializerSettings = serializerSettings;
-            _messageHandler = messageHandler;
-            _requestData = requestData;
         }
 
-        public async Task<HttpResponseMessage> GetResponseAsync()
+        public virtual HttpRequestMessage CreateHttpRequestMessage(JsonSerializerSettings serializerSettings)
         {
             var requestMessage = new HttpRequestMessage();
-            _disposables.Add(requestMessage);
-
             requestMessage.Method = _method;
-            requestMessage.Content = GetContent(_requestData);
 
-            var client = await _getHttpClientAsync();
-            _disposables.Add(client);
+            requestMessage.Content = GetContent(serializerSettings);
+            requestMessage.RequestUri = Path == null ? null : new Uri(Path?.ToString(), UriKind.RelativeOrAbsolute);
 
-            var response = await SendRequestAsync(requestMessage, client);
-            _disposables.Add(response);
-
-            return response;
+            return requestMessage;
         }
 
-        private static async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage requestMessage, HttpClient client)
+        private HttpContent GetContent(JsonSerializerSettings serializerSettings)
         {
-            return await client.SendAsync(requestMessage);
-        }
-
-        private HttpContent GetContent(object request)
-        {
-            if (request == null)
+            if (_requestData == null)
                 return null;
 
-            if (request is string)
-                return new StringContent((string)request);
+            if (_requestData is string)
+                return new StringContent((string)_requestData);
 
-            return new StringContent(JsonConvert.SerializeObject(request, _serializerSettings));
+            return new StringContent(JsonConvert.SerializeObject(_requestData, serializerSettings));
         }
 
-        public void Dispose()
-        {
-            foreach(var disposables in _disposables)
-                disposables.Dispose();
-        }
+        //public void Dispose()
+        //{
+        //    foreach(var disposables in _disposables)
+        //        disposables.Dispose();
+        //}
     }
 }

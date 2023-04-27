@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EAI.General\EAI.General.csproj" />
+    <ProjectReference Include="..\EAI.OAuth\EAI.OAuth.csproj" />
   </ItemGroup>
 
 </Project>

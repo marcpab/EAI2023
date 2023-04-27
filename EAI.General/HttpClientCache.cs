@@ -34,9 +34,26 @@ namespace EAI.General
             return _defaultClient;
         }
 
-        public static Task<HttpClient> GetHttpClientAsync(string key, Func<HttpClient> createHttpClientAsync, Func<ResourceCacheItem<HttpClient>, Task> updateCacheItemAsync) 
+        public static Task<HttpClient> GetHttpClientAsync(Uri baseUri, TimeSpan? timeout)
         {
-            return ResourceCache<HttpClient>.GetResourceAsync(key, () => Task.FromResult(new ResourceCacheItem<HttpClient>(createHttpClientAsync())), updateCacheItemAsync);
+            if (baseUri == null && timeout == null)
+                return Task.FromResult(GetDefaultClient());
+
+            return ResourceCache<HttpClient>.GetResourceAsync(
+                            $"uri={baseUri};timeout={timeout}",
+                            () => Task.FromResult(
+                                new ResourceCacheItem<HttpClient>(
+                                    new HttpClient() { BaseAddress = baseUri, Timeout = timeout ?? DefaultTimeout }
+                                    )
+                                { ExpiresOn = DateTime.UtcNow.AddMinutes(5) }
+                                ),
+                            (c) => {
+                                c.ExpiresOn = DateTime.UtcNow.AddMinutes(5);
+                                return Task.CompletedTask;
+                            }
+                        );
+
+
         }
     }
 }

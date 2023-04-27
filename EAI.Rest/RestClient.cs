@@ -1,45 +1,48 @@
-﻿using Newtonsoft.Json;
+﻿using EAI.General.Cache;
+using EAI.General.ExtendableHttp;
+using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace EAI.Rest
 {
-    public class RestClient
+    public class RestClient : ExtendableHttpClient
     {
-        private Func<Task<HttpClient>> getHttpClientAsync;
-        private Uri _realtiveUri;
         private JsonSerializerSettings _serializerSettings;
-        private IMessageHandler _messageHandler;
 
-        public async Task<RestResponse<T>> SendAsync<T>(HttpMethod method, string query, object requestData)
+        public RestClient()
         {
-            var requestMessage = new HttpRequestMessage();
-            requestMessage.Method = method;
-
-            requestMessage.Content = GetContent(requestData);
-
-            var client = await getHttpClientAsync();
-
-            var response = await SendRequestAsync(requestMessage, client);
-
-            return new RestResponse<T>(response);
         }
 
-        private static async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage requestMessage, HttpClient client)
+        public JsonSerializerSettings SerializerSettings { get => _serializerSettings; set => _serializerSettings = value; }
+
+        public async Task<RestResult> SendAsync(RestRequest requestData)
         {
-            return await client.SendAsync(requestMessage);
+            var requestMessage = requestData.CreateHttpRequestMessage(_serializerSettings);
+
+            var response = await SendAsync(requestMessage);
+
+            return new RestResult(response, _serializerSettings);
         }
 
-        private HttpContent GetContent(object request)
+        //public RestResult CreateRestResponse(RestRequest requestData)
+        //{
+        //    return new RestResult(this, requestData, SendAsync);
+        //}
+
+        public Uri GetFullUri(RestRequest restRequest)
         {
-            if (request == null)
-                return null;
+            if (BaseUri != null && restRequest.Path != null)
+                return new Uri(BaseUri, restRequest.Path.ToString());
 
-            if (request is string)
-                return new StringContent((string)request);
+            if (BaseUri != null)
+                return BaseUri;
 
-            return new StringContent(JsonConvert.SerializeObject(request, _serializerSettings));
+            if (restRequest.Path != null)
+                return new Uri(restRequest.Path.ToString());
+
+            return null;
         }
     }
 }

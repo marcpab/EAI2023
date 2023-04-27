@@ -1,48 +1,41 @@
 ﻿using EAI.General.Cache;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace EAI.Rest
 {
-    public class RestResponse<T>
+    public class RestResult
     {
-        private RestRequest _request;
+        private readonly HttpResponseMessage _httpResponse;
+        private readonly JsonSerializerSettings _serializerSettings;
 
-        public RestResponse(RestRequest request)
+        public RestResult(HttpResponseMessage httpResponse, JsonSerializerSettings serializerSettings)
         {
-            _request = request;
+            _httpResponse = httpResponse;
+            _serializerSettings = serializerSettings;
+        }
+
+        public HttpResponseMessage OriginalHttpResponseMessage { get => _httpResponse; }
+
+        public async Task<T> GetAsSingleAsync<T>()
+        {
+            var stringContent = await GetAsStringAsync();
+                
+            return JsonConvert.DeserializeObject<T>(stringContent, _serializerSettings);
         }
 
         public async Task<string> GetAsStringAsync()
         {
-            return await ResourceCache<string>.GetResourceAsync(
-                _request.Uri.ToString(),
-                async () => {
-                        var response = await _request.GetResponseAsync();
-
-                        var stringContent = await response.Content.ReadAsStringAsync();
-
-                        return new ResourceCacheItem<string>(stringContent);
-                    });
+            return await _httpResponse.Content.ReadAsStringAsync();
         }
 
-        public async Task<T> GetAsSingleAsync<T>()
+        public Task<Stream> GetAsStreamAsync()
         {
-            var response = await _request.GetResponseAsync();
-
-
+            return _httpResponse.Content.ReadAsStreamAsync();
         }
-
-        public async Task<IEnumerable<T>> GetAsSingleAsync<T>()
-        {
-            var response = await _request.GetResponseAsync();
-
-
-        }
-
-
-
-
     }
 }

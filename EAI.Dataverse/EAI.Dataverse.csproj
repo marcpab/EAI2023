@@ -5,11 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\EAI.General\EAI.General.csproj" />
+    <ProjectReference Include="..\EAI.OData\EAI.OData.csproj" />
   </ItemGroup>
 
 </Project>
