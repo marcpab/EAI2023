@@ -1,5 +1,7 @@
 using EAI.Logging.Model;
 using EAI.Logging.Writer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EAI.Logging.Test
 {
@@ -125,6 +127,33 @@ namespace EAI.Logging.Test
             var sb = StringBuilderWriter.Logs.ToString().ReplaceLineEndings(string.Empty);
             
             Assert.Equal(string.Empty, sb);
+        }
+
+        [Fact]
+        public async Task TestBasic04()
+        {
+            var service = "LogProviderTest";
+            var transaction = "TestBasic04";
+            var childTransaction = "Step4";
+            var key = Guid.NewGuid().ToString().Substring(0, 8);
+
+            // requires Microsoft.Extensions.Logging.Debug 
+            var serviceProvider = new ServiceCollection()
+                .AddLogging(builder => builder.AddDebug())
+                .BuildServiceProvider();
+
+            var factory = serviceProvider.GetService<ILoggerFactory>();
+            var logger = factory.CreateLogger<LogProviderTest>();
+
+            var log = new LogProvider<StageUAT>(logger, service, transaction, childTransaction, key);
+
+            Assert.Equal(service, log.Service);
+            Assert.Equal(transaction, log.Transaction);
+            Assert.Equal(childTransaction, log.ChildTransaction);
+            Assert.Equal(key, log.TransactionKey);
+
+            var message = $"Test Record for {key}";
+            await log.String<LevelDebug>(message);
         }
     }
 }
