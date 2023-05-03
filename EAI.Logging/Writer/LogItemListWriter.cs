@@ -15,7 +15,9 @@ namespace EAI.Logging.Writer
 
     public class LogItemListWriter : ILogWriter
     {
-        public LogItemListWriter Instance { get; } = new LogItemListWriter();
+        public static LogItemListWriter Instance { get; } = new LogItemListWriter();
+
+        private LogItemListWriter() { }
 
         public static ConcurrentBag<LogItem> LogItems { get; private set; } = new ConcurrentBag<LogItem>();
 

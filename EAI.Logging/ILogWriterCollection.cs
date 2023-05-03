@@ -6,6 +6,6 @@ namespace EAI.Logging
 {
     public interface ILogWriterCollection
     {
-        IDictionary<ILogWriterId, ILogWriter> Writers { get; }
+        IDictionary<string, ILogWriter> Writers { get; }
     }
 }

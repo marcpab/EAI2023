@@ -23,7 +23,7 @@ namespace EAI.Logging
                 foreach (var w in Writers.Writers.Values)
                 {
                     if(Id.Name != new DefaultWriterId().Name
-                    && !Writers.Writers.ContainsKey(w.Id))
+                    && Id.Name != (w.Id.Name))
                     { 
                             continue;
                     }
@@ -98,6 +98,7 @@ namespace EAI.Logging
         public static Task<LogQueue> ProcessAsync(CancellationToken cancellationToken)
             => _Instance.InitializeAsync(cancellationToken);
 
+        private LogQueue() { }
 
         public static void Add(ILogWriter logger, LogItem logEntry)
         {
@@ -110,7 +111,7 @@ namespace EAI.Logging
         {
             lock (_Queue)
             {
-                _Queue.Enqueue(new LogQueueItem { Writers = loggers, Record = logEntry });
+                _Queue.Enqueue(new LogQueueItem { Writers = loggers, Record = logEntry, Id = id });
             }
         }
 

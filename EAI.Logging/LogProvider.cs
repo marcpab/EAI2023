@@ -73,11 +73,11 @@ namespace EAI.Logging
             return await Create<U, V>(description, new LogMessage(operation, content), null);
         }
 
-        public async Task<LogItem> String<U,V>(string text, CancellationToken cancellationToken = default, params object[] args)
+        public async Task<LogItem> String<U, V>(string text, CancellationToken cancellationToken = default, params object[] args)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            return await Create<U, DefaultWriterId>(FormatString(text, args), null, null, cancellationToken);
+            return await Create<U, V>(FormatString(text, args), null, null, cancellationToken);
         }
 
         public async Task<LogItem> String<U>(string text, CancellationToken cancellationToken = default, params object[] args)

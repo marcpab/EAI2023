@@ -14,9 +14,11 @@ namespace EAI.Logging.Writer
 
     public class StringBuilderWriter : ILogWriter
     {
-        public StringBuilderWriter Instance { get; } = new StringBuilderWriter();
+        public static StringBuilderWriter Instance { get; } = new StringBuilderWriter();
 
         public static StringBuilder Logs { get; private set; } = new StringBuilder();
+
+        private StringBuilderWriter() { }
 
         public ILogWriterId Id => new StringBuilderWriterId();
 
