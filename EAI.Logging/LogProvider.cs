@@ -1,4 +1,5 @@
 ﻿using EAI.Logging.Model;
+using EAI.Logging.Writer;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;

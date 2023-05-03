@@ -1,18 +1,17 @@
 ﻿using EAI.Logging.Model;
-using EAI.Logging.Writer;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EAI.Logging
+namespace EAI.Logging.Writer
 {
     internal class LogQueue
     {
         internal class LogQueueItem
         {
-            public ILogWriterCollection Writers{ get; set; }
+            public ILogWriterCollection Writers { get; set; }
             public ILogWriterId Id { get; set; }
             public LogItem Record { get; set; }
 
@@ -22,10 +21,10 @@ namespace EAI.Logging
 
                 foreach (var w in Writers.Writers.Values)
                 {
-                    if(Id.Name != new DefaultWriterId().Name
-                    && Id.Name != (w.Id.Name))
-                    { 
-                            continue;
+                    if (Id.Name != new DefaultWriterId().Name
+                    && Id.Name != w.Id.Name)
+                    {
+                        continue;
                     }
 
                     try
@@ -44,7 +43,7 @@ namespace EAI.Logging
         }
 
         // .net 6 singleton
-        private static LogQueue _Instance { get; } = new LogQueue(); 
+        private static LogQueue _Instance { get; } = new LogQueue();
 
         private static readonly Queue<LogQueueItem> _Queue = new Queue<LogQueueItem>();
 
@@ -68,7 +67,7 @@ namespace EAI.Logging
                         {
                             break;
                         }
-                        
+
                         localQueue.Enqueue(_Queue.Dequeue());
                     }
                 }
