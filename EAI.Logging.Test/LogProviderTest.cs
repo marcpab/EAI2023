@@ -12,6 +12,9 @@ namespace EAI.Logging.Test
             var transaction = "TestBasic01";
             var childTransaction = "Step1";
             var key = Guid.NewGuid().ToString().Substring(0, 8);
+            
+            LogItemListWriter.Instance.Clear();
+            StringBuilderWriter.Instance.Clear();
 
             var writers = new List<ILogWriter>();
             writers.Add(LogItemListWriter.Instance);
@@ -50,6 +53,9 @@ namespace EAI.Logging.Test
             var childTransaction = "Step2";
             var key = Guid.NewGuid().ToString().Substring(0, 8);
 
+            LogItemListWriter.Instance.Clear();
+            StringBuilderWriter.Instance.Clear();
+
             var writers = new List<ILogWriter>();
             writers.Add(LogItemListWriter.Instance);
             writers.Add(StringBuilderWriter.Instance);
@@ -87,6 +93,9 @@ namespace EAI.Logging.Test
             var transaction = "TestBasic03";
             var childTransaction = "Step3";
             var key = Guid.NewGuid().ToString().Substring(0, 8);
+            
+            LogItemListWriter.Instance.Clear();
+            StringBuilderWriter.Instance.Clear();
 
             var writers = new List<ILogWriter>();
             writers.Add(LogItemListWriter.Instance);
