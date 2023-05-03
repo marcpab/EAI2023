@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace EAI.Logging.Model
@@ -34,5 +35,36 @@ namespace EAI.Logging.Model
 
             return message.Replace("\n", $"\n{_INDENT}");
         };
+
+        public static LogException[] GetExceptionArray(Exception exception)
+        {
+            var nestLevel = 0;
+
+            return GetExceptionList(exception).
+                Select(ex => new LogException(ex, nestLevel++)).
+                ToArray();
+        }
+
+        public static List<Exception> GetExceptionList(Exception exception)
+        {
+            var exceptionList = new List<Exception>();
+
+            if (exception == null)
+                return exceptionList;
+
+            exceptionList.Add(exception);
+
+            while (exception?.InnerException != null)
+            {
+                exception = exception.InnerException;
+
+                if (exceptionList.Contains(exception))
+                    break;
+
+                exceptionList.Add(exception);
+            }
+
+            return exceptionList;
+        }
     }
 }

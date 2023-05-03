@@ -5,5 +5,6 @@
         JSON,
         TEXT,
         XML,
+        RAW
     }
 }

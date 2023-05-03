@@ -5,7 +5,7 @@
         DEV = 10,
         SIT = 20,
         UAT = 30,
-        PRE = 40,
+        PREP = 40,
         PROD = 50
     }
 }
