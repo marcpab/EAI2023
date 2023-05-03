@@ -1,0 +1,21 @@
+﻿{
+  "MessageHandler": {
+    "$type": "EAI.Rest.RestMessageHandler, EAI.Rest",
+
+    "OAuthHandler": {
+      "OAuthRequest": {
+        "ClientId": "c69a7c12-591c-44cf-882f-174ede1dd20e",
+        "ClientSecret": "",
+        "GrantType": "client_credentials",
+        "Scope": "https://cosmoconsultsimodulteampandi.crm4.dynamics.com/.default"
+
+      },
+      "Uri": "https://login.microsoftonline.com/9e269bb1-6557-4278-9158-94b85c699797/oauth2/v2.0/token",
+      "Method": {
+        "Method": "Post"
+      }
+    }
+  },
+
+  "BaseUri": "https://cosmoconsultsimodulteampandi.crm4.dynamics.com/api/data/v9.1/"
+}

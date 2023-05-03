@@ -4,7 +4,7 @@ using System.Text;
 
 namespace EAI.OAuth
 {
-    public class OAuthTokenResponse : Dictionary<string, string>
+    public class OAuthResponse : Dictionary<string, string>
     {
         public const string ParamTokenType = "token_type";
         public const string ParamAccessToken = "access_token";

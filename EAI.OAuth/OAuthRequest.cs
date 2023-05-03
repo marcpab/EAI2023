@@ -7,6 +7,8 @@ namespace EAI.OAuth
 {
     public class OAuthRequest
     {
+        public const string MSDefaultClientId = "51f81489-12ee-4a9e-aaae-a2591f45987d";
+
         private Dictionary<string, string> _params = new Dictionary<string, string>();
 
         public const string ParamClientId     = "client_id";
