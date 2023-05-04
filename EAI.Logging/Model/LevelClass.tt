@@ -1,0 +1,49 @@
+<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="Newtonsoft.Json" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="Newtonsoft.Json" #>
+<#@ import namespace="Newtonsoft.Json.Linq" #>
+<#@ output extension=".txt" #>
+<#
+	    string path = this.Host.ResolvePath("Prep.json");
+
+        JToken? prepdata = null;
+	    using (var sr = new StreamReader(path))
+        using (var jr = new JsonTextReader(sr))
+        {
+            prepdata = JToken.ReadFrom(jr);
+        }
+
+        var levels = prepdata.SelectToken("Level");
+        var levelsDic = levels?.ToObject<Dictionary<string, string>>() ?? new Dictionary<string, string>();
+
+        foreach(var l in levelsDic)
+        {#>
+namespace EAI.Logging.Model
+{
+    public class Level<#=l.Key#> : ILogLevel
+    {
+        public LogLevel Level { get; } = LogLevel.<#=l.Key#>;
+        public Level<#=l.Key#>() { }
+
+        public override string ToString() => Level.ToString();
+    }
+}
+<#  
+            SaveOutput($"Level{l.Key}.cs");
+        }
+#>
+success
+<#+
+private void SaveOutput(string outputFileName) 
+{
+  string templateDirectory = Path.GetDirectoryName(Host.TemplateFile);
+  string outputFilePath = Path.Combine(templateDirectory, outputFileName);
+  File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString()); 
+  this.GenerationEnvironment.Clear();
+}
+#>
