@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EAI.Logging.Test
 {
-    public class LogProviderTest
+    public class LoggerTest
     {
         [Fact]
         public async Task TestBasic01()
@@ -24,7 +24,7 @@ namespace EAI.Logging.Test
             var writerCollection = new DefaultLogWriterCollection(writers);
             
 
-            var log = new LogProvider<StageDEV>(writerCollection, service, transaction, childTransaction, key);
+            var log = new Logger<StageDEV>(writerCollection, service, transaction, childTransaction, key);
 
             Assert.Equal(service, log.Service);
             Assert.Equal(transaction, log.Transaction);
@@ -65,7 +65,7 @@ namespace EAI.Logging.Test
             var writerCollection = new DefaultLogWriterCollection(writers);
 
 
-            var log = new LogProvider<StagePROD>(writerCollection, service, transaction, childTransaction, key);
+            var log = new Logger<StagePROD>(writerCollection, service, transaction, childTransaction, key);
 
 
             var message = $"Test Record for {key}";
@@ -106,7 +106,7 @@ namespace EAI.Logging.Test
             var writerCollection = new DefaultLogWriterCollection(writers);
 
 
-            var log = new LogProvider<StageUAT>(writerCollection, service, transaction, childTransaction, key);
+            var log = new Logger<StageUAT>(writerCollection, service, transaction, childTransaction, key);
 
 
             var message = $"Test Record for {key}";
@@ -143,9 +143,9 @@ namespace EAI.Logging.Test
                 .BuildServiceProvider();
 
             var factory = serviceProvider.GetService<ILoggerFactory>();
-            var logger = factory.CreateLogger<LogProviderTest>();
+            var logger = factory.CreateLogger<LoggerTest>();
 
-            var log = new LogProvider<StageUAT>(logger, service, transaction, childTransaction, key);
+            var log = new Logger<StageUAT>(logger, service, transaction, childTransaction, key);
 
             Assert.Equal(service, log.Service);
             Assert.Equal(transaction, log.Transaction);

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EAI.Logging
 {
-    public class LogProvider<T> 
+    public class Logger<T> 
         where T : ILogStage, new()
     {
         public string Service { get; private set; }
@@ -17,7 +17,7 @@ namespace EAI.Logging
         public T Stage { get; private set; }
         public ILogWriterCollection Writers { get; private set; }
 
-        public LogProvider(ILogWriterCollection writers, string service, string transaction, string childTransaction, string transactionKey)
+        public Logger(ILogWriterCollection writers, string service, string transaction, string childTransaction, string transactionKey)
         {
             Writers = writers;
             Stage = new T();
@@ -27,7 +27,7 @@ namespace EAI.Logging
             TransactionKey = transactionKey;
         }
 
-        public LogProvider(ILogger log, string service, string transaction, string childTransaction, string transactionKey)
+        public Logger(ILogger log, string service, string transaction, string childTransaction, string transactionKey)
         {
             Writers = new DefaultLogWriterCollection(log);
             Stage = new T();
