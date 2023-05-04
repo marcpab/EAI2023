@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.Rest", "EAI.Rest\EAI.Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.Logging", "EAI.Logging\EAI.Logging.csproj", "{CB46AB58-7726-46F5-8C3D-8415D2144178}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EAI.Logging.Test", "EAI.Logging.Test\EAI.Logging.Test.csproj", "{8EC8A726-BBA3-4AA6-AA2C-0F646277994A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.Logging.Test", "EAI.Logging.Test\EAI.Logging.Test.csproj", "{8EC8A726-BBA3-4AA6-AA2C-0F646277994A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EAI.Logging.SQL", "EAI.Logging.SQL\EAI.Logging.SQL.csproj", "{8B43CCFF-B243-4231-AFBA-08126000F3FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{8EC8A726-BBA3-4AA6-AA2C-0F646277994A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EC8A726-BBA3-4AA6-AA2C-0F646277994A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EC8A726-BBA3-4AA6-AA2C-0F646277994A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B43CCFF-B243-4231-AFBA-08126000F3FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B43CCFF-B243-4231-AFBA-08126000F3FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B43CCFF-B243-4231-AFBA-08126000F3FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B43CCFF-B243-4231-AFBA-08126000F3FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
