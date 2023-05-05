@@ -2,35 +2,55 @@
 using EAI.Logging.Writer;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace EAI.Logging
 {
-    public class Logger<T> 
-        where T : ILogStage, new()
+    public class Logger
     {
         public string Service { get; private set; }
         public string Transaction { get; private set; }
         public string ChildTransaction { get; private set; }
         public string TransactionKey { get; private set; }
-        public T Stage { get; private set; }
+        public string Stage { get; private set; }
         public ILogWriterCollection Writers { get; private set; }
 
-        public Logger(ILogWriterCollection writers, string service, string transaction, string childTransaction, string transactionKey)
+        public Logger(ILogWriterCollection writers, LogStage stage, string service, string transaction, string childTransaction, string transactionKey)
         {
             Writers = writers;
-            Stage = new T();
+            Stage = stage.ToString();
             Service = service;
             Transaction = transaction;
             ChildTransaction = childTransaction;
             TransactionKey = transactionKey;
         }
 
-        public Logger(ILogger log, string service, string transaction, string childTransaction, string transactionKey)
+        public Logger(ILogger log, LogStage stage, string service, string transaction, string childTransaction, string transactionKey)
         {
             Writers = new DefaultLogWriterCollection(log);
-            Stage = new T();
+            Stage = stage.ToString();
+            Service = service;
+            Transaction = transaction;
+            ChildTransaction = childTransaction;
+            TransactionKey = transactionKey;
+        }
+
+        public Logger(ILogWriterCollection writers, string stage, string service, string transaction, string childTransaction, string transactionKey)
+        {
+            Writers = writers;
+            Stage = stage;
+            Service = service;
+            Transaction = transaction;
+            ChildTransaction = childTransaction;
+            TransactionKey = transactionKey;
+        }
+
+        public Logger(ILogger log, string stage, string service, string transaction, string childTransaction, string transactionKey)
+        {
+            Writers = new DefaultLogWriterCollection(log);
+            Stage = stage;
             Service = service;
             Transaction = transaction;
             ChildTransaction = childTransaction;
@@ -45,12 +65,11 @@ namespace EAI.Logging
             return string.Format(text, args);
         };
 
-        private async Task<LogItem> Create<W, U, V>(string description, LogMessage message, Exception ex, CancellationToken cancellationToken = default)
-            where W : ILogStage, new()
+        private async Task<LogItem> Create<U, V>(string stage, string description, LogMessage message, Exception ex, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            var record = new LogItem(new U().Level, new W().Stage, Service, Transaction, ChildTransaction, TransactionKey, description, ex, message);
+            var record = new LogItem(new U().Level, stage, Service, Transaction, ChildTransaction, TransactionKey, description, ex, message);
             
             LogQueue.Add(Writers, new V(), record);
             await LogQueue.ProcessAsync(cancellationToken: default);
@@ -58,31 +77,28 @@ namespace EAI.Logging
             return record;
         }
 
-        public async Task<LogItem> Variable<W, U, V>(string name, object value, CancellationToken cancellationToken = default)
-            where W : ILogStage, new()
+        public async Task<LogItem> Variable<U, V>(string overridestage, string name, object value, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
             if (value == null)
-                return await String<W, U, V>($"{name} is NULL");
+                return await String<U, V>(overridestage, $"{name} is NULL");
             else
-                return await String<W, U, V>($"{name} = [{value.GetType().Name}]'{value}'");
+                return await String<U, V>(overridestage, $"{name} = [{value.GetType().Name}]'{value}'");
         }
 
-        public async Task<LogItem> Message<W, U, V>(string operation, string content, string description = null, CancellationToken cancellationToken = default)
-            where W : ILogStage, new()
+        public async Task<LogItem> Message<U, V>(string overridestage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            return await Create<W, U, V>(description, new LogMessage(operation, content), null);
+            return await Create<U, V>(overridestage, description, new LogMessage(operation, content), null);
         }
 
-        public async Task<LogItem> String<W, U, V>(string text, CancellationToken cancellationToken = default, params object[] args)
-            where W : ILogStage, new() 
+        public async Task<LogItem> String<U, V>(string overridestage, string text, CancellationToken cancellationToken = default, params object[] args)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            return await Create<T, U, V>(FormatString(text, args), null, null, cancellationToken);
+            return await Create<U, V>(overridestage, FormatString(text, args), null, null, cancellationToken);
         }
 
         public async Task<LogItem> Variable<U, V>(string name, object value, CancellationToken cancellationToken = default)
@@ -99,26 +115,38 @@ namespace EAI.Logging
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            return await Create<T, U, V>(description, new LogMessage(operation, content), null);
+            return await Create<U, V>(Stage, description, new LogMessage(operation, content), null);
         }
 
         public async Task<LogItem> String<U, V>(string text, CancellationToken cancellationToken = default, params object[] args)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            return await Create<T, U, V>(FormatString(text, args), null, null, cancellationToken);
+            return await Create<U, V>(Stage, FormatString(text, args), null, null, cancellationToken);
         }
 
         public async Task<LogItem> String<U>(string text, CancellationToken cancellationToken = default, params object[] args)
             where U : ILogLevel, new()
             => await String<U, DefaultWriterId>(text, cancellationToken, args);
 
-        public async Task<LogItem> Variable<U>(string name, object value)
+        public async Task<LogItem> Variable<U>(string name, object value, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             => await Variable<U, DefaultWriterId>(name, value);
 
-        public async Task<LogItem> Message<U>(string operation, string content, string description = null)
+        public async Task<LogItem> Message<U>(string operation, string content, string description = null, CancellationToken cancellationToken = default)
             where U : ILogLevel, new() 
-            => await Message<U, DefaultWriterId>(operation, content, description);
+            => await Message<U, DefaultWriterId>(operation: operation, content: content, description: description);
+
+        public async Task<LogItem> String<U>(string overridestage, string text, CancellationToken cancellationToken = default, params object[] args)
+            where U : ILogLevel, new()
+            => await String<U, DefaultWriterId>(overridestage, text, cancellationToken, args);
+
+        public async Task<LogItem> Variable<U>(string overridestage, string name, object value, CancellationToken cancellationToken = default)
+            where U : ILogLevel, new()
+            => await Variable<U, DefaultWriterId>(overridestage, name, value);
+
+        public async Task<LogItem> Message<U>(string overridestage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            where U : ILogLevel, new()
+            => await Message<U, DefaultWriterId>(overridestage, operation, content, description);
     }
 }

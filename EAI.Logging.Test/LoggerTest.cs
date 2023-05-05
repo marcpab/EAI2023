@@ -24,7 +24,7 @@ namespace EAI.Logging.Test
             var writerCollection = new DefaultLogWriterCollection(writers);
             
 
-            var log = new Logger<StageDEV>(writerCollection, service, transaction, childTransaction, key);
+            var log = new Logger(writerCollection, LogStage.DEV, service, transaction, childTransaction, key);
 
             Assert.Equal(service, log.Service);
             Assert.Equal(transaction, log.Transaction);
@@ -44,7 +44,7 @@ namespace EAI.Logging.Test
             Assert.Equal(childTransaction, items[0].ChildTransaction);
             Assert.Equal(key, items[0].TransactionKey);
             Assert.Equal(new LevelDebug().Level, items[0].Level);
-            Assert.Equal(new StageDEV().Stage, items[0].Stage);            
+            Assert.Equal(LogStage.DEV.ToString(), items[0].Stage);            
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace EAI.Logging.Test
             var writerCollection = new DefaultLogWriterCollection(writers);
 
 
-            var log = new Logger<StagePROD>(writerCollection, service, transaction, childTransaction, key);
+            var log = new Logger(writerCollection, LogStage.PROD, service, transaction, childTransaction, key);
 
 
             var message = $"Test Record for {key}";
@@ -81,7 +81,7 @@ namespace EAI.Logging.Test
             Assert.Equal(childTransaction, items[0].ChildTransaction);
             Assert.Equal(key, items[0].TransactionKey);
             Assert.Equal(new LevelDebug().Level, items[0].Level);
-            Assert.Equal(new StagePROD().Stage, items[0].Stage);
+            Assert.Equal(LogStage.PROD.ToString(), items[0].Stage);
 
             var sb = StringBuilderWriter.Logs.ToString().ReplaceLineEndings(string.Empty);
             var item = items[0].ToString();
@@ -106,7 +106,7 @@ namespace EAI.Logging.Test
             var writerCollection = new DefaultLogWriterCollection(writers);
 
 
-            var log = new Logger<StageUAT>(writerCollection, service, transaction, childTransaction, key);
+            var log = new Logger(writerCollection, LogStage.UAT, service, transaction, childTransaction, key);
 
 
             var message = $"Test Record for {key}";
@@ -122,7 +122,7 @@ namespace EAI.Logging.Test
             Assert.Equal(childTransaction, item.ChildTransaction);
             Assert.Equal(key, item.TransactionKey);
             Assert.Equal(new LevelCritical().Level, item.Level);
-            Assert.Equal(new StageUAT().Stage, item.Stage);
+            Assert.Equal(LogStage.UAT.ToString(), item.Stage);
 
             var sb = StringBuilderWriter.Logs.ToString().ReplaceLineEndings(string.Empty);
             
@@ -145,7 +145,7 @@ namespace EAI.Logging.Test
             var factory = serviceProvider.GetService<ILoggerFactory>();
             var logger = factory.CreateLogger<LoggerTest>();
 
-            var log = new Logger<StageUAT>(logger, service, transaction, childTransaction, key);
+            var log = new Logger(logger, LogStage.UAT, service, transaction, childTransaction, key);
 
             Assert.Equal(service, log.Service);
             Assert.Equal(transaction, log.Transaction);
@@ -154,6 +154,76 @@ namespace EAI.Logging.Test
 
             var message = $"Test Record for {key}";
             await log.String<LevelDebug>(message);
+        }
+
+        [Fact]
+        public async Task TestBasic05()
+        {
+            var service = "LogProviderTest";
+            var transaction = "TestBasic05";
+            var childTransaction = "Step5";
+            var key = Guid.NewGuid().ToString().Substring(0, 8);
+
+            // requires Microsoft.Extensions.Logging.Debug 
+            var serviceProvider = new ServiceCollection()
+                .AddLogging(builder => builder.AddDebug())
+                .BuildServiceProvider();
+
+            var factory = serviceProvider.GetService<ILoggerFactory>();
+            var logger = factory.CreateLogger<LoggerTest>();
+
+            var log = new Logger(logger, LogStage.UAT, service, transaction, childTransaction, key);
+
+            Assert.Equal(service, log.Service);
+            Assert.Equal(transaction, log.Transaction);
+            Assert.Equal(childTransaction, log.ChildTransaction);
+            Assert.Equal(key, log.TransactionKey);
+
+            var message = $"Test Record for {key}";
+            var overrideStage = LogStage.SIT.ToString();
+            await log.String<LevelDebug, DefaultWriterId>(overrideStage, message);
+        }
+
+        [Fact]
+        public async Task TestBasic06()
+        {
+            var service = "LogProviderTest";
+            var transaction = "TestBasic06";
+            var childTransaction = "Step6";
+            var key = Guid.NewGuid().ToString().Substring(0, 8);
+
+            LogItemListWriter.Instance.Clear();
+            StringBuilderWriter.Instance.Clear();
+
+            var writers = new List<ILogWriter>();
+            writers.Add(LogItemListWriter.Instance);
+
+            var writerCollection = new DefaultLogWriterCollection(writers);
+
+
+            var log = new Logger(writerCollection, LogStage.DEV, service, transaction, childTransaction, key);
+
+            Assert.Equal(service, log.Service);
+            Assert.Equal(transaction, log.Transaction);
+            Assert.Equal(childTransaction, log.ChildTransaction);
+            Assert.Equal(key, log.TransactionKey);
+            Assert.Equal(LogStage.DEV.ToString(), log.Stage);
+
+            var message = $"Test Record for {key}";
+            var overrideStage = LogStage.UAT.ToString();
+            await log.String<LevelDebug>(overrideStage, message);
+
+
+            var items = LogItemListWriter.LogItems.ToList();
+            Assert.Single(items);
+            Assert.Equal(message, items[0].Description);
+            Assert.Equal(service, items[0].Service);
+            Assert.Equal(transaction, items[0].Transaction);
+            Assert.Equal(transaction.GetHashCode(), items[0].TransactionHash);
+            Assert.Equal(childTransaction, items[0].ChildTransaction);
+            Assert.Equal(key, items[0].TransactionKey);
+            Assert.Equal(new LevelDebug().Level, items[0].Level);
+            Assert.Equal(overrideStage, items[0].Stage);
         }
     }
 }
