@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /EAI.Logging/Class1.cs
+/EAI.RestTests/config.json
+/EAI.Dataverse.ModelGeneratorTests/config.json

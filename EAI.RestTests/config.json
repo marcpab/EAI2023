@@ -5,7 +5,7 @@
     "OAuthHandler": {
       "OAuthRequest": {
         "ClientId": "c69a7c12-591c-44cf-882f-174ede1dd20e",
-        "ClientSecret": "",
+        "ClientSecret": "l8s8Q~KbMgP0kwXsR8NFgoyCs6-qcDA7WWOhAb2X",
         "GrantType": "client_credentials",
         "Scope": "https://cosmoconsultsimodulteampandi.crm4.dynamics.com/.default"
 

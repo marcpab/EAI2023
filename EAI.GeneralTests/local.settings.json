@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "TestSetting": "TestValue",
+
+  "Values": {
+    "SectionSetting": "SectionValue"
+  }
+}
