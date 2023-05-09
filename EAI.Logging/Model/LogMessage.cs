@@ -49,7 +49,7 @@ namespace EAI.Logging.Model
             if (jToken != null)
             {
                 msgType = LogMessageType.JSON;
-                contentString = jToken.ToString();
+                contentString = jToken.ToString(Newtonsoft.Json.Formatting.Indented);
                 return (msgType, contentString);
             }
 

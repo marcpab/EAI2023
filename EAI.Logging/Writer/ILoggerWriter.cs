@@ -1,5 +1,6 @@
 ﻿using EAI.Logging.Model;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using LogLevel = EAI.Logging.Model.LogLevel;
 
@@ -14,6 +15,8 @@ namespace EAI.Logging.Writer
     {
         public ILogWriterId Id { get; } = new ILoggerWriterId();
         public ILogger Logger { get; set; }
+        public WriteAsyncResult Result { get; private set; }
+        public string ResultMessage { get; private set; } = string.Empty;
 
 
         public ILoggerWriter(ILogger logger)
@@ -21,8 +24,14 @@ namespace EAI.Logging.Writer
             Logger = logger;
         }
 
-        public Task WriteAsync(LogItem record)
+        public Task WriteAsync(LogItem record, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Result = WriteAsyncResult.Cancelled;
+                return Task.CompletedTask;
+            }
+
             switch (record.Level)
             {
                 case LogLevel.Information:
@@ -46,6 +55,7 @@ namespace EAI.Logging.Writer
                     break;
             }
 
+            Result = WriteAsyncResult.Success;
             return Task.CompletedTask;
         }
     }

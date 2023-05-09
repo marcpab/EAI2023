@@ -19,7 +19,7 @@
         }
 
         var stages = prepdata.SelectToken("Stages");
-        var stagesDic = stages?.ToObject<Dictionary<string, string>>() ?? new Dictionary<string, string>();
+        var stagesDic = stages?.ToObject<Dictionary<string, Dictionary<string, int>>>() ?? new Dictionary<string, Dictionary<string, int>>();
 
         foreach(var s in stagesDic)
         {#>
@@ -28,7 +28,8 @@ namespace EAI.Logging.Model
     public class Stage<#=s.Key#> : ILogStage
     {
         public LogStage Stage { get; } = LogStage.<#=s.Key#>;
-        public string Description { get; } = "<#=s.Value#>" ;
+        public string Description { get; } = "<#=s.Value.Single().Key#>";
+        public int Id { get; } = <#=s.Value.Single().Value#>;
         public Stage<#=s.Key#>() { }
 
         public override string ToString() => Stage.ToString();

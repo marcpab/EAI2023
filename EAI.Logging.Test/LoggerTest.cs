@@ -181,7 +181,11 @@ namespace EAI.Logging.Test
 
             var message = $"Test Record for {key}";
             var overrideStage = LogStage.SIT.ToString();
-            await log.String<LevelDebug, DefaultWriterId>(overrideStage, message);
+            var overrideStageId = (int)LogStage.SIT;
+            await log.String<LevelDebug, DefaultWriterId>(overrideStage, overrideStageId, message);
+
+            var message2 = $"Test Record 2 for {key}";
+            await log.String<LevelDebug>(LogStage.UAT, message);
         }
 
         [Fact]
@@ -211,8 +215,9 @@ namespace EAI.Logging.Test
 
             var message = $"Test Record for {key}";
             var overrideStage = LogStage.UAT.ToString();
-            await log.String<LevelDebug>(overrideStage, message);
+            var overrideStageId = (int)LogStage.UAT;
 
+            await log.String<LevelDebug>(overrideStage, overrideStageId, message);
 
             var items = LogItemListWriter.LogItems.ToList();
             Assert.Single(items);
@@ -224,6 +229,40 @@ namespace EAI.Logging.Test
             Assert.Equal(key, items[0].TransactionKey);
             Assert.Equal(new LevelDebug().Level, items[0].Level);
             Assert.Equal(overrideStage, items[0].Stage);
+        }
+
+        [Fact]
+        public async Task TestBasic07()
+        {
+            var service = "LogProviderTest";
+            var transaction = "TestBasic07";
+            var childTransaction = "Step7";
+            var key = Guid.NewGuid().ToString().Substring(0, 8);
+
+            LogItemListWriter.Instance.Clear();
+            StringBuilderWriter.Instance.Clear();
+
+            var writers = new List<ILogWriter>();
+            writers.Add(LogItemListWriter.Instance);
+
+            var writerCollection = new DefaultLogWriterCollection(writers);
+
+
+            var log = new Logger(writerCollection, LogStage.DEV, service, transaction, childTransaction, key);
+
+            Assert.Equal(service, log.Service);
+            Assert.Equal(transaction, log.Transaction);
+            Assert.Equal(childTransaction, log.ChildTransaction);
+            Assert.Equal(key, log.TransactionKey);
+            Assert.Equal(LogStage.DEV.ToString(), log.Stage);
+
+            var message = $"Test Record for {key}";
+
+            await log.String<LevelDebug>(LogStage.SIT, message);
+
+            var items = LogItemListWriter.LogItems.ToList();
+            Assert.Single(items);
+            Assert.Equal(LogStage.SIT.ToString(), items[0].Stage);
         }
     }
 }

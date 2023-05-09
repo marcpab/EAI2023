@@ -12,6 +12,7 @@ namespace EAI.Logging.Model
         public LogLevel Level { get; private set; }
         public string Service { get; private set; }
         public string Stage { get; private set; }
+        public int StageId { get; private set; }
         public string Transaction { get; private set; }
         public int TransactionHash { get; private set; }
         public string ChildTransaction { get; private set; }
@@ -21,11 +22,12 @@ namespace EAI.Logging.Model
         public LogMessage LogMessage { get; set; }
 
         
-        public LogItem(LogLevel level, string stage, string service, string transaction, string childTransaction, string transactionKey, string description, Exception exception = null, LogMessage message = null)
+        public LogItem(LogLevel level, string stage, int stageId, string service, string transaction, string childTransaction, string transactionKey, string description, Exception exception = null, LogMessage message = null)
         {
             CreatedOnUTC = DateTime.UtcNow;
 
             Stage = StringLimiter(stage, 4);
+            StageId = stageId;
             Level = level;
             Service = service;
             Transaction = transaction;

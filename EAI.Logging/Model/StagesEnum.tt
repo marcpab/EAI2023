@@ -19,7 +19,7 @@
         }
 
         var stages = prepdata.SelectToken("Stages");
-        var stagesDic = stages?.ToObject<Dictionary<string, string>>() ?? new Dictionary<string, string>();
+        var stagesDic = stages?.ToObject<Dictionary<string, Dictionary<string, int>>>() ?? new Dictionary<string, Dictionary<string, int>>();
 
 #>
 namespace EAI.Logging.Model
@@ -28,7 +28,7 @@ namespace EAI.Logging.Model
     {
         <#foreach(var s in stagesDic) 
 {#>
-        <#= s.Key#>,
+        <#= s.Key#> = <#= s.Value.Single().Value#>,
 <#}#>
     }
 }
