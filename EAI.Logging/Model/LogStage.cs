@@ -1,11 +1,11 @@
-﻿namespace EAI.Logging.Model
+namespace EAI.Logging.Model
 {
     public enum LogStage
     {
-        DEV = 10,
-        SIT = 20,
-        UAT = 30,
-        PRE = 40,
-        PROD = 50
+                DEV = 10,
+        PREP = 40,
+        PROD = 50,
+        UAT = 20,
+        SIT = 30,
     }
 }

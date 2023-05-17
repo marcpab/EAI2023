@@ -1,0 +1,18 @@
+{
+    "Stages": {
+        "DEV": { "Development": 10 },
+        "PREP": { "Prepare": 40 },
+        "PROD": { "Production": 50 },
+        "UAT": { "User Acceptance Testing": 20 },
+        "SIT": { "System Integration Testing": 30 }
+    },
+    "Level": {
+        "Trace": 0,
+        "Debug": 1,
+        "Information": 2,
+        "Warning": 3,
+        "Error": 4,
+        "Critical": 5,
+        "None":6
+    }
+}

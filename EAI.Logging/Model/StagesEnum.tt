@@ -1,0 +1,48 @@
+<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="Newtonsoft.Json" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="Newtonsoft.Json" #>
+<#@ import namespace="Newtonsoft.Json.Linq" #>
+<#@ output extension=".txt" #>
+<#
+	    string path = this.Host.ResolvePath("Prep.json");
+
+        JToken? prepdata = null;
+	    using (var sr = new StreamReader(path))
+        using (var jr = new JsonTextReader(sr))
+        {
+            prepdata = JToken.ReadFrom(jr);
+        }
+
+        var stages = prepdata.SelectToken("Stages");
+        var stagesDic = stages?.ToObject<Dictionary<string, Dictionary<string, int>>>() ?? new Dictionary<string, Dictionary<string, int>>();
+
+#>
+namespace EAI.Logging.Model
+{
+    public enum LogStage
+    {
+        <#foreach(var s in stagesDic) 
+{#>
+        <#= s.Key#> = <#= s.Value.Single().Value#>,
+<#}#>
+    }
+}
+<#
+        SaveOutput("LogStage.cs");
+#>
+success
+- generated LogStage.cs
+<#+
+private void SaveOutput(string outputFileName) 
+{
+  string templateDirectory = Path.GetDirectoryName(Host.TemplateFile);
+  string outputFilePath = Path.Combine(templateDirectory, outputFileName);
+  File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString()); 
+  this.GenerationEnvironment.Clear();
+}
+#>
