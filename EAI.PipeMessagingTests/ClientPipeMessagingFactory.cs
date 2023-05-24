@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging.Tests
 {
-    internal class ClientPipeMessagingFactory : PipeMessagingFactory
+    internal class ClientPipeMessagingFactory : PipeObjectMessagingFactory
     {
         private int _pipeCount;
         private InstanceFactory _instanceFactory;
@@ -19,7 +19,7 @@ namespace EAI.PipeMessaging.Tests
             _cancellationToken = cancellationToken;
         }
 
-        public override PipeMessaging CreatePipeMessaging(string pipeName)
+        public override PipeObjectMessaging CreatePipeMessaging(string pipeName)
         {
             var pipeClient = new PipeClient();
 

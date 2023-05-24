@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace EAI.PipeMessaging
 {
-    public class PipeClient : PipeMessaging
+    public class PipeClient : PipeObjectMessaging
     {
         private CancellationTokenSource _cancellationTokenSource;
 

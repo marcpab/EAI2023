@@ -4,7 +4,7 @@ using EAI.PipeMessaging.SAPNcoService.Messaging;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
-namespace EAI.Framework.SAPNco
+namespace EAI.PipeMessaging.SAPNcoService
 {
     public class RfcCallServiceProxy : PipeObject
     {
@@ -12,9 +12,9 @@ namespace EAI.Framework.SAPNco
 
         public RfcCallServiceProxy()
         {
-            AddMethod<ConnectRequest, ConnectResponse>(r => { _rfcCallService.ConnectAsync(r.connectionString, r.userName, r.password); return null; });
-            AddMethod<DisconnectRequest, DisconnectResponse>(r => { _rfcCallService.DisconnectAsync(); return null; });
-            AddMethod<RfcPingRequest, RfcPingResponse>(r => { _rfcCallService.RfcPingAsync(); return null; });
+            AddMethod<ConnectRequest>(r => _rfcCallService.ConnectAsync(r.connectionString, r.userName, r.password));
+            AddMethod<DisconnectRequest>(r => _rfcCallService.DisconnectAsync());
+            AddMethod<RfcPingRequest>(r => _rfcCallService.RfcPingAsync());
             AddMethod<RunJRfcRequest, RunJRfcResponse>(async r => new RunJRfcResponse { _ret = await _rfcCallService.RunJRfcRequestAsync(r.jRfcRequestMessage) });
         }
 

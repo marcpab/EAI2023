@@ -9,7 +9,7 @@ namespace EAI.PipeMessaging
     public abstract class PipeObject : IDisposable
     {
         private Guid _instanceId;
-        private PipeMessaging _pipeMessaging;
+        private PipeObjectMessaging _pipeMessaging;
         private bool _removeInstanceOnDispose;
 
         private Dictionary<string, Func<string, Task<string>>> _methodMap = new Dictionary<string, Func<string, Task<string>>>();
@@ -17,7 +17,7 @@ namespace EAI.PipeMessaging
 
         public Guid InstanceId { get { return _instanceId; } }
 
-        protected PipeMessaging PipeMessaging { get => _pipeMessaging; }
+        protected PipeObjectMessaging PipeMessaging { get => _pipeMessaging; }
 
         public PipeObject() 
         { 
@@ -30,7 +30,7 @@ namespace EAI.PipeMessaging
 
             var requestMessage = new PipeMessage()
             {
-                _action = PipeActionEnum.createInstanceRequest,
+                _action = PipeActionEnum.createInstance,
                 _instanceId = _instanceId,
                 _payloadType = null,
                 _payload = JsonConvert.SerializeObject(
@@ -42,7 +42,7 @@ namespace EAI.PipeMessaging
                             )
             };
 
-            _pipeMessaging = PipeMessaging.GetInstance(pipeName);
+            _pipeMessaging = PipeObjectMessaging.GetInstance(pipeName);
 
             _pipeMessaging.InstanceManager.RegisterInstance(this);
 
@@ -58,12 +58,12 @@ namespace EAI.PipeMessaging
 #warning exception;
         }
 
-        internal void SetupRemoteInstance(Guid instanceId, PipeMessaging pipeMessaging)
+        internal void SetupRemoteInstance(Guid instanceId, PipeObjectMessaging pipeMessaging)
         {
             _instanceId = instanceId;
             _pipeMessaging = pipeMessaging;
 
-            SetupRemoteInstance(instanceId, _pipeMessaging);
+            SetupRemoteInstance();
         }
 
         protected virtual void SetupRemoteInstance()
@@ -86,17 +86,17 @@ namespace EAI.PipeMessaging
 
             var responseMessage = await requestSync.Task;
 
-            if (responseMessage._action == PipeActionEnum.exception)
-                throw new Exception("Remote execution failed!");
-
-#warning exception;
-
             return JsonConvert.DeserializeObject<responseT>(responseMessage._payload);
         }
 
-        internal void ResponseMessageReceivedAsync(PipeMessage responseMessage)
+        internal void ResponseMessageReceived(PipeMessage responseMessage)
         {
             _pipeMessaging.RequestManager.RequestCompleted(responseMessage);
+        }
+
+        internal void ExceptionMessageReceived(PipeMessage responseMessage, Exception exception)
+        {
+            _pipeMessaging.RequestManager.Exception(responseMessage, exception);
         }
 
         protected void AddMethod<requestT, responseT>(Func<requestT, Task<responseT>> call)
@@ -104,6 +104,10 @@ namespace EAI.PipeMessaging
             _methodMap.Add(typeof(requestT).Name, (s) => Call(s, call));
         }
 
+        protected void AddMethod<requestT>(Func<requestT, Task> call)
+        {
+            _methodMap.Add(typeof(requestT).Name, (s) => Call(s, call));
+        }
         protected async Task<string> Call<requestT, responseT>(string requestPayload, Func<requestT, Task<responseT>> invoker)
         {
             var request = JsonConvert.DeserializeObject<requestT>(requestPayload);
@@ -111,6 +115,15 @@ namespace EAI.PipeMessaging
             var response = await invoker(request);
 
             return JsonConvert.SerializeObject(response);
+        }
+
+        protected async Task<string> Call<requestT>(string requestPayload, Func<requestT, Task> invoker)
+        {
+            var request = JsonConvert.DeserializeObject<requestT>(requestPayload);
+
+            await invoker(request);
+
+            return null;
         }
 
         protected internal virtual Task<string> RequestMessageReceivedAsync(string requestPayloadType, string requestPayload)

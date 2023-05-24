@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,6 @@ namespace EAI.General.Settings
         private static ConfigurationHandler _instance = new ConfigurationHandler();
 
         public static ConfigurationHandler Instance { get { return _instance; } }
-
 
         private string _storageConfigJson;
         private string _storageConfigBlobName;
@@ -31,7 +31,6 @@ namespace EAI.General.Settings
                 async () => new ResourceCacheItem<JObject>(await CreateConfigurationAsync(configType)) {
                     ExpiresOn = DateTime.UtcNow.AddMinutes(5),
             });
-
         }
 
         private async Task<JObject> CreateConfigurationAsync(Type loadForType)
@@ -43,10 +42,12 @@ namespace EAI.General.Settings
                 _storageConfigJson = JsonConvert.SerializeObject(
                     new BlobStorageDefaultConfig
                     {
-                        Type = "EAI.AzureStorage.BlobStorage, EAI.AzureStorage",
+                        Type = settings["ConfigStorageType"] ?? "EAI.AzureStorage.BlobStorage, EAI.AzureStorage",
                         ConnectionString = settings["AzureWebJobsStorage"],
-                        RootPath = settings["RootPath"]
+                        RootPath = settings["ConfigRootPath"]
                     });
+
+                _storageConfigBlobName = settings["StorageConfigBlobName"];
             }
 
             var storage = JsonConvert.DeserializeObject<IBlobStorage>(_storageConfigJson, new JsonSerializerSettings()
@@ -77,7 +78,10 @@ namespace EAI.General.Settings
 
         private async Task<string> GetRootConfigurationAsync(IBlobStorage storage, Type loadForType)
         {
-            foreach (var blobName in GetBlobNames(loadForType))
+            foreach (var blobName in 
+                            GetBlobNames(loadForType)
+                                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                    )
                 if (await storage.ExistsAsync(blobName))
                     return await storage.GetBlobAsStringAsync(blobName);
 

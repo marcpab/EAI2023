@@ -30,5 +30,16 @@ namespace EAI.PipeMessaging
                 requestSync.SetResult(responseMessage);
             }
         }
+
+        internal void Exception(PipeMessage responseMessage, Exception exception)
+        {
+            lock (_requestMap)
+            {
+                var requestSync = _requestMap[responseMessage._requestId];
+                _requestMap.Remove(responseMessage._requestId);
+
+                requestSync.SetException(new Exception(exception.Message, exception));
+            }
+        }
     }
 }

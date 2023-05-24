@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging
 {
-    public class PipeServer : PipeMessaging
+    public class PipeServer : PipeObjectMessaging
     {
         private CancellationTokenSource _cancellationTokenSource;
 
