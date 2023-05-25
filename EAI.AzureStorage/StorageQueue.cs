@@ -17,7 +17,7 @@ namespace EAI.AzureStorage
         public string StorageQueueName { get; set; }
         public bool EncodeMessage { get; set; }
 
-        public async Task EnqueuAsync(string messageContent)
+        public async Task EnqueueAsync(string messageContent)
         {
             var client = await GetQueueClientAsync();
 

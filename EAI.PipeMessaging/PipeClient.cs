@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using EAI.General;
 
 namespace EAI.PipeMessaging
 {
@@ -16,7 +17,7 @@ namespace EAI.PipeMessaging
             {
                 Setup(
                     new InstanceManager(),
-                    new RequestManager(),
+                    new RequestManager<PipeMessage>(),
                     instanceFactory);
 
                 CreatePipes(pipeName, pipeCount);

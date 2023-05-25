@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EAI.General;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace EAI.PipeMessaging
         }
        
         private InstanceManager _instanceManager;
-        private RequestManager _requestManager;
+        private RequestManager<PipeMessage> _requestManager;
         private IInstanceFactory _instanceFactory;
         private string _pipeName;
 
@@ -41,13 +42,13 @@ namespace EAI.PipeMessaging
         private int _pipeIndex;
 
         public InstanceManager InstanceManager { get => _instanceManager; }
-        public RequestManager RequestManager { get => _requestManager; }
+        public RequestManager<PipeMessage> RequestManager { get => _requestManager; }
         public IInstanceFactory InstanceFactory { get => _instanceFactory; }
 
         public string PipeName { get => _pipeName; }
         public PipeBidirectional[] Pipes { get => _pipes; }
 
-        protected void Setup(InstanceManager instanceManager, RequestManager requestManager, IInstanceFactory instanceFactory)
+        protected void Setup(InstanceManager instanceManager, RequestManager<PipeMessage> requestManager, IInstanceFactory instanceFactory)
         {
             _instanceManager = instanceManager;
             _requestManager = requestManager;

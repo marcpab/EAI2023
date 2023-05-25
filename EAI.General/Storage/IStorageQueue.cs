@@ -5,7 +5,7 @@ namespace EAI.General.Storage
 {
     public interface IStorageQueue
     {
-        Task EnqueuAsync(string messageContent);
+        Task EnqueueAsync(string messageContent);
         IAsyncEnumerable<StorageQueueMessage> DequeueAsync(int maxMessages, DequeueType dequeueType = DequeueType.ManualComplete);
         Task CompletedAsync(StorageQueueMessage message);
     }
