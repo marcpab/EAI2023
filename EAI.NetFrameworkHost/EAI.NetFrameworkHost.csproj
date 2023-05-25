@@ -14,7 +14,7 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -55,10 +55,23 @@
       <Project>{0b33112c-743a-4530-8973-01813cd1daaf}</Project>
       <Name>EAI.General</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EAI.NetFramework.SAPNcoService\EAI.NetFramework.SAPNcoService.csproj">
+      <Project>{188c7b41-a4ba-4e4d-96fb-02e565b8569e}</Project>
+      <Name>EAI.NetFramework.SAPNcoService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EAI.PipeMessaging\EAI.PipeMessaging.csproj">
       <Project>{7c926a3a-9665-4b01-a1f2-917c0a2a0f9c}</Project>
       <Name>EAI.PipeMessaging</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>md "$(SolutionDir)_resource\EAI.GenericServer\services\$(ProjectName)"
+
+xcopy "$(TargetDir)*.*" "$(SolutionDir)_resource\EAI.GenericServer\services\$(ProjectName)" /S /E /I /R /V /Y</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>

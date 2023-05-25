@@ -6,7 +6,7 @@ namespace EAI.PipeMessaging
 {
     public enum PipeActionEnum
     {
-        createInstanceRequest,
+        createInstance,
         request,
         removeInstance,
         shutdown,

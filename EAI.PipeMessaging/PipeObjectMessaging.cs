@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EAI.General;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,24 +8,24 @@ using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging
 {
-    public class PipeMessaging
+    public class PipeObjectMessaging
     {
-        private static Dictionary<string, PipeMessaging> _pipeMessagingMap = new Dictionary<string, PipeMessaging>();
+        private static Dictionary<string, PipeObjectMessaging> _pipeMessagingMap = new Dictionary<string, PipeObjectMessaging>();
 
         public static string DefaultPipeName { get; set; } = "EAIPipe";
 
-        public static PipeMessaging GetInstance(string pipeName)
+        public static PipeObjectMessaging GetInstance(string pipeName)
         {
             if (pipeName == null)
                 pipeName = DefaultPipeName;
 
             lock(_pipeMessagingMap)
             {
-                PipeMessaging pipeMessaging;
+                PipeObjectMessaging pipeMessaging;
                 if (_pipeMessagingMap.TryGetValue(pipeName, out pipeMessaging))
                     return pipeMessaging;
 
-                pipeMessaging = PipeMessagingFactory.Instance.CreatePipeMessaging(pipeName);
+                pipeMessaging = PipeObjectMessagingFactory.Instance.CreatePipeMessaging(pipeName);
 
                 _pipeMessagingMap.Add(pipeName, pipeMessaging);
 
@@ -33,7 +34,7 @@ namespace EAI.PipeMessaging
         }
        
         private InstanceManager _instanceManager;
-        private RequestManager _requestManager;
+        private RequestManager<PipeMessage> _requestManager;
         private IInstanceFactory _instanceFactory;
         private string _pipeName;
 
@@ -41,13 +42,13 @@ namespace EAI.PipeMessaging
         private int _pipeIndex;
 
         public InstanceManager InstanceManager { get => _instanceManager; }
-        public RequestManager RequestManager { get => _requestManager; }
+        public RequestManager<PipeMessage> RequestManager { get => _requestManager; }
         public IInstanceFactory InstanceFactory { get => _instanceFactory; }
 
         public string PipeName { get => _pipeName; }
         public PipeBidirectional[] Pipes { get => _pipes; }
 
-        protected void Setup(InstanceManager instanceManager, RequestManager requestManager, IInstanceFactory instanceFactory)
+        protected void Setup(InstanceManager instanceManager, RequestManager<PipeMessage> requestManager, IInstanceFactory instanceFactory)
         {
             _instanceManager = instanceManager;
             _requestManager = requestManager;
@@ -69,9 +70,9 @@ namespace EAI.PipeMessaging
 
         protected Task MessageReceivedAsync(PipeMessage message)
         {
-            switch(message._action)
+            switch (message._action)
             {
-                case PipeActionEnum.createInstanceRequest:
+                case PipeActionEnum.createInstance:
                     ProcessCreateInstance(message);
                     return Task.CompletedTask;
 
@@ -86,6 +87,10 @@ namespace EAI.PipeMessaging
                     ProcessResponse(message);
                     return Task.CompletedTask;
 
+                case PipeActionEnum.exception:
+                    ProcessException(message);
+                    return Task.CompletedTask;
+
                 case PipeActionEnum.shutdown:
                     Shutdown();
                     return Task.CompletedTask;
@@ -96,15 +101,22 @@ namespace EAI.PipeMessaging
 
         private void ProcessCreateInstance(PipeMessage message)
         {
-            var createInstance = JsonConvert.DeserializeObject<CreateInstanceMessage>(message._payload);
+            try
+            {
+                var createInstance = JsonConvert.DeserializeObject<CreateInstanceMessage>(message._payload);
 
-            var instance = (PipeObject)_instanceFactory.CreateInstance(createInstance._typeName, createInstance._assemblyName);
+                var instance = (PipeObject)_instanceFactory.CreateInstance(createInstance._typeName, createInstance._assemblyName);
 
-            instance.SetupRemoteInstance(message._instanceId, this);
+                instance.SetupRemoteInstance(message._instanceId, this);
 
-            _instanceManager.RegisterInstance(instance);
+                _instanceManager.RegisterInstance(instance);
 
-            message._action = PipeActionEnum.response;
+                message._action = PipeActionEnum.response;
+            }
+            catch (Exception ex)
+            {
+                SetException(message, ex);
+            }
 
             SendMessage(message);
         }
@@ -120,11 +132,27 @@ namespace EAI.PipeMessaging
             }
             catch (Exception ex)
             {
-                message._action = PipeActionEnum.exception;
-                message._payload = JsonConvert.SerializeObject(ex);
+                SetException(message, ex);
             }
 
             SendMessage(message);
+        }
+
+        private static void SetException(PipeMessage message, Exception ex)
+        {
+            var pipeExceptionMessage = PipeExceptionMessage.FromException(ex);
+
+            message._action = PipeActionEnum.exception;
+            message._payload = JsonConvert.SerializeObject(pipeExceptionMessage);
+        }
+
+        private static Exception GetException(PipeMessage message)
+        {
+            var pipeExceptionMessage = JsonConvert.DeserializeObject< PipeExceptionMessage>(message._payload);
+
+            var exception = PipeExceptionMessage.ToException(pipeExceptionMessage);
+
+            return exception;
         }
 
         private void ProcessRemoveInstance(PipeMessage message)
@@ -138,7 +166,16 @@ namespace EAI.PipeMessaging
         {
             var instance = _instanceManager.GetInstance(message._instanceId);
 
-            instance.ResponseMessageReceivedAsync(message);
+            instance.ResponseMessageReceived(message);
+        }
+
+        private void ProcessException(PipeMessage message)
+        {
+            var instance = _instanceManager.GetInstance(message._instanceId);
+
+            var exception = GetException(message);
+
+            instance.ExceptionMessageReceived(message, exception);
         }
 
         protected virtual void Shutdown()

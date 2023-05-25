@@ -2,10 +2,11 @@
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using EAI.General;
 
 namespace EAI.PipeMessaging
 {
-    public class PipeClient : PipeMessaging
+    public class PipeClient : PipeObjectMessaging
     {
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -16,7 +17,7 @@ namespace EAI.PipeMessaging
             {
                 Setup(
                     new InstanceManager(),
-                    new RequestManager(),
+                    new RequestManager<PipeMessage>(),
                     instanceFactory);
 
                 CreatePipes(pipeName, pipeCount);

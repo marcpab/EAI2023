@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EAI.General;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging
 {
-    public class PipeServer : PipeMessaging
+    public class PipeServer : PipeObjectMessaging
     {
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -18,7 +19,7 @@ namespace EAI.PipeMessaging
             {
                 Setup(
                     new InstanceManager() , 
-                    new RequestManager(), 
+                    new RequestManager<PipeMessage>(), 
                     instanceFactory);
 
                 CreatePipes(pipeName, pipeCount);

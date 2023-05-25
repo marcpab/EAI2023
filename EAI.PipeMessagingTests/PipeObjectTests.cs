@@ -25,7 +25,7 @@ namespace EAI.PipeMessaging.Tests
         [Fact()]
         public async Task SendMessageAsyncTest()
         {
-            PipeMessaging.DefaultPipeName = "TestPipe";
+            PipeObjectMessaging.DefaultPipeName = "TestPipe";
             var pipeCount = 1;
 
             try
@@ -36,11 +36,11 @@ namespace EAI.PipeMessaging.Tests
                     var instanceFactory = new InstanceFactory();
 
                     var pipeServer = new PipeServer();
-                    var serverTask = pipeServer.RunAsync(PipeMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
+                    var serverTask = pipeServer.RunAsync(PipeObjectMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
 
                     var factory = new ClientPipeMessagingFactory();
                     factory.Initialize(pipeCount, instanceFactory, clientCts.Token);
-                    PipeMessagingFactory.Instance = factory;
+                    PipeObjectMessagingFactory.Instance = factory;
 
                     using (var pingService = await PingServiceStub.CreateObjectAsync())
                     {
@@ -69,7 +69,7 @@ namespace EAI.PipeMessaging.Tests
         [Fact()]
         public async Task MultiSendMessageAsyncTest()
         {
-            PipeMessaging.DefaultPipeName = "TestPipe";
+            PipeObjectMessaging.DefaultPipeName = "TestPipe";
             var pipeCount = 1;
 
             try
@@ -80,11 +80,11 @@ namespace EAI.PipeMessaging.Tests
                     var instanceFactory = new InstanceFactory();
 
                     var pipeServer = new PipeServer();
-                    var serverTask = pipeServer.RunAsync(PipeMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
+                    var serverTask = pipeServer.RunAsync(PipeObjectMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
 
                     var factory = new ClientPipeMessagingFactory();
                     factory.Initialize(pipeCount, instanceFactory, clientCts.Token);
-                    PipeMessagingFactory.Instance = factory;
+                    PipeObjectMessagingFactory.Instance = factory;
 
                     for (int i = 0; i < 100; i++)
                         using (var pingService = await PingServiceStub.CreateObjectAsync())
@@ -114,7 +114,7 @@ namespace EAI.PipeMessaging.Tests
         [Fact()]
         public async Task ParallelSendMessageAsyncTest()
         {
-            PipeMessaging.DefaultPipeName = "TestPipe";
+            PipeObjectMessaging.DefaultPipeName = "TestPipe";
             var pipeCount = 1;
 
             try
@@ -125,11 +125,11 @@ namespace EAI.PipeMessaging.Tests
                     var instanceFactory = new InstanceFactory();
 
                     var pipeServer = new PipeServer();
-                    var serverTask = pipeServer.RunAsync(PipeMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
+                    var serverTask = pipeServer.RunAsync(PipeObjectMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
 
                     var factory = new ClientPipeMessagingFactory();
                     factory.Initialize(pipeCount, instanceFactory, clientCts.Token);
-                    PipeMessagingFactory.Instance = factory;
+                    PipeObjectMessagingFactory.Instance = factory;
 
                     var taskList = new List<Task>();
 
@@ -166,7 +166,7 @@ namespace EAI.PipeMessaging.Tests
         [Fact()]
         public async Task ParallelMultiPipeSendMessageAsyncTest()
         {
-            PipeMessaging.DefaultPipeName = "TestPipe";
+            PipeObjectMessaging.DefaultPipeName = "TestPipe";
             var pipeCount = 4;
 
             try
@@ -177,11 +177,11 @@ namespace EAI.PipeMessaging.Tests
                     var instanceFactory = new InstanceFactory();
 
                     var pipeServer = new PipeServer();
-                    var serverTask = pipeServer.RunAsync(PipeMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
+                    var serverTask = pipeServer.RunAsync(PipeObjectMessaging.DefaultPipeName, pipeCount, instanceFactory, serverCts.Token);
 
                     var factory = new ClientPipeMessagingFactory();
                     factory.Initialize(pipeCount, instanceFactory, clientCts.Token);
-                    PipeMessagingFactory.Instance = factory;
+                    PipeObjectMessagingFactory.Instance = factory;
 
                     var taskList = new List<Task>();
 
@@ -219,13 +219,6 @@ namespace EAI.PipeMessaging.Tests
                 Console.WriteLine(ex.ToString());
             }
         }
-    }
-
-
-    class InstanceFactory : IInstanceFactory
-    {
-        public object CreateInstance(string typeName, string assemblyName)
-             => Activator.CreateInstance(assemblyName, typeName).Unwrap();
     }
 
 

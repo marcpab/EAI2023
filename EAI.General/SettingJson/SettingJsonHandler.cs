@@ -22,7 +22,6 @@ namespace EAI.General.SettingJson
                             new InstanceConverter(_context)
                         }
             };
-
         }
 
         public void DeserializeInstance<T>(T value, string json)
@@ -31,9 +30,5 @@ namespace EAI.General.SettingJson
 
             JsonConvert.DeserializeObject<T>(json, _settings);
         }
-
-
-
-
     }
 }

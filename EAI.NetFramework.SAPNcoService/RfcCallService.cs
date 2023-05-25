@@ -1,10 +1,11 @@
 ﻿using EAI.NetFramework.SAPNco;
 using EAI.PipeMessaging.SAPNcoService;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Threading.Tasks;
 
-namespace EAI.Framework.SAPNco
-{
+namespace EAI.NetFramework.SAPNcoService
+{ 
     public class RfcCallService : IRfcCallService
     {
         private RfcConnection _rfcConnection;

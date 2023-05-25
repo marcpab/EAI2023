@@ -19,7 +19,6 @@ namespace EAI.PipeMessaging.Ping
                     _arg = s
                 });
 
-
             AddMethod<PingRequestMessage, PingResponseMessage>(async r => new PingResponseMessage { _ret = await _pingService.PingAsync(r.request) });
         }
     }

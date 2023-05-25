@@ -1,11 +1,21 @@
-﻿using EAI.PipeMessaging.SAPNcoService.Messaging;
+﻿using EAI.PipeMessaging.Ping;
+using EAI.PipeMessaging.SAPNcoService.Messaging;
 using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging.SAPNcoService
 {
-    internal class RfcCallServiceStub : PipeObject, IRfcCallService
+    public class RfcCallServiceStub : PipeObject, IRfcCallService
     {
-        public async Task ConnectAsync(string connectionString, string userName, string password)
+        public static async Task<IRfcCallService> CreateObjectAsync(string pipeName = null)
+        {
+            var stub = new RfcCallServiceStub();
+
+            await stub.CreateRemoteInstance<RfcCallServiceProxy>(pipeName);
+
+            return stub;
+        }
+
+        public Task ConnectAsync(string connectionString, string userName, string password)
         {
             var connectRequest = new ConnectRequest()
             {
@@ -14,31 +24,25 @@ namespace EAI.PipeMessaging.SAPNcoService
                 password = userName
             };
 
-            var connectResponse = await SendRequest<ConnectResponse>(connectRequest);
-
-            return;
+            return SendRequest<ConnectResponse>(connectRequest);
         }
 
-        public async Task DisconnectAsync()
+        public Task DisconnectAsync()
         {
             var disconnectRequest = new DisconnectRequest()
             {
             };
 
-            var disconnectResponse = await SendRequest<DisconnectResponse>(disconnectRequest);
-
-            return;
+            return SendRequest<DisconnectResponse>(disconnectRequest);
         }
 
-        public async Task RfcPingAsync()
+        public Task RfcPingAsync()
         {
             var rfcPingRequest = new RfcPingRequest()
             {
             };
 
-            var rfcPingResponse = await SendRequest<RfcPingResponse>(rfcPingRequest);
-
-            return;
+            return SendRequest<RfcPingResponse>(rfcPingRequest);
         }
 
         public async Task<string> RunJRfcRequestAsync(string jRfcRequestMessage)
