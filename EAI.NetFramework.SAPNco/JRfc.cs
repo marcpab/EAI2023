@@ -9,10 +9,12 @@ using System.Xml.Linq;
 
 namespace EAI.NetFramework.SAPNco
 {
-    internal class JRfc
+    public class JRfc
     {
         public static IRfcFunction JsonToRfcFunction(JProperty jFunction, RfcDestination rfcDestination)
         {
+            var e = rfcDestination.Repository.CheckFunctionExists(jFunction.Name);
+
             var rfcFunction = rfcDestination.Repository.CreateFunction(jFunction.Name);
 
             var jFunctionData = jFunction.Value as JObject;
@@ -91,7 +93,7 @@ namespace EAI.NetFramework.SAPNco
 
                         var jTable = new JArray();
 
-                        for(var rowIndex = 0; rowIndex < rfcTable.ElementCount; rowIndex++)
+                        for(var rowIndex = 0; rowIndex < rfcTable.Count; rowIndex++)
                         {
                             var jRecord = new JObject();
 

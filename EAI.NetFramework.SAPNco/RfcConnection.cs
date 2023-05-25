@@ -23,7 +23,7 @@ namespace EAI.NetFramework.SAPNco
         public void Connect()
         {
             if (_rfcParams != null)
-                throw new SapException("Alleady connected");
+                throw new SapException("Allready connected");
 
             _rfcParams = new RfcConfigParameters();
 
@@ -34,9 +34,10 @@ namespace EAI.NetFramework.SAPNco
             builder.ConnectionString = _connectionString;
 
             foreach (var paramKey in builder.Keys.Cast<string>())
-                _rfcParams.Add(paramKey, builder[paramKey]?.ToString());
+                _rfcParams.Add(paramKey.ToUpper(), builder[paramKey]?.ToString());
 
-            Ping();
+            if (!_rfcParams.ContainsKey(RfcConfigParameters.Name))
+                _rfcParams[RfcConfigParameters.Name] = string.Join("-", _rfcParams.Where(p => p.Key != RfcConfigParameters.Password).OrderBy(p => p.Key).Select(p => p.Value));
         }
 
         public void Ping()
