@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EAI.GenericServer\EAI.GenericServer.csproj" />
+    <ProjectReference Include="..\EAI.PipeMessaging\EAI.PipeMessaging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="md &quot;$(SolutionDir)_resource\EAI.GenericServer\services&quot;&#xD;&#xA;md &quot;$(TargetDir)services&quot;&#xD;&#xA;&#xD;&#xA;xcopy &quot;$(SolutionDir)_resource\EAI.GenericServer\services\*.*&quot; &quot;$(TargetDir)services&quot; /S /E /I /R /V /Y" />
+  </Target>
+
+</Project>

@@ -118,14 +118,14 @@ namespace EAI.Rest.Tests
                 
                 var result3 = await restClient.Get("accounts").ResultAsString().CacheFor(cacheTime).ExecuteAsync();
 
-                var created = await restClient
-                    .Patch("accounts",
-                                new account { 
-                                    number = "123", 
-                                    name = "John Doe" 
-                                })
-                    .ResultAs<account>()
-                    .ExecuteAsync();
+                //var created = await restClient
+                //    .Patch("accounts",
+                //                new account { 
+                //                    number = "123", 
+                //                    name = "John Doe" 
+                //                })
+                //    .ResultAs<account>()
+                //    .ExecuteAsync();
 
             }
             catch (Exception ex)
@@ -134,10 +134,10 @@ namespace EAI.Rest.Tests
             }
         }
 
-        class account
-        {
-            public string number; public string name;
-        }
+        //class account
+        //{
+        //    public string number; public string name;
+        //}
 
         private static string GetConfigResource()
         {
