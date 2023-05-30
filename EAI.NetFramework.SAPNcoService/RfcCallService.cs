@@ -33,7 +33,7 @@ namespace EAI.NetFramework.SAPNcoService
 
             var jRfcObject = JObject.Parse(jRfcRequestMessage);
 
-            jRfcContext.RunJRfcRequest(jRfcObject);
+            jRfcContext.RunJRfcRequest(jRfcObject, _rfcConnection);
 
             return jRfcObject.ToString();
         }
@@ -60,7 +60,7 @@ namespace EAI.NetFramework.SAPNcoService
 
         public Task<string> RunJRfcRequestAsync(string jRfcRequestMessage)
         {
-            return Task.Run(() => RunJRfcRequestAsync(jRfcRequestMessage));
+            return Task.Run(() => RunJRfcRequest(jRfcRequestMessage));
         }
     }
 }

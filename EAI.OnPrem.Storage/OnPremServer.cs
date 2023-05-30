@@ -48,6 +48,5 @@ namespace EAI.OnPrem.Storage
 
             await sendStorageQueue.EnqueueAsync(jOnPremResponseMessage);
         }
-
     }
 }

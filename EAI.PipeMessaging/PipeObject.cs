@@ -86,6 +86,9 @@ namespace EAI.PipeMessaging
 
             var responseMessage = await requestSync.Task;
 
+            if (responseMessage._payload == null)
+                return default(responseT);
+
             return JsonConvert.DeserializeObject<responseT>(responseMessage._payload);
         }
 

@@ -10,7 +10,7 @@ namespace EAI.OnPrem.Storage
         private IStorageQueue _storageQueue;
         private Func<string, Task> _dequeuedMessageCallback;
         private int _maxMessages = 1;
-        private TimeSpan _initialWait = new TimeSpan(0, 0, 0, 0, 500);
+        private TimeSpan _initialWait = new TimeSpan(0, 0, 0, 0, 250);
         private TimeSpan _maxWait = new TimeSpan(0, 0, 0, 4, 0);
         private TimeSpan _currentWait;
 
@@ -22,6 +22,8 @@ namespace EAI.OnPrem.Storage
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
+            _currentWait = _initialWait;
+
             while(!cancellationToken.IsCancellationRequested)
             {
                 await foreach(var message in _storageQueue.DequeueAsync(_maxMessages, DequeueType.AutoComplete))
