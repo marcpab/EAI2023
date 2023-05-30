@@ -21,7 +21,7 @@ namespace EAI.PipeMessaging.SAPNcoService
             {
                 connectionString = connectionString,
                 userName = userName,
-                password = userName
+                password = password
             };
 
             return SendRequest<ConnectResponse>(connectRequest);
