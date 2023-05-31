@@ -98,7 +98,7 @@ namespace EAI.General.Settings
 
         class BlobStorageDefaultConfig
         {
-            [JsonProperty(PropertyName = "$type")]
+            [JsonProperty("$type")]
             public string Type { get; set; }
             public string ConnectionString { get; set; }
             public string RootPath { get; set; }

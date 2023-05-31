@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EAI.Abstraction.SAPNcoService\EAI.Abstraction.SAPNcoService.csproj" />
+    <ProjectReference Include="..\EAI.OnPrem.Storage\EAI.OnPrem.Storage.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -27,7 +27,7 @@ namespace EAI.GenericServerHost
                         {
                             context.LoadFromAssemblyPath(additionalAssemblyFilePath);
                         }
-                        catch 
+                        catch(Exception ex) 
                         { 
                         }
 

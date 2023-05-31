@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EAI.GenericServer\EAI.GenericServer.csproj" />
+    <ProjectReference Include="..\EAI.OnPrem.SAPNcoService\EAI.OnPrem.SAPNcoService.csproj" />
     <ProjectReference Include="..\EAI.PipeMessaging.SAPNcoService\EAI.PipeMessaging.SAPNcoService.csproj" />
   </ItemGroup>
 

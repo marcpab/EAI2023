@@ -17,7 +17,7 @@ namespace EAI.GenericServer
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
-            await _listener.RunAsync(ProcessRequestAsync, cancellationToken);
+            await _listener.RunAsync(cancellationToken);
         }
 
         private Task<string> ProcessRequestAsync(string arg)

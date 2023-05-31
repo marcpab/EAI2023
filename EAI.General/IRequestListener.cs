@@ -6,6 +6,8 @@ namespace EAI.General
 {
     public interface IRequestListener
     {
-        Task RunAsync(Func<string, Task<string>> processRequest, CancellationToken cancellationToken);
+        void RegisterRequestHandler<requestT, responseT>(Func<requestT, Task<responseT>> message);
+
+        Task RunAsync(CancellationToken cancellationToken);
     }
 }

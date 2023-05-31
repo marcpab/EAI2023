@@ -11,12 +11,17 @@ namespace EAI.OnPrem.Storage
 {
     public class OnPremClient
     {
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings()
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+        };
+
         private static CancellationTokenSource _cancelletionTokenSource = new CancellationTokenSource();
         private static RequestManager<OnPremMessage> _requestHandler = new RequestManager<OnPremMessage>();
 
         private static Task ResponseReceivedAsync(string jOnPremResponseMessage)
         {
-            var onPremResponseMessage = JsonConvert.DeserializeObject<OnPremMessage>(jOnPremResponseMessage);
+            var onPremResponseMessage = (OnPremMessage)JsonConvert.DeserializeObject(jOnPremResponseMessage, _settings);
 
             _requestHandler.RequestCompleted(onPremResponseMessage);
 
@@ -34,28 +39,26 @@ namespace EAI.OnPrem.Storage
 
         private LargeMessageQueue _storageQueue = new LargeMessageQueue();
 
-        public async Task<responseT> SendRequest<responseT>(object request)
+        public async Task<responseT> SendRequest<responseT, requestT>(requestT requestMessage)
+            where  requestT : OnPremMessage
+            where responseT : OnPremMessage
         {
-            var responseQueueName = $"{StorageQueueName}_Response";
+            var responseQueueName = $"{StorageQueueName}Response";
 
-            var onPremRequestMessage = new OnPremMessage()
-            {
-                _requestId = Guid.NewGuid(),
-                _responseQueueName = responseQueueName,
-                _payload = JsonConvert.SerializeObject(request)
-            };
+            requestMessage._requestId = Guid.NewGuid();
+            requestMessage._responseQueueName = responseQueueName;
+//            requestMessage._type = requestMessage.GetType().FullName;
 
-            var tcs = new TaskCompletionSource<OnPremMessage>();
-            _requestHandler.RegisterRequest(onPremRequestMessage);
+            var tcs = _requestHandler.RegisterRequest(requestMessage);
 
-            var jOnPremRequestMessage = JsonConvert.SerializeObject(onPremRequestMessage);
+            var jOnPremRequestMessage = JsonConvert.SerializeObject(requestMessage, _settings);
             await _storageQueue.EnqueueAsync(jOnPremRequestMessage);
 
             await StartListenerAsync(responseQueueName);
 
             var onPremResponseMessage = await tcs.Task;
 
-            return JsonConvert.DeserializeObject<responseT>(onPremResponseMessage._payload);
+            return (responseT)onPremResponseMessage;
         }
 
         private Task StartListenerAsync(string responseQueue)

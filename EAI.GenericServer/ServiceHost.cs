@@ -1,4 +1,5 @@
-﻿using EAI.General.SettingJson;
+﻿using EAI.General;
+using EAI.General.SettingJson;
 using EAI.General.Settings;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EAI.GenericServer
 {
-    public class ServiceStartup
+    public class ServiceHost : IServiceHost
     {
         // settings ConfigStorageType
         // settings AzureWebJobsStorage
@@ -35,6 +36,11 @@ namespace EAI.GenericServer
             return Task.WhenAll(tasks);
         }
 
+        public IEnumerable<T> GetServices<T>()
+            where T : class
+        {
+            return Services.Where(s => s != null && typeof(T).IsAssignableFrom(s.GetType())).Select(s => s as T);
+        }
     }
 
 }

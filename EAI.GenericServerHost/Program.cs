@@ -35,9 +35,9 @@ namespace EAI.GenericServerHost
         {
             var isService = args.Contains("-service");
 
-            var program = new ServiceStartup();
+            var serviceHost = new ServiceHost();
 
-            await program.InitializeAsync(typeof(Program));
+            await serviceHost.InitializeAsync(typeof(Program));
 
 
             if (isService)
@@ -45,14 +45,14 @@ namespace EAI.GenericServerHost
                 throw new NotImplementedException("Service support currently not implemented");
             }
             else
-                await RunConsoleAsync(program);
+                await RunConsoleAsync(serviceHost);
 
             await _clientPipeMessagingFactory.WaitAsync();
 
             return 0;
         }
 
-        private static async Task RunConsoleAsync(ServiceStartup program)
+        private static async Task RunConsoleAsync(ServiceHost program)
         {
             using (var cancellationTokenSoucre = new CancellationTokenSource())
             {

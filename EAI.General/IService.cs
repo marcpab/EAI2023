@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EAI.GenericServer
+namespace EAI.General
 {
     public interface IService
     {
