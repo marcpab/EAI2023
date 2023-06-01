@@ -49,12 +49,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JRfc.cs" />
-    <Compile Include="JRfcContext.cs" />
+    <Compile Include="SessionProvider.cs" />
+    <Compile Include="TransactionScope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RfcConnection.cs" />
     <Compile Include="RfcServer.cs" />
-    <Compile Include="RfcTransactionManager.cs" />
     <Compile Include="SapException.cs" />
+    <Compile Include="Transaction.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

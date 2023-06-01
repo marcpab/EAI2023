@@ -47,16 +47,19 @@ namespace EAI.OnPrem.Storage
 
             requestMessage._requestId = Guid.NewGuid();
             requestMessage._responseQueueName = responseQueueName;
-//            requestMessage._type = requestMessage.GetType().FullName;
 
             var tcs = _requestHandler.RegisterRequest(requestMessage);
 
-            var jOnPremRequestMessage = JsonConvert.SerializeObject(requestMessage, _settings);
+            var jOnPremRequestMessage = JsonConvert.SerializeObject(requestMessage, typeof(OnPremMessage), _settings);
             await _storageQueue.EnqueueAsync(jOnPremRequestMessage);
 
             await StartListenerAsync(responseQueueName);
 
             var onPremResponseMessage = await tcs.Task;
+
+            var exceptionMessage = onPremResponseMessage as ExceptionMessage;
+            if (exceptionMessage != null)
+                throw exceptionMessage._exception;
 
             return (responseT)onPremResponseMessage;
         }

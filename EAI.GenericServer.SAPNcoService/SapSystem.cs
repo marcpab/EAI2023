@@ -45,5 +45,10 @@ namespace EAI.GenericServer.SAPNcoService
 
             (_rfcCallService as IDisposable)?.Dispose();
         }
+
+        internal Task<string> GetJRfcSchemaAsync(string functionName)
+        {
+            return _rfcCallService.GetJRfcSchemaAsync(functionName);
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace EAI.PipeMessaging.SAPNcoService
     {
         Task ConnectAsync(string connectionString, string userName, string password);
         Task DisconnectAsync();
+        Task<string> GetJRfcSchemaAsync(string functionName);
         Task RfcPingAsync();
         Task<string> RunJRfcRequestAsync(string jRfcRequestMessage);
     }

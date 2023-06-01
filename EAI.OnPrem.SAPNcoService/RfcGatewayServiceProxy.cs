@@ -21,9 +21,22 @@ namespace EAI.OnPrem.SAPNcoService
                 _jRfcRequestMessage = jRfcRequestMessage
             };
 
-            var foo = await _onPremClient.SendRequest<CallRfcResponse, CallRfcRequest>(callRfcRequest);
+            var callRfcResponse = await _onPremClient.SendRequest<CallRfcResponse, CallRfcRequest>(callRfcRequest);
 
-            return foo._ret;
+            return callRfcResponse._ret;
+        }
+
+        public async Task<string> GetJRfcSchemaAsync(string name, string functionName)
+        {
+            var getJRfcSchemaRequest = new GetJRfcSchemaRequest()
+            {
+                _name = name,
+                _functionName = functionName
+            };
+
+            var getJRfcSchemaResponse = await _onPremClient.SendRequest<GetJRfcSchemaResponse, GetJRfcSchemaRequest>(getJRfcSchemaRequest);
+
+            return getJRfcSchemaResponse._ret;
         }
     }
 }

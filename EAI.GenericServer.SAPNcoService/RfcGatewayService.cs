@@ -41,5 +41,17 @@ namespace EAI.GenericServer.SAPNcoService
 
             return sapSystem.RunJRfcRequestAsync(jRfcRequestMessage);
         }
+
+        public Task<string> GetJRfcSchemaAsync(string name, string functionName)
+        {
+            var sapSystem = _sapSystems
+                .Where(s => s.Name == name)
+                .FirstOrDefault();
+
+            if (sapSystem == null)
+                throw new EAIException($"Sap system '{name}' not defined");
+
+            return sapSystem.GetJRfcSchemaAsync(functionName);
+        }
     }
 }

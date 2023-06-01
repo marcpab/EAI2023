@@ -135,5 +135,75 @@ namespace EAI.NetFramework.SAPNco
                 }
             }
         }
+
+        public static void RfcMetadataToJsonSchema(IRfcDataContainer rfcData, JObject jData, RfcDirection direction)
+        {
+            var directions = new[] { RfcDirection.TABLES, RfcDirection.CHANGING, direction };
+
+            for (var elementIndex = 0; elementIndex < rfcData.ElementCount; elementIndex++)
+            {
+                var elementMetadata = rfcData.GetElementMetadata(elementIndex);
+
+                var paramMetadata = elementMetadata as RfcParameterMetadata;
+
+                if (paramMetadata != null&& !directions.Contains(paramMetadata.Direction))
+                    continue;
+
+                switch (elementMetadata.DataType)
+                {
+                    case RfcDataType.TABLE:
+
+                        var rfcTable = rfcData.GetTable(elementIndex);
+                        if (rfcTable == null)
+                            break;
+
+                        rfcTable.Append();
+                        rfcTable.Append();
+                        rfcTable.Append();
+
+                        var jTable = new JArray();
+
+                        for (var rowIndex = 0; rowIndex < rfcTable.Count; rowIndex++)
+                        {
+                            var jRecord = new JObject();
+
+                            rfcTable.CurrentIndex = rowIndex;
+                            RfcDataToJson(rfcTable.CurrentRow, jRecord);
+
+                            jTable.Add(jRecord);
+                        }
+
+                        jData.Add(new JProperty(elementMetadata.Name, jTable));
+
+                        break;
+
+                    case RfcDataType.STRUCTURE:
+
+                        var rfcStruct = rfcData.GetStructure(elementIndex);
+                        if (rfcStruct == null)
+                            break;
+
+                        var jStruct = new JObject();
+
+                        RfcDataToJson(rfcStruct, jStruct);
+
+                        jData.Add(new JProperty(elementMetadata.Name, jStruct));
+
+                        break;
+
+                    default:
+
+                        var rfcValue = rfcData.GetValue(elementIndex);
+                        if (rfcValue == null)
+                            break;
+
+                        var jParam = new JValue(rfcValue);
+
+                        jData.Add(new JProperty(elementMetadata.Name, jParam));
+
+                        break;
+                }
+            }
+        }
     }
 }

@@ -46,27 +46,42 @@ namespace EAI.OnPrem.Storage
         private async Task RequestReceivedAsync(string jOnPremRequestMessage)
         {
             var onPremRequestMessage = (OnPremMessage)JsonConvert.DeserializeObject(jOnPremRequestMessage, _settings);
+            var requestId = onPremRequestMessage._requestId;
+            var sendStorageQueue = CreateResponseQueue(onPremRequestMessage._responseQueueName);
 
-            var processRequestAsync = _requestMap[onPremRequestMessage.GetType()];
+            try
+            {
+                var processRequestAsync = _requestMap[onPremRequestMessage.GetType()];
 
-            var onPremResponseMessage = await processRequestAsync(onPremRequestMessage);
+                var onPremResponseMessage = await processRequestAsync(onPremRequestMessage);
 
-            //            onPremResponseMessage._type = onPremResponseMessage.GetType().FullName;
-            onPremResponseMessage._requestId = onPremRequestMessage._requestId;
+                onPremResponseMessage._requestId = requestId;
 
-            var sendStorageQueue = CreateResponseQueue(onPremRequestMessage);
+                var jOnPremResponseMessage = JsonConvert.SerializeObject(onPremResponseMessage, typeof(OnPremMessage), _settings);
 
-            var jOnPremResponseMessage = JsonConvert.SerializeObject(onPremResponseMessage, _settings);
+                await sendStorageQueue.EnqueueAsync(jOnPremResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                var exceptionMessage = new ExceptionMessage()
+                {
+                    _requestId = requestId,
+                    _exception = ex
+                };
 
-            await sendStorageQueue.EnqueueAsync(jOnPremResponseMessage);
+                var jExceptionMessage = JsonConvert.SerializeObject(exceptionMessage, typeof(OnPremMessage), _settings);
+
+                await sendStorageQueue.EnqueueAsync(jExceptionMessage);
+
+            }
         }
 
-        private LargeMessageQueue CreateResponseQueue(OnPremMessage onPremRequestMessage)
+        private LargeMessageQueue CreateResponseQueue(string responseQueueName)
         {
             return new LargeMessageQueue()
             {
                 StorageQueueConnectionString = _storageQueue.StorageQueueConnectionString,
-                StorageQueueName = onPremRequestMessage._responseQueueName,
+                StorageQueueName = responseQueueName,
                 BlobStorageConnectionString = _storageQueue.BlobStorageConnectionString,
                 ContainerName = _storageQueue.ContainerName,
                 EncodeMessage = _storageQueue.EncodeMessage

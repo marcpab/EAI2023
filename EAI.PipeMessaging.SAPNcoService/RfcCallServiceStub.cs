@@ -36,6 +36,18 @@ namespace EAI.PipeMessaging.SAPNcoService
             return SendRequest<DisconnectResponse>(disconnectRequest);
         }
 
+        public async Task<string> GetJRfcSchemaAsync(string functionName)
+        {
+            var getJRfcSchemaRequest = new GetJRfcSchemaRequest()
+            {
+                functionName = functionName
+            };
+
+            var getJRfcSchemaResponse = await SendRequest<GetJRfcSchemaResponse>(getJRfcSchemaRequest);
+
+            return getJRfcSchemaResponse._ret;
+        }
+
         public Task RfcPingAsync()
         {
             var rfcPingRequest = new RfcPingRequest()

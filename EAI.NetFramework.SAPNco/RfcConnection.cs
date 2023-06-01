@@ -1,4 +1,5 @@
-﻿using SAP.Middleware.Connector;
+﻿using Newtonsoft.Json.Linq;
+using SAP.Middleware.Connector;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -54,14 +55,75 @@ namespace EAI.NetFramework.SAPNco
             return rfcDestination.Repository.CreateFunction(name);
         }
 
+        public void InvokeFunction(IRfcFunction rfcFunction, Transaction transaction = null, bool autoCommit = false)
+        {
+            if (transaction != null)
+            {
+                transaction.InvokeFunction(rfcFunction);
+                return;
+            }
+
+            if(autoCommit)
+            {
+                using (transaction = new Transaction(this))
+                {
+                    transaction.InvokeFunction(rfcFunction);
+
+                    transaction.Commit();
+                }
+
+                return;
+            }
+
+            rfcFunction.Invoke(GetRfcDestination());
+        }
+
+        public JProperty InvokeJFunction(JProperty jFunction, Transaction transaction = null, bool autoCommit = false)
+        {
+            var rfcFunction = JRfc.JsonToRfcFunction(jFunction, GetRfcDestination());
+
+            InvokeFunction(rfcFunction, transaction, autoCommit);
+
+            var jRfcResponse = new JObject();
+
+            JRfc.RfcDataToJson(rfcFunction, jRfcResponse);
+
+            return new JProperty($"{rfcFunction.Metadata.Name}_Response", jRfcResponse);
+        }
+
 
         public RfcDestination GetRfcDestination()
         {
             return RfcDestinationManager.GetDestination(_rfcParams);
         }
 
+        public JObject GetJRfcSchema(string functionName)
+        {
+            var rfcDestination = GetRfcDestination();
+
+            var rfcFunction = rfcDestination.Repository.CreateFunction(functionName);
+
+            var jRfc = new JObject();
+
+
+            var jRfcFunctionObject = new JObject();
+            JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionObject, RfcDirection.IMPORT);
+
+            jRfc.Add(new JProperty(rfcFunction.Metadata.Name, jRfcFunctionObject));
+
+
+            var jRfcFunctionResponseObject = new JObject();
+            JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionResponseObject, RfcDirection.EXPORT);
+
+            jRfc.Add(new JProperty($"{rfcFunction.Metadata.Name}Response", jRfcFunctionResponseObject));
+
+
+            return jRfc;
+        }
+
         public void Disconnect()
         {
+            _rfcParams = null;
         }
     }
 }
