@@ -101,7 +101,7 @@ namespace EAI.General.Xml.Test
         }
 
         [Fact]
-        public void TestToDynamicXml05()
+        public void TestToDynamicXml05a()
         {
             var data = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
 
@@ -122,6 +122,31 @@ namespace EAI.General.Xml.Test
             {
                 var vkorg = e.Descendants().Where(x => x.Name.LocalName == "VKORG" && x.Parent?.Name.LocalName == "E2KNVVM007")?.Select(x => x.Value).SingleOrDefault();
                 sd.Add(++customer, vkorg);
+            }
+
+            Assert.True(sd.Count == 1);
+            Assert.True(sd.ContainsKey(1));
+            Assert.Equal("0001", sd[1]);
+        }
+
+        [Fact]
+        public void TestToDynamicXml05b()
+        {
+            var data = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
+
+            var idoc = data
+                .ToXmlDocument()
+                .ToDynamic(NodeDefaultBehavior.Default)
+                .Receive
+                .idocData;
+
+            
+            var sd = new Dictionary<int, string?>(1);
+
+            var customer = 0;
+            foreach (var e in idoc.E2KNA1M005GRP.E2KNVVM007GRP.E2KNVVM007)
+            {
+                sd.Add(++customer, (string)e.VKORG);
             }
 
             Assert.True(sd.Count == 1);
