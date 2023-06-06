@@ -211,28 +211,18 @@ namespace EAI.General.Xml.Test
 
             var logs = logger.GetLog();
             output.WriteLine(logs);
-            //Trace.WriteLine(logs);
-            //Console.WriteLine(logs);
-            //Debug.WriteLine(logs);
-            //Console.Error.WriteLine(logs);
         }
     }
 
     [MemoryDiagnoser]
     public class XmlBenchmarks
     {
-        /*
-        |              Method |       Mean |    Error |   StdDev |     Gen0 |   Gen1 | Allocated |
-        |-------------------- |-----------:|---------:|---------:|---------:|-------:|----------:|
-        | TestToDynamicXml05a | 1,048.1 us | 12.26 us | 10.87 us | 152.3438 | 3.9063 | 476.85 KB |
-        */
         [Benchmark]
-        public void TestToDynamicXml05a()
+        public void TestToDynamicXml05_DynamicNodeToXElement()
         {
-            var data = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
+            var data = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
 
             var idoc = data
-                .ToXmlDocument()
                 .ToDynamic(NodeDefaultBehavior.Default)
                 .Receive
                 .idocData;
@@ -255,18 +245,12 @@ namespace EAI.General.Xml.Test
             Assert.Equal("0001", sd[1]);
         }
 
-        /*
-        |              Method |       Mean |    Error |   StdDev |     Gen0 |   Gen1 | Allocated |
-        |-------------------- |-----------:|---------:|---------:|---------:|-------:|----------:|
-        | TestToDynamicXml05b |   780.3 us |  6.69 us |  6.26 us | 130.8594 | 3.9063 | 412.97 KB |
-        */
         [Benchmark]
-        public void TestToDynamicXml05b()
+        public void TestToDynamicXml05_DynamicNode()
         {
-            var data = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
+            var data = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
 
             var idoc = data
-                .ToXmlDocument()
                 .ToDynamic(NodeDefaultBehavior.Default)
                 .Receive
                 .idocData;
@@ -291,7 +275,7 @@ namespace EAI.General.Xml.Test
          * | TestToDynamicXml05c |   422.4 us |  4.49 us |  4.20 us |  72.7539 | 23.9258 | 267.34 KB |
          */
         [Benchmark]
-        public void TestToDynamicXml05c()
+        public void TestToDynamicXml05_XElementLinq()
         {
             var xIdoc = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
 
@@ -317,11 +301,30 @@ namespace EAI.General.Xml.Test
         }
 
         [Benchmark]
-        public void TestToDynamicXml05d()
+        public void TestToDynamicXml05_XElementLoad()
         {
             var xIdoc = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
 
             Assert.NotNull(xIdoc);
+        }
+
+        [Benchmark]
+        public void TestToDynamicXml05_XmlLoad()
+        {
+            var xIdoc = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
+
+            Assert.NotNull(xIdoc);
+        }
+
+        [Benchmark]
+        public void TestToDynamicXml05_DynamicNodeLoad()
+        {
+            var data = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
+
+            Assert.NotNull(data);
+
+            var dynNode = data
+                .ToDynamic(NodeDefaultBehavior.Default);
         }
     }
 }
