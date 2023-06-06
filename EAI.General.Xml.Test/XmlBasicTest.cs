@@ -1,3 +1,4 @@
+using System.Xml;
 using System.Xml.Linq;
 using EAI.General.Xml.Extensions;
 
@@ -97,6 +98,35 @@ namespace EAI.General.Xml.Test
 
             // ex
             Assert.Throws<InvalidOperationException>(() => (string)idocE.DUMMY01);
+        }
+
+        [Fact]
+        public void TestToDynamicXml05()
+        {
+            var data = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
+
+            var idoc = data
+                .ToXmlDocument()
+                .ToDynamic(NodeDefaultBehavior.Default)
+                .Receive
+                .idocData;
+
+            var xKNA1 = ((XmlNode)idoc.E2KNA1M005GRP).ToXElement();
+            var xKnvvm = xKNA1
+                .Descendants()
+                .Where(x => x.Name.LocalName == "E2KNVVM007GRP");
+            var sd = new Dictionary<int, string?>(xKnvvm.Count());
+
+            var customer = 0;
+            foreach (var e in xKnvvm)
+            {
+                var vkorg = e.Descendants().Where(x => x.Name.LocalName == "VKORG" && x.Parent?.Name.LocalName == "E2KNVVM007")?.Select(x => x.Value).SingleOrDefault();
+                sd.Add(++customer, vkorg);
+            }
+
+            Assert.True(sd.Count == 1);
+            Assert.True(sd.ContainsKey(1));
+            Assert.Equal("0001", sd[1]);
         }
     }
 }
