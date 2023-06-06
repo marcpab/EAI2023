@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -16,19 +17,27 @@ namespace EAI.General.Xml.Test
 
         internal static XDocument? ZDebmas07_SampleChemicalIndustry01
         {
-            get => GetXml(Xml_ChemicalTest1);
+            get
+            {
+                return GetXml(Xml_ChemicalTest1);
+            }
         }
 
         private static XDocument? GetXml(string name)
         {
-            var str = GetString(name);
-            if (string.IsNullOrWhiteSpace(str))
-                return null;
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = $"EAI.General.Xml.Test.{XmlFolder}.{name}";
 
-            return XDocument.Parse(str);
+            using (Stream? stream = assembly?.GetManifestResourceStream(resourceName))
+            {
+                if (stream == null)
+                    return null;
+
+                return XDocument.Load(stream);
+            }
         }
 
-        private static string? GetString(string name) 
+        public static string? GetString(string name) 
             => Read($"EAI.General.Xml.Test.{XmlFolder}.{name}");
 
         private static string? Read(string resourceName)
