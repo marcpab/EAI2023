@@ -160,7 +160,7 @@ namespace EAI.General.Xml
                     return CreateNode(Parent, ParentSchemaElement, LocalName);
                 };
             
-            if (indexes.Length == 1 && indexes[0].GetType().IsValueType)
+            if (indexes?.Length == 1 && indexes[0].GetType().IsValueType)
             {
                 int index = (int)indexes[0];
                 xPath = null;
@@ -186,7 +186,7 @@ namespace EAI.General.Xml
                     };
                 }
             }
-            else if (indexes.Length == 2)
+            else if (indexes?.Length == 2)
             {
                 var keyXmlNodeName = indexes[0].ToString();
 
@@ -228,15 +228,20 @@ namespace EAI.General.Xml
                 if (NodeBehavior == NodeDefaultBehavior.EmptyToNull &&
                    string.IsNullOrWhiteSpace(childXmlNode.Value) &&
                    !childXmlNode.HasChildNodes)
+                {
                     return null;
+                }
                 else
+                {
                     return childXmlNode;
+                }
             }
 
+            // when there is nothing, than the behavior decides...
             switch (NodeBehavior)
             {
                 case NodeDefaultBehavior.EmptyToNull:
-                case NodeDefaultBehavior.Null:
+                case NodeDefaultBehavior.Default:
                     return null;
                 case NodeDefaultBehavior.Exception:
                     throw new InvalidOperationException($"Could not locate node {LocalName} (xPath: {xPath ?? "[NULL]"}).");
@@ -303,8 +308,8 @@ namespace EAI.General.Xml
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             result = GetNode(binder.Name);
-
-            return true;
+            
+            return result == null ? false : true;
         }
 
         public override bool TrySetMember(SetMemberBinder binder, object value)

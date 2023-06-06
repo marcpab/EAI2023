@@ -14,21 +14,24 @@ namespace EAI.General.Xml.Test
 
         private static readonly string Xml_ChemicalTest1 = "ZDebmas07_SampleChemicalIndustry01.xml";
 
-        internal static XDocument? XmlChemicalTest01
+        internal static XDocument? ZDebmas07_SampleChemicalIndustry01
         {
-            get
-            {
-                var str = GetXml(Xml_ChemicalTest1);
-                if (string.IsNullOrWhiteSpace(str))
-                    return null;
-
-                return XDocument.Parse(str);
-            }
+            get => GetXml(Xml_ChemicalTest1);
         }
 
-        internal static string? GetXml(string name) => GetString($"EAI.General.Xml.Test.{XmlFolder}.{name}");
+        private static XDocument? GetXml(string name)
+        {
+            var str = GetString(name);
+            if (string.IsNullOrWhiteSpace(str))
+                return null;
 
-        private static string? GetString(string resourceName)
+            return XDocument.Parse(str);
+        }
+
+        private static string? GetString(string name) 
+            => Read($"EAI.General.Xml.Test.{XmlFolder}.{name}");
+
+        private static string? Read(string resourceName)
         {
             var assembly = Assembly.GetExecutingAssembly();
 
@@ -40,7 +43,6 @@ namespace EAI.General.Xml.Test
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     return reader.ReadToEnd();
-
                 }
             }
         }
