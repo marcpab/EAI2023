@@ -2,7 +2,7 @@
 {
     public enum NodeDefaultBehavior
     {
-        Null,
+        Default,
         Create,
         Exception,
         EmptyToNull,
