@@ -21,7 +21,7 @@ namespace EAI.MessageQueue.Storage
             var meta = new MessageItem();
 
             if (manager == null || manager.IsAssignableFrom(typeof(IMessageManager)))
-                throw new ArgumentOutOfRangeException($"manager {manager?.Name ?? "[NULL]"} not accepted");
+                throw new ArgumentOutOfRangeException($"manager {manager?.Name ?? EAI.Texts.Properties.NULL} not accepted");
 
             if (string.IsNullOrWhiteSpace(msgType))
                 throw new ArgumentNullException("msgType is flow control! Field cannot be empty");

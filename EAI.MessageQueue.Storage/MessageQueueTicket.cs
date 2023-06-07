@@ -6,8 +6,6 @@ namespace EAI.MessageQueue.Storage
 {
     public class MessageQueueTicket
     {
-        private static readonly string _Storage = "AzureWebJobsStorage";
-
         public Type TicketType { get; set; } = typeof(ContainerTicket);
 
         public static async Task<MessageItem?> GetMessageItem(IConfiguration configuration, string ticketJson)
@@ -19,7 +17,7 @@ namespace EAI.MessageQueue.Storage
             }
 
             var ticket = (IQueueTicket?)JsonConvert.DeserializeObject(ticketJson, baseTicket.TicketType);            
-            var cs = configuration[_Storage] ?? configuration[$"Values:{_Storage}"];
+            var cs = configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] ?? configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"];
             if(ticket == null || string.IsNullOrWhiteSpace(cs)) 
             {
                 return null;

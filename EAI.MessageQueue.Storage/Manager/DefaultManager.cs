@@ -20,22 +20,14 @@ namespace EAI.MessageQueue.Storage.Manager
 {
     public class DefaultManager : IMessageManager
     {
-        private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
-        private static readonly string _ConfigurationContainer = "cosmo-configuration";
-        private static readonly string _BlobLockContainer = "cosmo-queue-defaultmanager";
-        private static readonly string _QueueListContainer = "cosmo-queue-list";
-        private static readonly string _BlobContainer = "cosmo-queue-{0}";
-        private static readonly string _BlobDequeueContainer = "cosmo-queue-{0}-dequeue";
-        private static readonly string _BlobArchiveContainer = "cosmo-queue-{0}-archive";
-        private static readonly string _FileSemaphore = "{0}.lease";
-        private static readonly string _Storage = "AzureWebJobsStorage";
+        private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);        
 
         private SecureString ConnectionString { get; set; }
         private MessageQueueConfiguration _mqc { get; set; }
 
-        public string GetContainerEnqueue(string queueName) => string.Format(_BlobContainer, queueName);
-        public string GetContainerDequeue(string queueName) => string.Format(_BlobDequeueContainer, queueName);
-        public string GetContainerArchive(string queueName) => string.Format(_BlobArchiveContainer, queueName);
+        public string GetContainerEnqueue(string queueName) => EAI.Texts.DefaultStorage.BlobContainer(queueName);
+        public string GetContainerDequeue(string queueName) => EAI.Texts.DefaultStorage.BlobDequeueContainer(queueName);
+        public string GetContainerArchive(string queueName) => EAI.Texts.DefaultStorage.BlobArchiveContainer(queueName);
 
         private string _cs => new NetworkCredential(string.Empty, ConnectionString).Password;
         private ILogger _log;
@@ -46,7 +38,7 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public DefaultManager(IConfiguration configuration, ILogger log)
         {
-            var cs = configuration[_Storage] ?? configuration[$"Values:{_Storage}"];
+            var cs = configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] ?? configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"];
             ConnectionString = new NetworkCredential(string.Empty, cs).SecurePassword;
 
             Status = DequeueStatus.None;
@@ -69,7 +61,7 @@ namespace EAI.MessageQueue.Storage.Manager
         {
             try
             {
-                var client = new BlobContainerClient(_cs, _ConfigurationContainer);
+                var client = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.ConfigurationContainer);
                 var blob = client.GetBlobClient("mq.json");
 
                 if (await blob.ExistsAsync().ConfigureAwait(true) == false)
@@ -265,7 +257,7 @@ namespace EAI.MessageQueue.Storage.Manager
             if (message?.MessageManager != null && message?.MessageManager != typeof(DefaultManager))
             {
                 if (fault)
-                    throw new InvalidOperationException($"{message?.Id ?? "[NULL]"} is not targeting default manager ({message?.MessageManager.ToString() ?? "[NULL]"})");
+                    throw new InvalidOperationException($"{message?.Id ?? EAI.Texts.Properties.NULL} is not targeting default manager ({message?.MessageManager.ToString() ?? EAI.Texts.Properties.NULL})");
                 else
                     errors = true;
             }
@@ -277,8 +269,8 @@ namespace EAI.MessageQueue.Storage.Manager
         {
             try
             {
-                var client = new BlobContainerClient(_cs, _BlobLockContainer);
-                var blob = client.GetBlobClient(string.Format(_FileSemaphore, queueName));
+                var client = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.BlobLockContainer);
+                var blob = client.GetBlobClient(EAI.Texts.DefaultStorage.FileSemaphore(queueName));
 
                 if (await blob.ExistsAsync()== false)
                     return true;
@@ -316,7 +308,7 @@ namespace EAI.MessageQueue.Storage.Manager
         {
             try
             {
-                var container = new BlobContainerClient(_cs, _QueueListContainer);
+                var container = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.QueueListContainer);
                 _ = await container.CreateIfNotExistsAsync();
                 var blob = container.GetBlobClient(queueName);
 
@@ -331,7 +323,7 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public async IAsyncEnumerable<string> GetQueues()
         {
-            var container = new BlobContainerClient(_cs, _QueueListContainer);
+            var container = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.QueueListContainer);
             if (await container.ExistsAsync() == false)
                 yield break;
 
@@ -479,7 +471,7 @@ namespace EAI.MessageQueue.Storage.Manager
             mo.SetMessage(MessageObjectId.ReleaseAsyncStop, false);
 
             queueName = queueName.ToLower();
-            var name = string.Format(_FileSemaphore, queueName);
+            var name = EAI.Texts.DefaultStorage.FileSemaphore(queueName);
 
             _log.LogInformation($"[MQ.{queueName}] DefaultManager.RequestLeaseAsync I request semaphore");
 
@@ -497,7 +489,7 @@ namespace EAI.MessageQueue.Storage.Manager
             {
                 var retry = true;
                 bool result = false;
-                var client = new BlobContainerClient(_cs, _BlobLockContainer);
+                var client = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.BlobLockContainer);
                 var blob = client.GetBlobClient(name);
 
                 if (!blob.Exists())
@@ -544,7 +536,7 @@ namespace EAI.MessageQueue.Storage.Manager
                 _semaphoreSlim.Release();
             }
 
-            return new DefaultQueueLease(_log, ConnectionString, _BlobLockContainer, name, LeaseId);
+            return new DefaultQueueLease(_log, ConnectionString, EAI.Texts.DefaultStorage.BlobLockContainer, name, LeaseId);
         }
 
         public IQueueTicket GetTicket(MessageItem message)

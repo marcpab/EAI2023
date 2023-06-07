@@ -22,7 +22,7 @@ namespace EAI.Logging.Model
         private static (LogMessageType MsgType, string Content) DeductMessageType(object content)
         {
             LogMessageType msgType = LogMessageType.RAW;
-            string contentString = "[NULL]";
+            string contentString = EAI.Texts.Properties.NULL;
 
             if (content == null)
             {

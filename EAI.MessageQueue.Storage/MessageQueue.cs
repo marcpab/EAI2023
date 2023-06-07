@@ -27,8 +27,8 @@ namespace EAI.MessageQueue.Storage
                 throw new InvalidOperationException("Message Queue configuration 'MQ' is missing in your host.json!");
             _mq = mq;
 
-            if (_configuration["AzureWebJobsStorage"] == null && _configuration["Values:AzureWebJobsStorage"] == null)
-                throw new InvalidOperationException("AzureWebJobsStorage application setting env is missing!");
+            if (_configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] == null && _configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"] == null)
+                throw new InvalidOperationException($"{EAI.Texts.DefaultStorage.StorageConfigurationKey} application setting env is missing!");
 
             var manager = (IMessageManager?)Activator.CreateInstance(_mq.ManagerType, new object[] { configuration, log });
             if (manager == null)
@@ -50,7 +50,7 @@ namespace EAI.MessageQueue.Storage
             {
                 var start = DateTimeOffset.UtcNow; // we cannot take stopwatch, because thread could sleep
 
-                var cs = configuration["AzureWebJobsStorage"] ?? configuration[$"Values:{"AzureWebJobsStorage"}"];
+                var cs = configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] ?? configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"];
 
                 var client = new BlobContainerClient(cs, "roedl-configuration");
                 var blob = client.GetBlobClient("mq.json");

@@ -244,7 +244,7 @@ namespace EAI.General.Xml
                 case NodeDefaultBehavior.Default:
                     return null;
                 case NodeDefaultBehavior.Exception:
-                    throw new InvalidOperationException($"Could not locate node {LocalName} (xPath: {xPath ?? "[NULL]"}).");
+                    throw new InvalidOperationException($"Could not locate node {LocalName} (xPath: {xPath ?? EAI.Texts.Properties.NULL}).");
                 case NodeDefaultBehavior.CreateFromSchema:
                     SchemaTyping = true;
                     return createNode();

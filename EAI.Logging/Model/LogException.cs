@@ -31,7 +31,7 @@ namespace EAI.Logging.Model
         private static Func<string,string> FormatText = (string message) =>
         {
             if(string.IsNullOrWhiteSpace(message))
-                return "[NULL]";
+                return EAI.Texts.Properties.NULL;
 
             return message.Replace("\n", $"\n{_INDENT}");
         };

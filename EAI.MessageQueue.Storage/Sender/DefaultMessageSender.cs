@@ -11,15 +11,14 @@ namespace EAI.MessageQueue.Storage.Sender
 {
     public class DefaultMessageSender : IMessageSender
     {
-        private static readonly string _Storage = "AzureWebJobsStorage";
-        private static readonly string _QueueSchema = "rdl-q-{0}-{1}";
+        //private static readonly string _QueueSchema = "rdl-q-{0}-{1}";
         private SecureString ConnectionString { get; set; }
         private IConfiguration _configuration { get; set; }
         private ILogger _log { get; set; }
         private string _cs => new NetworkCredential(string.Empty, ConnectionString).Password;
 
         private string getQueue(string queue, string messageType) 
-            => string.Format(_QueueSchema, queue, messageType);
+            => EAI.Texts.DefaultStorage.QueueSchema(queue, messageType);
 
         public string GetSenderName(MessageItem message) 
             => getQueue(message.GetQueue, message.MessageType);
@@ -27,7 +26,7 @@ namespace EAI.MessageQueue.Storage.Sender
 
         public DefaultMessageSender(IConfiguration configuration, ILogger log)
         {
-            var cs = configuration[_Storage] ?? configuration[$"Values:{_Storage}"];
+            var cs = configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] ?? configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"];
             ConnectionString = new NetworkCredential(string.Empty, cs).SecurePassword;
             _configuration = configuration;
             _log = log;
