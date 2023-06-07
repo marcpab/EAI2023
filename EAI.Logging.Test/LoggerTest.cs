@@ -13,7 +13,7 @@ namespace EAI.Logging.Test
             var service = "LogProviderTest";
             var transaction = "TestBasic01";
             var childTransaction = "Step1";
-            var key = Guid.NewGuid().ToString().Substring(0, 8);
+            var key = Guid.NewGuid().ToString()[..8];
             
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
@@ -53,7 +53,7 @@ namespace EAI.Logging.Test
             var service = "LogProviderTest";
             var transaction = "TestBasic02";
             var childTransaction = "Step2";
-            var key = Guid.NewGuid().ToString().Substring(0, 8);
+            var key = Guid.NewGuid().ToString()[..8];
 
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
@@ -94,7 +94,7 @@ namespace EAI.Logging.Test
             var service = "LogProviderTest";
             var transaction = "TestBasic03";
             var childTransaction = "Step3";
-            var key = Guid.NewGuid().ToString().Substring(0, 8);
+            var key = Guid.NewGuid().ToString()[..8];
             
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
@@ -135,7 +135,7 @@ namespace EAI.Logging.Test
             var service = "LogProviderTest";
             var transaction = "TestBasic04";
             var childTransaction = "Step4";
-            var key = Guid.NewGuid().ToString().Substring(0, 8);
+            var key = Guid.NewGuid().ToString()[..8];
 
             // requires Microsoft.Extensions.Logging.Debug 
             var serviceProvider = new ServiceCollection()
@@ -143,6 +143,7 @@ namespace EAI.Logging.Test
                 .BuildServiceProvider();
 
             var factory = serviceProvider.GetService<ILoggerFactory>();
+            Assert.NotNull(factory);
             var logger = factory.CreateLogger<LoggerTest>();
 
             var log = new Logger(logger, LogStage.UAT, service, transaction, childTransaction, key);
@@ -162,7 +163,7 @@ namespace EAI.Logging.Test
             var service = "LogProviderTest";
             var transaction = "TestBasic05";
             var childTransaction = "Step5";
-            var key = Guid.NewGuid().ToString().Substring(0, 8);
+            var key = Guid.NewGuid().ToString()[..8];
 
             // requires Microsoft.Extensions.Logging.Debug 
             var serviceProvider = new ServiceCollection()
@@ -170,6 +171,7 @@ namespace EAI.Logging.Test
                 .BuildServiceProvider();
 
             var factory = serviceProvider.GetService<ILoggerFactory>();
+            Assert.NotNull(factory);
             var logger = factory.CreateLogger<LoggerTest>();
 
             var log = new Logger(logger, LogStage.UAT, service, transaction, childTransaction, key);
@@ -194,7 +196,7 @@ namespace EAI.Logging.Test
             var service = "LogProviderTest";
             var transaction = "TestBasic06";
             var childTransaction = "Step6";
-            var key = Guid.NewGuid().ToString().Substring(0, 8);
+            var key = Guid.NewGuid().ToString()[..8];
 
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
@@ -237,7 +239,7 @@ namespace EAI.Logging.Test
             var service = "LogProviderTest";
             var transaction = "TestBasic07";
             var childTransaction = "Step7";
-            var key = Guid.NewGuid().ToString().Substring(0, 8);
+            var key = Guid.NewGuid().ToString()[..8];
 
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
