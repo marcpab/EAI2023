@@ -7,37 +7,6 @@ namespace EAI.General.Xml.Extensions
 {
     public static class XmlExtensions
     {
-        public static XmlDocument ToXmlDocument(this XDocument xDocument)
-        {
-            var xmlDocument = new XmlDocument();
-
-            using (var xmlReader = xDocument.CreateReader())
-            {
-                xmlDocument.Load(xmlReader);
-            }
-
-            return xmlDocument;
-        }
-
-        public static XmlDocument ToXmlDocument(this byte[] byteXmlData)
-        {
-            var document = new XmlDocument();
-
-            try
-            {
-                using (var memoryStream = new MemoryStream(byteXmlData))
-                {
-                    document.Load(memoryStream);
-                }
-            }
-            catch
-            {
-                // ignore error and return empty xml
-            }
-
-            return document;
-        }
-
         public static byte[] ToUTF8ByteArray(this XmlDocument document)
         {
             return Encoding.UTF8.GetBytes(document.OuterXml);

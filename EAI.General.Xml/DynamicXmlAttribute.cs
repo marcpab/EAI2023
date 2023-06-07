@@ -52,10 +52,11 @@ namespace EAI.General.Xml
                     return xmlAttribute;
             }
 
+            // when there is nothing, than the behavior decides...
             switch (NodeBehavior)
             {
                 case NodeDefaultBehavior.EmptyToNull:
-                case NodeDefaultBehavior.Null:
+                case NodeDefaultBehavior.Default:
                     return null;
                 case NodeDefaultBehavior.Exception:
                     throw new InvalidOperationException($"Could not find attribute {name}");
