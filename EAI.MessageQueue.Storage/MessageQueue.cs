@@ -52,8 +52,8 @@ namespace EAI.MessageQueue.Storage
 
                 var cs = configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] ?? configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"];
 
-                var client = new BlobContainerClient(cs, "roedl-configuration");
-                var blob = client.GetBlobClient("mq.json");
+                var client = new BlobContainerClient(cs, EAI.Texts.DefaultStorage.ConfigurationContainer);
+                var blob = client.GetBlobClient(EAI.Texts.DefaultStorage.ConfigurationFile);
 
                 var span = start.Subtract(DateTimeOffset.UtcNow);
                 if (span > S_criticalSpan)

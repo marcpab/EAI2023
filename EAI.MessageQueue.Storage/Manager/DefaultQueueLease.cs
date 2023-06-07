@@ -23,7 +23,7 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public string LeaseId { get; private set; }
 
-        public string GetContainer() => Container.Replace("roedl-queue-", "").Replace("dequeue", "");
+        public string GetContainer() => EAI.Texts.DefaultStorage.ExtractContainerFromQueue(Container);
 
         public DefaultQueueLease(ILogger log, SecureString cs, string container, string blob, string leaseId)
         {

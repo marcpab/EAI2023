@@ -11,7 +11,6 @@ namespace EAI.MessageQueue.Storage.Sender
 {
     public class DefaultMessageSender : IMessageSender
     {
-        //private static readonly string _QueueSchema = "rdl-q-{0}-{1}";
         private SecureString ConnectionString { get; set; }
         private IConfiguration _configuration { get; set; }
         private ILogger _log { get; set; }
