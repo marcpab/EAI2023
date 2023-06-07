@@ -1,5 +1,7 @@
 ﻿using EAI.General.Cache;
 using EAI.General.ExtendableHttp;
+using EAI.General.Extensions;
+using EAI.OAuth;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
@@ -22,6 +24,8 @@ namespace EAI.Rest
             var requestMessage = requestData.CreateHttpRequestMessage(_serializerSettings);
 
             var response = await SendAsync(requestMessage);
+
+            await response.ThrowHttpException();
 
             return new RestResult(response, _serializerSettings);
         }

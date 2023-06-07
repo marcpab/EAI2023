@@ -43,11 +43,11 @@ namespace EAI.General.Settings
                     new BlobStorageDefaultConfig
                     {
                         Type = settings["ConfigStorageType"] ?? "EAI.AzureStorage.BlobStorage, EAI.AzureStorage",
-                        ConnectionString = settings["AzureWebJobsStorage"],
-                        RootPath = settings["ConfigRootPath"]
+                        ConnectionString = settings["ConfigurationStorage"] ?? settings["AzureWebJobsStorage"],
+                        RootPath = settings["ConfigRootPath"] ?? "config"
                     });
 
-                _storageConfigBlobName = settings["StorageConfigBlobName"];
+                _storageConfigBlobName = settings["StorageConfigBlobName"] ?? "config.json";
             }
 
             var storage = JsonConvert.DeserializeObject<IBlobStorage>(_storageConfigJson, new JsonSerializerSettings()

@@ -14,6 +14,8 @@ namespace EAI.OData
             ContractResolver = new ODataContractResolver()
         };
 
+        public static JsonSerializerSettings JsonSerializerSettings { get { return _serializerSettings; } }
+
         public ODataClient() 
         { 
             SerializerSettings = _serializerSettings;

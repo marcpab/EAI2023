@@ -9,17 +9,17 @@ namespace EAI.Dataverse.ModelGenerator.Model
 
     public class EntityMetadata
     {
-        public static async Task<EntityMetadata> GetEntityDefinition(ODataClient odataClient, string entity)
-        {
-            return await odataClient
+        public static Task<EntityMetadata> GetEntityDefinition(ODataClient odataClient, string entity) 
+            => 
+                odataClient
                     .Fetch(new ODataQuery()
                     {
                         Path = $"EntityDefinitions(LogicalName='{entity}')",
                         Expand = "Attributes,ManyToOneRelationships"
                     })
                     .ResultAs<EntityMetadata>()
-                    .ExecuteAsync().ConfigureAwait(false);
-        }
+                    .ExecuteAsync();
+        
 
         [JsonProperty("@odata.context")]
         public string OdataContext { get; set; }

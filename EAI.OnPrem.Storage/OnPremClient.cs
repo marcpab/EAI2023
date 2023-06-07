@@ -14,6 +14,7 @@ namespace EAI.OnPrem.Storage
         private static JsonSerializerSettings _settings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.Auto,
+            
         };
 
         private static CancellationTokenSource _cancelletionTokenSource = new CancellationTokenSource();
@@ -23,7 +24,12 @@ namespace EAI.OnPrem.Storage
         {
             var onPremResponseMessage = (OnPremMessage)JsonConvert.DeserializeObject(jOnPremResponseMessage, _settings);
 
-            _requestHandler.RequestCompleted(onPremResponseMessage);
+            var exceptionMessage = onPremResponseMessage as ExceptionMessage;
+            var isException = exceptionMessage != null;
+            if (isException)
+                _requestHandler.Exception(onPremResponseMessage, exceptionMessage._exception);
+            else
+                _requestHandler.RequestCompleted(onPremResponseMessage);
 
             return Task.CompletedTask;
         }
@@ -56,10 +62,6 @@ namespace EAI.OnPrem.Storage
             await StartListenerAsync(responseQueueName);
 
             var onPremResponseMessage = await tcs.Task;
-
-            var exceptionMessage = onPremResponseMessage as ExceptionMessage;
-            if (exceptionMessage != null)
-                throw exceptionMessage._exception;
 
             return (responseT)onPremResponseMessage;
         }

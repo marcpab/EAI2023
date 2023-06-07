@@ -49,7 +49,7 @@ namespace EAI.Rest.Fluent
             return new FluentResponse<T>(GetAs<T>, this);
         }
 
-        private async Task<T> GetAs<T>()
+        public async Task<T> GetAs<T>()
         {
             var result = await _restClient.SendAsync(_restRequest);
 

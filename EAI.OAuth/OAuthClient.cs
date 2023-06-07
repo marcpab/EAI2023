@@ -35,7 +35,7 @@ namespace EAI.OAuth
                                         })
             using (var response = await SendAsync(httpRequest))
             {
-                response.EnsureSuccessStatusCode();
+                await response.ThrowHttpException();
 
                 using (var content = response.Content)
                     return JsonConvert.DeserializeObject<OAuthResponse>(await content.ReadAsStringAsync());

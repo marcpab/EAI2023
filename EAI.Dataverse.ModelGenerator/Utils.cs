@@ -12,7 +12,7 @@ namespace EAI.Dataverse.ModelGenerator
 {
     public class Utils
     {
-        private static string[] _excapeNames = new[] { "is", "as", "in", "for" };
+        private static string[] _excapeNames = new[] { "is", "as", "in", "for", "new" };
 
         public static string Codeify(string optionLabel)
         {
