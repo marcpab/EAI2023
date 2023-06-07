@@ -25,6 +25,7 @@ namespace EAI.OnPrem.SAPNcoService
             _rfcGatewayService = _serviceHost.GetServices<IRfcGatewayService>().FirstOrDefault();
 
             _requestListener.RegisterRequestHandler<CallRfcRequest, CallRfcResponse>(CallRfcAsyc);
+            _requestListener.RegisterRequestHandler<GetJRfcSchemaRequest, GetJRfcSchemaResponse>(GetJRfcSchemaAsync);
         }
 
         private async Task<CallRfcResponse> CallRfcAsyc(CallRfcRequest request)
@@ -36,5 +37,16 @@ namespace EAI.OnPrem.SAPNcoService
                             _ret = rfcResponse
                         };
         }
+
+        private async Task<GetJRfcSchemaResponse> GetJRfcSchemaAsync(GetJRfcSchemaRequest request)
+        {
+            var rfcResponse = await _rfcGatewayService.GetJRfcSchemaAsync(request._name, request._functionName);
+
+            return new GetJRfcSchemaResponse()
+            {
+                _ret = rfcResponse
+            };
+        }
+
     }
 }

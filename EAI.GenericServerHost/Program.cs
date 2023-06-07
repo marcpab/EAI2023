@@ -35,30 +35,21 @@ namespace EAI.GenericServerHost
         {
             var isService = args.Contains("-service");
 
-            var serviceHost = new ServiceHost();
-
-            await serviceHost.InitializeAsync(typeof(Program));
-
-
             if (isService)
-            {
-                throw new NotImplementedException("Service support currently not implemented");
-            }
+                WindowsService.Run(new WindowsService());
             else
-                await RunConsoleAsync(serviceHost);
+                await RunConsoleAsync();
 
             await _clientPipeMessagingFactory.WaitAsync();
 
             return 0;
         }
 
-        private static async Task RunConsoleAsync(ServiceHost program)
+        private static async Task RunConsoleAsync()
         {
             using (var cancellationTokenSoucre = new CancellationTokenSource())
             {
-                _clientPipeMessagingFactory.Initialize(1, cancellationTokenSoucre.Token);
-
-                var serviceTask = program.RunAsync(cancellationTokenSoucre.Token);
+                Task serviceTask = RunAsync(cancellationTokenSoucre.Token);
 
                 while (!cancellationTokenSoucre.Token.IsCancellationRequested)
                 {
@@ -77,6 +68,17 @@ namespace EAI.GenericServerHost
 
                 await serviceTask;
             }
+        }
+
+        public static async Task RunAsync(CancellationToken cancellationToken)
+        {
+            var serviceHost = new ServiceHost();
+
+            await serviceHost.InitializeAsync(typeof(Program));
+
+            _clientPipeMessagingFactory.Initialize(1, cancellationToken);
+
+            await serviceHost.RunAsync(cancellationToken);
         }
     }
 }
