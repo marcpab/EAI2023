@@ -43,7 +43,7 @@ namespace EAI.MessageQueue.Storage.Sender
             _ = await client.CreateIfNotExistsAsync().ConfigureAwait(false);
             var payload = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(ticket)));
             var receipt = await client.SendMessageAsync(payload).ConfigureAwait(false);
-            Log.LogInformation($"[MQ.{message.GetQueue}] AzureQueue {azQueue} send msg receipt {receipt.Value}");
+            Log.LogInformation("[MQ.{Queue}] AzureQueue {AzQueue} send msg receipt {Receipt}", message.GetQueue, azQueue, receipt.Value);
         }
     }
 }

@@ -31,24 +31,21 @@ namespace EAI.General.Xml.Extensions
                 if (item == null)
                     continue;
 
-                var complexType = item as XmlSchemaComplexType;
-                if (complexType != null)
+                if (item is XmlSchemaComplexType complexType)
                 {
                     workItems.Push(complexType.ContentTypeParticle);
 
                     continue;
                 }
 
-                var element = item as XmlSchemaElement;
-                if (element != null)
+                if (item is XmlSchemaElement element)
                 {
                     yield return element;
 
                     continue;
                 }
 
-                var groupBase = item as XmlSchemaGroupBase;
-                if (groupBase != null)
+                if (item is XmlSchemaGroupBase groupBase)
                 {
                     foreach (var groupItem in groupBase.Items.Cast<object>().Reverse())
                         workItems.Push(groupItem);
@@ -56,8 +53,7 @@ namespace EAI.General.Xml.Extensions
                     continue;
                 }
 
-                var groupRef = item as XmlSchemaGroupRef;
-                if (groupRef != null)
+                if (item is XmlSchemaGroupRef groupRef)
                 {
                     workItems.Push(groupRef.Particle);
 

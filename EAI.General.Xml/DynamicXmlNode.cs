@@ -117,8 +117,7 @@ namespace EAI.General.Xml
             // when we didnt get a XmlNode, we try to get a DynamicXml
             if (valueIsXmlNode == null)
             {
-                var valueIsDynamicNode = value as DynamicXmlNode;
-                if (valueIsDynamicNode != null)
+                if (value is DynamicXmlNode valueIsDynamicNode)
                     valueIsXmlNode = valueIsDynamicNode.GetCurrentNode();
             }
 
@@ -178,7 +177,7 @@ namespace EAI.General.Xml
                     createNode = () 
                         =>
                     {
-                        XmlNode newXmlNode = null;
+                        XmlNode newXmlNode;
                         while ((newXmlNode = Parent.SelectSingleNode(xPath)) == null)
                             CreateNode(Parent, ParentSchemaElement, LocalName);
 
@@ -309,7 +308,7 @@ namespace EAI.General.Xml
         {
             result = GetNode(binder.Name);
             
-            return result == null ? false : true;
+            return result != null;
         }
 
         public override bool TrySetMember(SetMemberBinder binder, object value)

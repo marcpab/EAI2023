@@ -181,9 +181,8 @@ namespace EAI.General.Xml.Extensions
             if (node == null)
                 throw new ArgumentNullException($"Parameter node is null. XPath: {xPath}");
 
-            var selectedNode = node.SelectSingleNode(xPath);
-            if (selectedNode == null)
-                throw new InvalidOperationException($"Node not found. XPath: {xPath}");
+            var selectedNode = node.SelectSingleNode(xPath)
+                ?? throw new InvalidOperationException($"Node not found. XPath: {xPath}");
 
             InternalSetValue(selectedNode, value);
         }
@@ -211,10 +210,8 @@ namespace EAI.General.Xml.Extensions
 
         public static XmlNode ChildOrCreate(this XmlNode node, string name)
         {
-            var childNode = node.SelectSingleNode(Utilities.GetNodeXPath(name));
-
-            if (childNode == null)
-                childNode = Create(node, name);
+            var childNode = node.SelectSingleNode(Utilities.GetNodeXPath(name))
+                ?? Create(node, name);
 
             return childNode;
         }

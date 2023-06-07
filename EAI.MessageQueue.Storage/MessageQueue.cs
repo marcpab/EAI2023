@@ -55,13 +55,13 @@ namespace EAI.MessageQueue.Storage
                 var span = start.Subtract(DateTimeOffset.UtcNow);
                 if (span > S_criticalSpan)
                 {
-                    Log.LogWarning($"[MQ {Name}] slow processing in GetConfiguration {span.Seconds} sec");
+                    Log.LogWarning("[MQ {Name}] slow processing in GetConfiguration {Time} sec", Name, span.Seconds);
                 }
 
 
                 if (await blob.ExistsAsync().ConfigureAwait(true) == false)
                 {
-                    Log.LogWarning($"[MQ {Name}] DefaultManager.GetConfiguration: no global {EAI.Texts.DefaultStorage.ConfigurationFile} found, trying to read from host.json...");
+                    Log.LogWarning("[MQ {Name}] DefaultManager.GetConfiguration: no global {Config} found, trying to read from host.json...", Name, EAI.Texts.DefaultStorage.ConfigurationFile);
                     return configuration.Get<MessageQueueConfiguration>("MQ");
                 }
 
@@ -69,7 +69,7 @@ namespace EAI.MessageQueue.Storage
             }
             catch (Exception ex)
             {
-                Log.LogWarning($"[MQ {Name}] DefaultManager.GetConfiguration: {ex.Message} {ex.InnerException?.Message}");
+                Log.LogWarning("[MQ {Name}] DefaultManager.GetConfiguration: {Ex} {InnerEx}", Name, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
                 throw;
             }
         }
@@ -85,7 +85,7 @@ namespace EAI.MessageQueue.Storage
             {
                 message = MessageItem.Create(queueName, payload, secondaryKey, messageType, MQ.ManagerType);
 
-                Log.LogInformation($"[MQ.{queueName}] Enqueue for {message.Id} type {messageType} key {secondaryKey}");
+                Log.LogInformation("[MQ.{Queue}] Enqueue for {Id} type {MessageType} key {SecondaryKey}", queueName, message.Id, messageType, secondaryKey);
 
                 step = 1;
                 _ = await Manager.EnqueueAsync(message);
@@ -96,7 +96,7 @@ namespace EAI.MessageQueue.Storage
             }
             catch (Exception ex)
             {
-                Log.LogError($"[MQ {Name}] MessageQueue (step {step}) ex: {ex.Message} {ex.InnerException?.Message}");
+                Log.LogError("[MQ {Name}] MessageQueue (step {Step}) ex: {Ex} {InnerEx}", Name, step, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
             }
             finally
             {
@@ -113,7 +113,7 @@ namespace EAI.MessageQueue.Storage
             await Dequeue();
         }
 
-        public async Task Dequeue(bool dupedetection = false)
+        public async Task Dequeue()
         {
             await foreach (var queue in Manager.GetQueues())
             {
@@ -128,10 +128,8 @@ namespace EAI.MessageQueue.Storage
                         var timeout = MQ.GetTimeout(queue);
                         var maxTickets = MQ.GetMaxTickets(queue);
 
-                        //Log.LogInformation($"[MQ.{queue}] Dequeue to AzureQueue start...");
                         await foreach (var message in Manager.DequeueAsync(queue, maxTickets, timeout))
                         {
-                            //Log.LogInformation($"[MQ.{queue}] Dequeue {message.Endpoint}-{message.MessageType}");
                             await SendMessage(message);
                             isMessageDequeued = true;
                         }
@@ -139,18 +137,18 @@ namespace EAI.MessageQueue.Storage
                         var span = start.Subtract(DateTimeOffset.UtcNow);
                         if (span > S_criticalSpan)
                         {
-                            Log.LogWarning($"[MQ {Name}] slow processing in Dequeue {span.Seconds} sec");
+                            Log.LogWarning("[MQ {Name}] slow processing in Dequeue {Seconds} sec", Name, span.Seconds);
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.LogError($"[MQ {Name}] MessageQueue.Dequeue ex in {queue}: {ex.Message} {ex.InnerException?.Message} status: {Manager.Status} stack: {ex.StackTrace}");
+                        Log.LogError("[MQ {Name}] MessageQueue.Dequeue ex in {Queue}: {Ex} {InnerEx} status: {ManagerStatus} stack: {ExStack}", Name, queue, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL, Manager.Status, ex.StackTrace);
                     }
                 }
             }
         }
 
-        public async Task<int> Dequeue(string queue, bool dupedetection = false)
+        public async Task<int> Dequeue(string queue)
         {
             var cntMessages = 0;
             var isMessageDequeued = true;
@@ -174,12 +172,12 @@ namespace EAI.MessageQueue.Storage
                     var span = start.Subtract(DateTimeOffset.UtcNow);
                     if (span > S_criticalSpan)
                     {
-                        Log.LogWarning($"[MQ {Name}] slow processing in Dequeue(q) {span.Seconds} sec");
+                        Log.LogWarning("[MQ {Name}] slow processing in Dequeue(q) {Seconds} sec", Name, span.Seconds);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError($"[MQ {Name}] MessageQueue.Dequeue(q) ex in {queue}: {ex.Message} {ex.InnerException?.Message} status: {Manager.Status} stack: {ex.StackTrace}");
+                    Log.LogError("[MQ {Name}] MessageQueue.Dequeue(q) ex in {Queue}: {Ex} {InnerEx} status: {ManagerStatus} stack: {ExStack}", Name, queue, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL, Manager.Status, ex.StackTrace);
                 }
             }
 

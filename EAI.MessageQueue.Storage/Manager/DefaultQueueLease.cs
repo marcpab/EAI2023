@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using EAI.MessageQueue.Storage.Extensions;
 using Microsoft.Extensions.Logging;
@@ -70,7 +71,7 @@ namespace EAI.MessageQueue.Storage.Manager
             catch (Exception ex)
             {
                 if (!isValidCheck) // when heartbeat and exception than log!
-                    Log.LogError($"[MQ.{ContainerName}] DefaultQueueLease.RenewAsync ({LeaseId}) ex:{ex.Message} {ex.InnerException?.Message} stack: {ex.StackTrace}");
+                    Log.LogError("[MQ.{Container}] DefaultManager.RenewAsync {Lease} ex: {Ex} {InnerEx} stack: {ExStack}", ContainerName, LeaseId, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL, ex.StackTrace);
 
                 LeaseId = string.Empty;
 
@@ -100,17 +101,16 @@ namespace EAI.MessageQueue.Storage.Manager
             {
                 try
                 {
-                    Log.LogInformation($"[MQ.{ContainerName}] DefaultQueueLease.ReleaseAsync ({LeaseId})");
+                    Log.LogInformation("[MQ.{Container}] DefaultQueueLease.ReleaseAsync ({LeaseId})", ContainerName, LeaseId);
 
                     var leaseClient = blob.GetBlobLeaseClient(LeaseId);
                     await leaseClient.ReleaseAsync();
 
-                    //Log.LogInformation($"[MQ.{ContainerName}] DefaultQueueLease.ReleaseAsync ({LeaseId}) ok");
                     LeaseId = string.Empty;
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError($"[MQ.{ContainerName}] DefaultQueueLease.ReleaseAsync ({LeaseId}) ex: {ex.Message} {ex.InnerException?.Message} stack {ex.StackTrace}");
+                    Log.LogError("[MQ.{Container}] DefaultQueueLease.ReleaseAsync ({LeaseId}) ex: {Ex} {InnerEx} stack {ExStack}", ContainerName, LeaseId, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL, ex.StackTrace);
                 }
 
                 Disposed = true;

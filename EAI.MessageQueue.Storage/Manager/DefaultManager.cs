@@ -30,7 +30,7 @@ namespace EAI.MessageQueue.Storage.Manager
         public static string GetContainerArchive(string queueName) => EAI.Texts.DefaultStorage.BlobArchiveContainer(queueName);
 
         private string CS => new NetworkCredential(string.Empty, ConnectionString).Password;
-        private readonly ILogger _log;
+        private readonly ILogger Log;
 
         public string LeaseId { get; private set; } = string.Empty;
 
@@ -43,7 +43,7 @@ namespace EAI.MessageQueue.Storage.Manager
 
             Status = DequeueStatus.None;
 
-            _log = log ?? throw new ArgumentNullException(nameof(log));
+            Log = log ?? throw new ArgumentNullException(nameof(log));
 
             var mqc = GetConfiguration(configuration).Result ?? throw new ArgumentNullException(nameof(configuration));
             MQC = mqc;
@@ -58,7 +58,8 @@ namespace EAI.MessageQueue.Storage.Manager
 
                 if (await blob.ExistsAsync().ConfigureAwait(true) == false)
                 {
-                    _log.LogWarning($"[MQ] DefaultManager.GetConfiguration: no global {EAI.Texts.DefaultStorage.ConfigurationFile} found, trying to read from host.json...");
+                    
+                    Log.LogWarning("[MQ] DefaultManager.GetConfiguration: no global {ConfigFile} found, trying to read from host.json...", EAI.Texts.DefaultStorage.ConfigurationFile);
                     return configuration.Get<MessageQueueConfiguration>("MQ");
                 }
 
@@ -66,7 +67,7 @@ namespace EAI.MessageQueue.Storage.Manager
             }
             catch (Exception ex)
             {
-                _log.LogWarning($"[MQ] DefaultManager.GetConfiguration: {ex.Message} {ex.InnerException?.Message}");
+                Log.LogWarning("[MQ] DefaultManager.GetConfiguration: {Ex} {InnerEx}", ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
                 throw;
             }
         }
@@ -281,13 +282,13 @@ namespace EAI.MessageQueue.Storage.Manager
 
                 var leaseClient = blob.GetBlobLeaseClient();
                 _ = await leaseClient.BreakAsync();
-                _log.LogWarning($"[MQ.{queueName}] DefaultManager.FreeTimeoutLeaseAsync broke old lease {adjusted:dd. HH:mm:ss} {lastRenew:dd. HH:mm:ss}");
+                Log.LogWarning("[MQ.{Queue}] DefaultManager.FreeTimeoutLeaseAsync broke old lease {Time} {RenewTime}", queueName, $"{adjusted:dd. HH:mm:ss}", $"{lastRenew:dd. HH:mm:ss}");
 
                 return true;
             }
             catch (Exception ex)
             {
-                _log.LogWarning($"[MQ.{queueName}] DefaultManager.FreeTimeoutLeaseAsync ex: {ex.Message} {ex.InnerException?.Message}");
+                Log.LogWarning("[MQ.{Queue}] DefaultManager.FreeTimeoutLeaseAsync ex: {Ex} {InnerEx}", queueName, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
             }
 
             return false;
@@ -311,7 +312,7 @@ namespace EAI.MessageQueue.Storage.Manager
             }
             catch (Exception ex)
             {
-                _log.LogWarning($"[MQ.{queueName}] DefaultManager.updateQueueList ex: {ex.Message} {ex.InnerException?.Message}");
+                Log.LogWarning("[MQ.{Queue}] DefaultManager.UpdateQueueList ex: {Ex} {InnerEx}", queueName, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
             }
         }
 
@@ -367,13 +368,13 @@ namespace EAI.MessageQueue.Storage.Manager
                             // ...we enqueue it again
                             await EnqueueAsync(item);
                             count++;
-                            _log.LogWarning($"[MQ.{queueName}] DefaultManager.FreeTimeoutMessagesAsync removed {b} key: {item.MessageKey} from dequeue");
+                            Log.LogWarning("[MQ.{Queue}] DefaultManager.FreeTimeoutMessagesAsync removed {Blob} key: {ItemKey} from dequeue", queueName, b, item.MessageKey);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _log.LogError($"[MQ.{queueName}] DefaultManager.FreeTimeoutMessagesAsync ex: {ex.Message} {ex.InnerException?.Message}");
+                    Log.LogError("[MQ.{Queue}] DefaultManager.FreeTimeoutMessagesAsync ex: {Ex} {InnerEx}", queueName, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
                 }
             }
 
@@ -446,7 +447,7 @@ namespace EAI.MessageQueue.Storage.Manager
             }
             catch (Exception ex)
             {
-                _log.LogError($"[MQ.{message?.GetQueue}] DefaultManager.ReleaseAsync ex: {ex.Message} {ex.InnerException?.Message}");
+                Log.LogWarning("[MQ.{Queue}] DefaultManager.ReleaseAsync ex: {Ex} {InnerEx}", message?.GetQueue ?? EAI.Texts.Properties.NULL, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
             }
 
             return message;
@@ -467,16 +468,15 @@ namespace EAI.MessageQueue.Storage.Manager
             queueName = queueName.ToLower();
             var name = EAI.Texts.DefaultStorage.FileSemaphore(queueName);
 
-            _log.LogInformation($"[MQ.{queueName}] DefaultManager.RequestLeaseAsync I request semaphore");
+            Log.LogInformation("[MQ.{Queue}] DefaultManager.RequestLeaseAsync I request semaphore", queueName);
 
             var ok = await _semaphoreSlim.WaitAsync(2000).ConfigureAwait(false);
             if (!ok)
             {
-                _log.LogInformation($"[MQ.{queueName}] DefaultManager.RequestLeaseAsync semaphore timeout");
+                Log.LogInformation("[MQ.{Queue}] DefaultManager.RequestLeaseAsync semaphore timeout", queueName);
                 mo.SetMessage(MessageObjectId.ReleaseAsyncStop, true);
 
                 return null;
-                //_log.LogInformation($"[MQ.{queueName}] DefaultManager.RequestLeaseAsync I response semaphore");
             }
 
             try
@@ -503,14 +503,14 @@ namespace EAI.MessageQueue.Storage.Manager
                     {
                         result = false;
 
-                        _log.LogInformation($"[MQ.{queueName}] DefaultManager.RequestLeaseAsync I FreeTimeoutLeaseAsync");
+                        Log.LogInformation("[MQ.{Queue}] DefaultManager.RequestLeaseAsync I FreeTimeoutLeaseAsync", queueName);
 
                         if (await FreeTimeoutLeaseAsync(queueName) == false)
                             retry = false;
                     }
                     catch (Exception ex)
                     {
-                        _log.LogWarning($"[MQ.{queueName}] DefaultManager.RequestLeaseAsync I ex: {ex.Message} {ex.InnerException?.Message}");
+                        Log.LogWarning("[MQ.{Queue}] DefaultManager.RequestLeaseAsync ex: {Ex} {InnerEx}", queueName, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
                         result = false;
                         retry = false;
                     }
@@ -521,16 +521,16 @@ namespace EAI.MessageQueue.Storage.Manager
             }
             catch (Exception ex)
             {
-                _log.LogWarning($"[MQ.{queueName}]] DefaultManager.RequestLeaseAsync II ex: {ex.Message} {ex.InnerException?.Message}");
+                Log.LogWarning("[MQ.{Queue}] DefaultManager.RequestLeaseAsync II ex: {Ex} {InnerEx}", queueName, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
                 throw;
             }
             finally
             {
-                _log.LogInformation($"[MQ.{queueName}] DefaultManager.RequestLeaseAsync I release semaphore");
+                Log.LogInformation("[MQ.{Queue}] DefaultManager.RequestLeaseAsync I release semaphore", queueName);
                 _semaphoreSlim.Release();
             }
 
-            return new DefaultQueueLease(_log, ConnectionString, EAI.Texts.DefaultStorage.BlobLockContainer, name, LeaseId);
+            return new DefaultQueueLease(Log, ConnectionString, EAI.Texts.DefaultStorage.BlobLockContainer, name, LeaseId);
         }
 
         public IQueueTicket GetTicket(MessageItem message)

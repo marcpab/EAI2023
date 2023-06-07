@@ -37,6 +37,7 @@ namespace EAI.General.Xml.Test
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = $"EAI.General.Xml.Test.{XmlFolder}.{name}";
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (Stream? stream = assembly?.GetManifestResourceStream(resourceName))
             {
                 if (stream == null)
@@ -49,6 +50,7 @@ namespace EAI.General.Xml.Test
                     return doc;
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         private static XDocument? GetXDoc(string name)
@@ -56,6 +58,7 @@ namespace EAI.General.Xml.Test
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = $"EAI.General.Xml.Test.{XmlFolder}.{name}";
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (Stream? stream = assembly?.GetManifestResourceStream(resourceName))
             {
                 if (stream == null)
@@ -63,6 +66,7 @@ namespace EAI.General.Xml.Test
 
                 return XDocument.Load(stream);
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public static string? GetString(string name) 
@@ -72,16 +76,18 @@ namespace EAI.General.Xml.Test
         {
             var assembly = Assembly.GetExecutingAssembly();
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (Stream? stream = assembly?.GetManifestResourceStream(resourceName))
             {
                 if (stream == null)
                     return null;
 
-                using (StreamReader reader = new StreamReader(stream))
+                using (StreamReader reader = new(stream))
                 {
                     return reader.ReadToEnd();
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
     }
 }

@@ -28,7 +28,7 @@ namespace EAI.Logging.Model
             StackTrace = FormatText(exception.StackTrace);
         }
 
-        private static Func<string,string> FormatText = (string message) =>
+        private static readonly Func<string,string> FormatText = (string message) =>
         {
             if(string.IsNullOrWhiteSpace(message))
                 return EAI.Texts.Properties.NULL;

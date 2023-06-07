@@ -29,24 +29,21 @@ namespace EAI.Logging.Model
                 return (msgType, contentString);
             }
 
-            var xElement = content as XElement;
-            if (xElement != null)
+            if (content is XElement xElement)
             {
                 msgType = LogMessageType.XML;
                 contentString = xElement.ToString();
                 return (msgType, contentString);
             }
 
-            var xmlNode = content as XmlNode;
-            if (xmlNode != null)
+            if (content is XmlNode xmlNode)
             {
                 msgType = LogMessageType.XML;
                 contentString = xmlNode.OuterXml;
                 return (msgType, contentString);
             }
 
-            var jToken = content as JToken;
-            if (jToken != null)
+            if (content is JToken jToken)
             {
                 msgType = LogMessageType.JSON;
                 contentString = jToken.ToString(Newtonsoft.Json.Formatting.Indented);

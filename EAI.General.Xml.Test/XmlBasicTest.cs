@@ -218,7 +218,7 @@ namespace EAI.General.Xml.Test
     public class XmlBenchmarks
     {
         [Benchmark]
-        public void TestToDynamicXml05_DynamicNodeToXElement()
+        public static void TestToDynamicXml05_DynamicNodeToXElement()
         {
             var data = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
 
@@ -246,7 +246,7 @@ namespace EAI.General.Xml.Test
         }
 
         [Benchmark]
-        public void TestToDynamicXml05_DynamicNode()
+        public static void TestToDynamicXml05_DynamicNode()
         {
             var data = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
 
@@ -269,13 +269,8 @@ namespace EAI.General.Xml.Test
             Assert.Equal("0001", sd[1]);
         }
 
-        /*
-         * |              Method |       Mean |    Error |   StdDev |     Gen0 |    Gen1 | Allocated |
-         * |-------------------- |-----------:|---------:|---------:|---------:|--------:|----------:|
-         * | TestToDynamicXml05c |   422.4 us |  4.49 us |  4.20 us |  72.7539 | 23.9258 | 267.34 KB |
-         */
         [Benchmark]
-        public void TestToDynamicXml05_XElementLinq()
+        public static void TestToDynamicXml05_XElementLinq()
         {
             var xIdoc = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
 
@@ -301,7 +296,7 @@ namespace EAI.General.Xml.Test
         }
 
         [Benchmark]
-        public void TestToDynamicXml05_XElementLoad()
+        public static void TestToDynamicXml05_XElementLoad()
         {
             var xIdoc = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
 
@@ -309,7 +304,7 @@ namespace EAI.General.Xml.Test
         }
 
         [Benchmark]
-        public void TestToDynamicXml05_XmlLoad()
+        public static void TestToDynamicXml05_XmlLoad()
         {
             var xIdoc = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
 
@@ -317,7 +312,7 @@ namespace EAI.General.Xml.Test
         }
 
         [Benchmark]
-        public void TestToDynamicXml05_DynamicNodeLoad()
+        public static void TestToDynamicXml05_DynamicNodeLoad()
         {
             var data = ResourceHelper.Xml_ZDebmas07_SampleChemicalIndustry01;
 
@@ -325,6 +320,8 @@ namespace EAI.General.Xml.Test
 
             var dynNode = data
                 .ToDynamic(NodeDefaultBehavior.Default);
+
+            Assert.NotNull(dynNode);
         }
     }
 }

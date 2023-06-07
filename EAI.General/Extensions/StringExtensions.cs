@@ -15,8 +15,7 @@ namespace EAI.General.Extensions
                 return defaultValue;
             }
 
-            long value;
-            if(long.TryParse(s, out value))
+            if(long.TryParse(s, out long value))
                 return value;
 
             onParseFailed?.Invoke();
@@ -31,8 +30,7 @@ namespace EAI.General.Extensions
                 return defaultValue;
             }
 
-            int value;
-            if (int.TryParse(s, out value))
+            if (int.TryParse(s, out int value))
                 return value;
 
             onParseFailed?.Invoke();
@@ -47,8 +45,7 @@ namespace EAI.General.Extensions
                 return defaultValue;
             }
 
-            DateTimeOffset value;
-            if (DateTimeOffset.TryParseExact(s, format, null, DateTimeStyles.None, out value))
+            if (DateTimeOffset.TryParseExact(s, format, null, DateTimeStyles.None, out DateTimeOffset value))
                 return value;
 
             onParseFailed?.Invoke();
