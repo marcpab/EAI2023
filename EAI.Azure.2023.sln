@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EAI.General.Xml.Test", "EAI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EAI.MessageQueue.Storage", "EAI.MessageQueue.Storage\EAI.MessageQueue.Storage.csproj", "{ABF2ED98-0E22-490F-BA88-604FB13C2C90}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EAI.Texts", "EAI.Texts\EAI.Texts.csproj", "{3EDFC4BD-4599-49C6-A94C-4D8C7B0DDDE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{ABF2ED98-0E22-490F-BA88-604FB13C2C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABF2ED98-0E22-490F-BA88-604FB13C2C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABF2ED98-0E22-490F-BA88-604FB13C2C90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EDFC4BD-4599-49C6-A94C-4D8C7B0DDDE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EDFC4BD-4599-49C6-A94C-4D8C7B0DDDE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EDFC4BD-4599-49C6-A94C-4D8C7B0DDDE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EDFC4BD-4599-49C6-A94C-4D8C7B0DDDE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
