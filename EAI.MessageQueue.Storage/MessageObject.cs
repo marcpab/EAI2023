@@ -30,7 +30,7 @@ namespace EAI.MessageQueue.Storage
                 ControlFlags.Add(id, value);
         }
 
-        private void cleanup()
+        private void Cleanup()
         {
             ControlFlags.Clear();
             Disposed = true;
@@ -39,7 +39,7 @@ namespace EAI.MessageQueue.Storage
         public void Dispose()
         {
             while (!Disposed)
-                cleanup();
+                Cleanup();
 
             GC.SuppressFinalize(this);
         }

@@ -12,42 +12,38 @@ namespace EAI.MessageQueue.Storage.Sender
     public class DefaultMessageSender : IMessageSender
     {
         private SecureString ConnectionString { get; set; }
-        private IConfiguration _configuration { get; set; }
-        private ILogger _log { get; set; }
-        private string _cs => new NetworkCredential(string.Empty, ConnectionString).Password;
+        private IConfiguration Configuration { get; set; }
+        private ILogger Log { get; set; }
+        private string CS => new NetworkCredential(string.Empty, ConnectionString).Password;
 
-        private string getQueue(string queue, string messageType) 
+        private static string GetQueue(string queue, string messageType) 
             => EAI.Texts.DefaultStorage.QueueSchema(queue, messageType);
 
         public string GetSenderName(MessageItem message) 
-            => getQueue(message.GetQueue, message.MessageType);
+            => GetQueue(message.GetQueue, message.MessageType);
 
 
         public DefaultMessageSender(IConfiguration configuration, ILogger log)
         {
             var cs = configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] ?? configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"];
             ConnectionString = new NetworkCredential(string.Empty, cs).SecurePassword;
-            _configuration = configuration;
-            _log = log;
+            Configuration = configuration;
+            Log = log;
         }
 
         public async Task SendMessageAsync(MessageItem message)
         {
             var instance = (IMessageManager?)Activator
-                .CreateInstance(message.MessageManager, new object[] { _configuration, _log });
-
-            if(instance == null) 
-            { 
-                throw new InvalidOperationException("DefaultMessageSender.SendMessageAsync cannot create instance of IMessageManager");
-            }
+                .CreateInstance(message.MessageManager, new object[] { Configuration, Log })
+                ?? throw new InvalidOperationException("DefaultMessageSender.SendMessageAsync cannot create instance of IMessageManager");
 
             var ticket = instance.GetTicket(message);
-            var azQueue = getQueue(message.GetQueue, message.MessageType);
-            var client = new QueueClient(_cs, azQueue);
+            var azQueue = GetQueue(message.GetQueue, message.MessageType);
+            var client = new QueueClient(CS, azQueue);
             _ = await client.CreateIfNotExistsAsync().ConfigureAwait(false);
             var payload = System.Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(ticket)));
             var receipt = await client.SendMessageAsync(payload).ConfigureAwait(false);
-            _log.LogInformation($"[MQ.{message.GetQueue}] AzureQueue {azQueue} send msg receipt {receipt.Value}");
+            Log.LogInformation($"[MQ.{message.GetQueue}] AzureQueue {azQueue} send msg receipt {receipt.Value}");
         }
     }
 }

@@ -23,12 +23,13 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public string LeaseId { get; private set; }
 
-        public string GetContainer() => EAI.Texts.DefaultStorage.ExtractContainerFromQueue(Container);
+        public string ContainerName { get; private set; }
 
         public DefaultQueueLease(ILogger log, SecureString cs, string container, string blob, string leaseId)
         {
             ConnectionString = cs;
             Container = container;
+            ContainerName = EAI.Texts.DefaultStorage.ExtractContainerFromQueue(Container);
             Blob = blob;
             Disposed = false;
             LeaseId = leaseId;
@@ -69,7 +70,7 @@ namespace EAI.MessageQueue.Storage.Manager
             catch (Exception ex)
             {
                 if (!isValidCheck) // when heartbeat and exception than log!
-                    Log.LogError($"[MQ.{GetContainer()}] DefaultQueueLease.RenewAsync ({LeaseId}) ex:{ex.Message} {ex.InnerException?.Message} stack: {ex.StackTrace}");
+                    Log.LogError($"[MQ.{ContainerName}] DefaultQueueLease.RenewAsync ({LeaseId}) ex:{ex.Message} {ex.InnerException?.Message} stack: {ex.StackTrace}");
 
                 LeaseId = string.Empty;
 
@@ -99,17 +100,17 @@ namespace EAI.MessageQueue.Storage.Manager
             {
                 try
                 {
-                    Log.LogInformation($"[MQ.{GetContainer()}] DefaultQueueLease.ReleaseAsync ({LeaseId})");
+                    Log.LogInformation($"[MQ.{ContainerName}] DefaultQueueLease.ReleaseAsync ({LeaseId})");
 
                     var leaseClient = blob.GetBlobLeaseClient(LeaseId);
                     await leaseClient.ReleaseAsync();
 
-                    //Log.LogInformation($"[MQ.{GetContainer()}] DefaultQueueLease.ReleaseAsync ({LeaseId}) ok");
+                    //Log.LogInformation($"[MQ.{ContainerName}] DefaultQueueLease.ReleaseAsync ({LeaseId}) ok");
                     LeaseId = string.Empty;
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError($"[MQ.{GetContainer()}] DefaultQueueLease.ReleaseAsync ({LeaseId}) ex: {ex.Message} {ex.InnerException?.Message} stack {ex.StackTrace}");
+                    Log.LogError($"[MQ.{ContainerName}] DefaultQueueLease.ReleaseAsync ({LeaseId}) ex: {ex.Message} {ex.InnerException?.Message} stack {ex.StackTrace}");
                 }
 
                 Disposed = true;

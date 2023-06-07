@@ -8,7 +8,7 @@ namespace EAI.MessageQueue.Storage.Extensions
     {
         public static string ToHexString(this byte[] byteData)
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
             for (int i = 0; i < byteData.Length; i++)
             {
                 str.Append(byteData[i].ToString("x2"));

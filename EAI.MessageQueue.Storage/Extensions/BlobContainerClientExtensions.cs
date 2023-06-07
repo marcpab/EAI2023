@@ -7,7 +7,7 @@ namespace EAI.MessageQueue.Storage.Extensions
     {
         public async static Task<ConcurrentBag<string>> ListBlobNamesAsync(this BlobContainerClient client)
         {
-            ConcurrentBag<string> items = new ConcurrentBag<string>();
+            ConcurrentBag<string> items = new();
 
             try
             {

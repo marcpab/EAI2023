@@ -24,13 +24,13 @@ namespace EAI.MessageQueue.Storage
                 throw new ArgumentOutOfRangeException($"manager {manager?.Name ?? EAI.Texts.Properties.NULL} not accepted");
 
             if (string.IsNullOrWhiteSpace(msgType))
-                throw new ArgumentNullException("msgType is flow control! Field cannot be empty");
+                throw new ArgumentException("msgType is flow control! Field cannot be empty");
 
             if (string.IsNullOrWhiteSpace(endpoint))
-                throw new ArgumentNullException("endpoint is flow control! Field cannot be empty");
+                throw new ArgumentException("endpoint is flow control! Field cannot be empty");
 
             if (string.IsNullOrWhiteSpace(jsonObject))
-                throw new ArgumentNullException("jsonObject is empty, queuing makes no sense");
+                throw new ArgumentException("jsonObject is empty, queuing makes no sense");
 
             meta.Id = DateTime.Now.Ticks.ToString();
             meta.MessageKey = key;

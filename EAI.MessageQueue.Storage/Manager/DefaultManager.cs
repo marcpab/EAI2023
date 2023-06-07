@@ -20,17 +20,17 @@ namespace EAI.MessageQueue.Storage.Manager
 {
     public class DefaultManager : IMessageManager
     {
-        private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);        
+        private static readonly SemaphoreSlim _semaphoreSlim = new(1, 1);        
 
         private SecureString ConnectionString { get; set; }
-        private MessageQueueConfiguration _mqc { get; set; }
+        private MessageQueueConfiguration MQC { get; set; }
 
         public string GetContainerEnqueue(string queueName) => EAI.Texts.DefaultStorage.BlobContainer(queueName);
         public string GetContainerDequeue(string queueName) => EAI.Texts.DefaultStorage.BlobDequeueContainer(queueName);
-        public string GetContainerArchive(string queueName) => EAI.Texts.DefaultStorage.BlobArchiveContainer(queueName);
+        public static string GetContainerArchive(string queueName) => EAI.Texts.DefaultStorage.BlobArchiveContainer(queueName);
 
-        private string _cs => new NetworkCredential(string.Empty, ConnectionString).Password;
-        private ILogger _log;
+        private string CS => new NetworkCredential(string.Empty, ConnectionString).Password;
+        private readonly ILogger _log;
 
         public string LeaseId { get; private set; } = string.Empty;
 
@@ -43,30 +43,22 @@ namespace EAI.MessageQueue.Storage.Manager
 
             Status = DequeueStatus.None;
 
-            if (log == null)
-            {
-                throw new ArgumentNullException("log");
-            }
-            _log = log;
+            _log = log ?? throw new ArgumentNullException(nameof(log));
 
-            var mqc = GetConfiguration(configuration).Result;
-            if(mqc == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-            _mqc = mqc;
+            var mqc = GetConfiguration(configuration).Result ?? throw new ArgumentNullException(nameof(configuration));
+            MQC = mqc;
         }
 
         private async Task<MessageQueueConfiguration?> GetConfiguration(IConfiguration configuration)
         {
             try
             {
-                var client = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.ConfigurationContainer);
-                var blob = client.GetBlobClient("mq.json");
+                var client = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.ConfigurationContainer);
+                var blob = client.GetBlobClient(EAI.Texts.DefaultStorage.ConfigurationFile);
 
                 if (await blob.ExistsAsync().ConfigureAwait(true) == false)
                 {
-                    _log.LogWarning($"[MQ] DefaultManager.GetConfiguration: no global mq.json found, trying to read from host.json...");
+                    _log.LogWarning($"[MQ] DefaultManager.GetConfiguration: no global {EAI.Texts.DefaultStorage.ConfigurationFile} found, trying to read from host.json...");
                     return configuration.Get<MessageQueueConfiguration>("MQ");
                 }
 
@@ -81,11 +73,11 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public async Task<int> ContainerCount(string containerName)
         {
-            var client = new BlobContainerClient(_cs, containerName);
+            var client = new BlobContainerClient(CS, containerName);
             return await ContainerCount(client).ConfigureAwait(true);
         }
 
-        private async Task<int> ContainerCount(BlobContainerClient client)
+        private static async Task<int> ContainerCount(BlobContainerClient client)
         {
             if (await client.ExistsAsync() == false)
                 return 0;
@@ -107,14 +99,14 @@ namespace EAI.MessageQueue.Storage.Manager
                 yield break;
             }
 
-            var enqueueClient = new BlobContainerClient(_cs, GetContainerEnqueue(queueName));
+            var enqueueClient = new BlobContainerClient(CS, GetContainerEnqueue(queueName));
             if (await enqueueClient.ExistsAsync() == false)
             {
                 Status = DequeueStatus.ContainerMissing;
                 yield break;
             }
 
-            var dequeueClient = new BlobContainerClient(_cs, GetContainerDequeue(queueName));
+            var dequeueClient = new BlobContainerClient(CS, GetContainerDequeue(queueName));
             _ = await dequeueClient.CreateIfNotExistsAsync();
 
             var count = maxTickets - await ContainerCount(dequeueClient);
@@ -129,7 +121,7 @@ namespace EAI.MessageQueue.Storage.Manager
                 Status = DequeueStatus.None;
                 var blobs = await enqueueClient.ListBlobNamesAsync();
 
-                if (blobs.Count < 1)
+                if (blobs.IsEmpty)
                 {
                     Status = DequeueStatus.Finished;
                     yield break;
@@ -218,8 +210,9 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public async IAsyncEnumerable<MessageItem> DequeueAsync(string queueName, int maxTickets, int timeoutInSeconds)
         {
-            var freedup = 0;
+            int freedup;
 
+#pragma warning disable IDE0063
             using (var lease = RequestLeaseAsync(queueName).Result) // we have to sync wait
             {
                 if (lease == null)
@@ -232,16 +225,17 @@ namespace EAI.MessageQueue.Storage.Manager
                     yield return r;
                 }
             }
+#pragma warning restore IDE0063
         }
 
-        public bool ValidateMetadata(MessageItem message, bool fault = true)
+        public static bool ValidateMetadata(MessageItem message, bool fault = true)
         {
             bool errors = false;
 
             if (message == null)
             {
                 if (fault)
-                    throw new ArgumentNullException("message");
+                    throw new ArgumentNullException(nameof(message));
                 else
                     errors = true;
             }
@@ -249,7 +243,7 @@ namespace EAI.MessageQueue.Storage.Manager
             if (string.IsNullOrWhiteSpace(message?.Id))
             {
                 if (fault)
-                    throw new ArgumentNullException("message property Id is empty");
+                    throw new ArgumentException(nameof(message.Id));
                 else
                     errors = true;
             }
@@ -269,7 +263,7 @@ namespace EAI.MessageQueue.Storage.Manager
         {
             try
             {
-                var client = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.BlobLockContainer);
+                var client = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.BlobLockContainer);
                 var blob = client.GetBlobClient(EAI.Texts.DefaultStorage.FileSemaphore(queueName));
 
                 if (await blob.ExistsAsync()== false)
@@ -282,12 +276,12 @@ namespace EAI.MessageQueue.Storage.Manager
                 var lastRenew = props.Value.LastModified;
                 var adjusted = DateTimeOffset.UtcNow.Add(lastRenew.Offset);
 
-                if (adjusted < lastRenew.AddSeconds(_mqc.LeaseTimeout))
+                if (adjusted < lastRenew.AddSeconds(MQC.LeaseTimeout))
                     return false;
 
                 var leaseClient = blob.GetBlobLeaseClient();
                 _ = await leaseClient.BreakAsync();
-                _log.LogWarning($"[MQ.{queueName}] DefaultManager.FreeTimeoutLeaseAsync broke old lease {adjusted.ToString("dd. HH:mm:ss")} {lastRenew.ToString("dd. HH:mm:ss")}");
+                _log.LogWarning($"[MQ.{queueName}] DefaultManager.FreeTimeoutLeaseAsync broke old lease {adjusted:dd. HH:mm:ss} {lastRenew:dd. HH:mm:ss}");
 
                 return true;
             }
@@ -304,11 +298,11 @@ namespace EAI.MessageQueue.Storage.Manager
         /// </summary>
         /// <param name="queueName"></param>
         /// <returns></returns>
-        private async Task updateQueueList(string queueName)
+        private async Task UpdateQueueList(string queueName)
         {
             try
             {
-                var container = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.QueueListContainer);
+                var container = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.QueueListContainer);
                 _ = await container.CreateIfNotExistsAsync();
                 var blob = container.GetBlobClient(queueName);
 
@@ -323,7 +317,7 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public async IAsyncEnumerable<string> GetQueues()
         {
-            var container = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.QueueListContainer);
+            var container = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.QueueListContainer);
             if (await container.ExistsAsync() == false)
                 yield break;
 
@@ -335,11 +329,11 @@ namespace EAI.MessageQueue.Storage.Manager
         {
             ValidateMetadata(message);
 
-            var container = new BlobContainerClient(_cs, GetContainerEnqueue(message.GetQueue));
+            var container = new BlobContainerClient(CS, GetContainerEnqueue(message.GetQueue));
             await container.CreateIfNotExistsAsync();
             _ = await container.GetBlobClient($"{message.Id}.json").UploadStringAsync(JsonConvert.SerializeObject(message));
 
-            _ = updateQueueList(message.GetQueue);
+            _ = UpdateQueueList(message.GetQueue);
 
             return message;
         }
@@ -351,7 +345,7 @@ namespace EAI.MessageQueue.Storage.Manager
             if (lease == null)
                 return count;
 
-            var dequeueClient = new BlobContainerClient(_cs, GetContainerDequeue(queueName));
+            var dequeueClient = new BlobContainerClient(CS, GetContainerDequeue(queueName));
             if (await dequeueClient.ExistsAsync() == false)
                 return count;
 
@@ -366,7 +360,7 @@ namespace EAI.MessageQueue.Storage.Manager
                     if (ticks + TimeSpan.FromSeconds(timeoutInSeconds).Ticks <= nowTicks)
                     {
                         // we just delete it and do not archive it because...
-                        var item = await releaseAsync(dequeueClient.GetBlobClient(b), true, false);
+                        var item = await ReleaseAsync(dequeueClient.GetBlobClient(b), true);
                         if (item != null)
                         {
                             item.Status = ProcessingStatus.ProcessingTimeout;
@@ -386,12 +380,12 @@ namespace EAI.MessageQueue.Storage.Manager
             return count;
         }
 
-        private async Task<bool> storeInArchive(MessageItem message)
+        private async Task<bool> StoreInArchive(MessageItem message)
         {
-            var container = new BlobContainerClient(_cs, GetContainerArchive(message.GetQueue));
+            var container = new BlobContainerClient(CS, GetContainerArchive(message.GetQueue));
             _ = await container.CreateIfNotExistsAsync();
 
-            var file = $"{message.ReceivedOn.DateTime.ToString("yyyyMMdd_HHmmss")}_{message.MessageType}_{message.MessageKey}{{0}}.json";
+            var file = $"{message.ReceivedOn.DateTime:yyyyMMdd_HHmmss}_{message.MessageType}_{message.MessageKey}{{0}}.json";
             var blob = container.GetBlobClient(string.Format(file, string.Empty));
             if (await blob.ExistsAsync())
                 blob = container.GetBlobClient(string.Format(file, $".{Path.GetRandomFileName().Replace(".", "")}"));
@@ -399,7 +393,7 @@ namespace EAI.MessageQueue.Storage.Manager
             return await blob.UploadStringAsync(JsonConvert.SerializeObject(message));
         }
 
-        private async Task<MessageItem?> releaseAsync(BlobClient blobClient, bool fault, bool archive)
+        private async Task<MessageItem?> ReleaseAsync(BlobClient blobClient, bool fault)
         {
             MessageItem? result = await blobClient.DownloadAsync<MessageItem>();
             await blobClient.DeleteIfExistsAsync();
@@ -408,14 +402,14 @@ namespace EAI.MessageQueue.Storage.Manager
             {
                 result.Status = fault ? ProcessingStatus.FinishedWithErrors : ProcessingStatus.Finished;
 
-                var toArchive = _mqc.Archive.Default;
-                if (_mqc.Archive.Custom?.Count > 0 
+                var toArchive = MQC.Archive.Default;
+                if (MQC.Archive.Custom?.Count > 0 
                     && !string.IsNullOrWhiteSpace(result.Endpoint)
-                    && _mqc.Archive.Custom.ContainsKey(result.Endpoint))
-                    toArchive = _mqc.Archive.Custom[result.Endpoint];
+                    && MQC.Archive.Custom.ContainsKey(result.Endpoint))
+                    toArchive = MQC.Archive.Custom[result.Endpoint];
 
                 if (toArchive)
-                    _ = await storeInArchive(result);
+                    _ = await StoreInArchive(result);
             }
 
             return result;
@@ -427,23 +421,23 @@ namespace EAI.MessageQueue.Storage.Manager
             {
                 ValidateMetadata(message);
 
-                var container = new BlobContainerClient(_cs, GetContainerDequeue(message.GetQueue));
+                var container = new BlobContainerClient(CS, GetContainerDequeue(message.GetQueue));
                 var blobClient = container.GetBlobClient($"{message.Id}.json");
 
-                var toArchive = _mqc.Archive.Default;
-                if (_mqc.Archive.Custom?.Count > 0 
+                var toArchive = MQC.Archive.Default;
+                if (MQC.Archive.Custom?.Count > 0 
                     && !string.IsNullOrWhiteSpace(message.Endpoint)
-                    && _mqc.Archive.Custom.ContainsKey(message.Endpoint))
-                    toArchive = _mqc.Archive.Custom[message.Endpoint];
+                    && MQC.Archive.Custom.ContainsKey(message.Endpoint))
+                    toArchive = MQC.Archive.Custom[message.Endpoint];
 
-                var item = await releaseAsync(blobClient, fault, toArchive);
+                var item = await ReleaseAsync(blobClient, fault);
 
                 if (item == null)
                 {
                     message.Status = ProcessingStatus.FinishedButNotInQueue;
 
                     if (toArchive)
-                        _ = await storeInArchive(message);
+                        _ = await StoreInArchive(message);
 
                     return message;
                 }
@@ -489,7 +483,7 @@ namespace EAI.MessageQueue.Storage.Manager
             {
                 var retry = true;
                 bool result = false;
-                var client = new BlobContainerClient(_cs, EAI.Texts.DefaultStorage.BlobLockContainer);
+                var client = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.BlobLockContainer);
                 var blob = client.GetBlobClient(name);
 
                 if (!blob.Exists())
