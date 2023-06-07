@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EAI.AzureStorage\EAI.AzureStorage.csproj" />
     <ProjectReference Include="..\EAI.GenericServer\EAI.GenericServer.csproj" />
     <ProjectReference Include="..\EAI.OnPrem.Storage\EAI.OnPrem.Storage.csproj" />

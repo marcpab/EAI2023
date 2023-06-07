@@ -168,7 +168,7 @@ namespace EAI.NetFramework.SAPNco
                             var jRecord = new JObject();
 
                             rfcTable.CurrentIndex = rowIndex;
-                            RfcDataToJson(rfcTable.CurrentRow, jRecord);
+                            RfcMetadataToJsonSchema(rfcTable.CurrentRow, jRecord, direction);
 
                             jTable.Add(jRecord);
                         }
@@ -185,7 +185,7 @@ namespace EAI.NetFramework.SAPNco
 
                         var jStruct = new JObject();
 
-                        RfcDataToJson(rfcStruct, jStruct);
+                        RfcMetadataToJsonSchema(rfcStruct, jStruct, direction);
 
                         jData.Add(new JProperty(elementMetadata.Name, jStruct));
 
@@ -193,9 +193,7 @@ namespace EAI.NetFramework.SAPNco
 
                     default:
 
-                        var rfcValue = rfcData.GetValue(elementIndex);
-                        if (rfcValue == null)
-                            break;
+                        var rfcValue = $"rfc type: {elementMetadata.DataType}, abap type: {GetAbapType(elementMetadata.DataType)}, decimals: {elementMetadata.Decimals}, uc len: {elementMetadata.UcLength}";
 
                         var jParam = new JValue(rfcValue);
 
@@ -205,5 +203,42 @@ namespace EAI.NetFramework.SAPNco
                 }
             }
         }
+
+        public static string GetAbapType(RfcDataType dataType)
+        {
+            switch(dataType)
+            {
+                case RfcDataType.CHAR: return " C";
+                case RfcDataType.BYTE: return " X";
+                case RfcDataType.NUM: return " N";
+                case RfcDataType.BCD: return " P";
+                case RfcDataType.DATE: return " D";
+                case RfcDataType.TIME: return " T";
+                case RfcDataType.UTCLONG: return " p";
+                case RfcDataType.UTCSECOND: return " n";
+                case RfcDataType.UTCMINUTE: return " w";
+                case RfcDataType.DTDAY: return " d";
+                case RfcDataType.DTWEEK: return "7";
+                case RfcDataType.DTMONTH: return " x";
+                case RfcDataType.TSECOND: return " t";
+                case RfcDataType.TMINUTE: return " i";
+                case RfcDataType.CDAY: return " c";
+                case RfcDataType.FLOAT: return " F";
+                case RfcDataType.INT1: return " b";
+                case RfcDataType.INT2: return " s";
+                case RfcDataType.INT4: return " I";
+                case RfcDataType.INT8: return "8";
+                case RfcDataType.DECF16: return " a";
+                case RfcDataType.DECF34: return " e";
+                case RfcDataType.STRING: return " g";
+                case RfcDataType.XSTRING: return " y";
+                case RfcDataType.STRUCTURE: return " u or v";
+                case RfcDataType.TABLE: return " h";
+                case RfcDataType.CLASS: return " * or +";
+                default:
+                    return "unknown";
+            }
+        }
+
     }
 }
