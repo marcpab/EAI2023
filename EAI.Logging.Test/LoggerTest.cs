@@ -18,8 +18,10 @@ namespace EAI.Logging.Test
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
 
-            var writers = new List<ILogWriter>();
-            writers.Add(LogItemListWriter.Instance);
+            var writers = new List<ILogWriter>
+            {
+                LogItemListWriter.Instance
+            };
 
             var writerCollection = new DefaultLogWriterCollection(writers);
             
@@ -58,9 +60,11 @@ namespace EAI.Logging.Test
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
 
-            var writers = new List<ILogWriter>();
-            writers.Add(LogItemListWriter.Instance);
-            writers.Add(StringBuilderWriter.Instance);
+            var writers = new List<ILogWriter>
+            {
+                LogItemListWriter.Instance,
+                StringBuilderWriter.Instance
+            };
 
             var writerCollection = new DefaultLogWriterCollection(writers);
 
@@ -99,9 +103,11 @@ namespace EAI.Logging.Test
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
 
-            var writers = new List<ILogWriter>();
-            writers.Add(LogItemListWriter.Instance);
-            writers.Add(StringBuilderWriter.Instance);
+            var writers = new List<ILogWriter>
+            {
+                LogItemListWriter.Instance,
+                StringBuilderWriter.Instance
+            };
 
             var writerCollection = new DefaultLogWriterCollection(writers);
 
@@ -201,8 +207,10 @@ namespace EAI.Logging.Test
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
 
-            var writers = new List<ILogWriter>();
-            writers.Add(LogItemListWriter.Instance);
+            var writers = new List<ILogWriter>
+            {
+                LogItemListWriter.Instance
+            };
 
             var writerCollection = new DefaultLogWriterCollection(writers);
 
@@ -244,8 +252,10 @@ namespace EAI.Logging.Test
             LogItemListWriter.Instance.Clear();
             StringBuilderWriter.Instance.Clear();
 
-            var writers = new List<ILogWriter>();
-            writers.Add(LogItemListWriter.Instance);
+            var writers = new List<ILogWriter>
+            {
+                LogItemListWriter.Instance
+            };
 
             var writerCollection = new DefaultLogWriterCollection(writers);
 
