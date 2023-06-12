@@ -8,7 +8,7 @@ namespace EAI.General.Xml.Extensions
     {
         public static XmlSchemaElement GetChildSchemaElement(this XmlSchemaElement schemaElement, string childLocalName)
         {
-            if (schemaElement == null)
+            if (schemaElement is null)
                 return null;
 
             return schemaElement
@@ -19,7 +19,7 @@ namespace EAI.General.Xml.Extensions
 
         public static IEnumerable<XmlSchemaElement> GetChildSchemaElements(this XmlSchemaElement schemaElement)
         {
-            if (schemaElement == null)
+            if (schemaElement is null)
                 yield break;
 
             var workItems = new Stack<object>();
@@ -28,7 +28,7 @@ namespace EAI.General.Xml.Extensions
             while (workItems.Count > 0)
             {
                 var item = workItems.Pop();
-                if (item == null)
+                if (item is null)
                     continue;
 
                 if (item is XmlSchemaComplexType complexType)

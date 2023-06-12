@@ -40,7 +40,7 @@ namespace EAI.General.Xml.Test
 #pragma warning disable IDE0063 // Use simple 'using' statement
             using (Stream? stream = assembly?.GetManifestResourceStream(resourceName))
             {
-                if (stream == null)
+                if (stream is null)
                     return null;
 
                 using (XmlReader reader = XmlReader.Create(stream))
@@ -61,7 +61,7 @@ namespace EAI.General.Xml.Test
 #pragma warning disable IDE0063 // Use simple 'using' statement
             using (Stream? stream = assembly?.GetManifestResourceStream(resourceName))
             {
-                if (stream == null)
+                if (stream is null)
                     return null;
 
                 return XDocument.Load(stream);
@@ -79,7 +79,7 @@ namespace EAI.General.Xml.Test
 #pragma warning disable IDE0063 // Use simple 'using' statement
             using (Stream? stream = assembly?.GetManifestResourceStream(resourceName))
             {
-                if (stream == null)
+                if (stream is null)
                     return null;
 
                 using (StreamReader reader = new(stream))

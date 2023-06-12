@@ -58,7 +58,7 @@ namespace EAI.General.Xml
         {
             var currentSchemaElement = GetCurrentSchemaElement();
 
-            if (Parent == null)
+            if (Parent is null)
                 yield break;
 
             foreach (XmlNode node in Parent.SelectNodes($"./*[local-name() = '{LocalName}']"))
@@ -91,14 +91,14 @@ namespace EAI.General.Xml
         {
             var currentXmlNode = GetCurrentNode();
 
-            if (value == null)
+            if (value is null)
             {
                 currentXmlNode.SelectSingleNode(Utilities.GetNodeXPath(name)).RemoveNode();
                 return true;
             }
 
             var newChildXmlNode = currentXmlNode.SelectSingleNode(Utilities.GetNodeXPath(name));
-            if (newChildXmlNode == null)
+            if (newChildXmlNode is null)
             {
                 var currentSchemaElement = GetCurrentSchemaElement();
                 newChildXmlNode = CreateNode(currentXmlNode, currentSchemaElement, name);
@@ -109,13 +109,13 @@ namespace EAI.General.Xml
 
         private static bool SetValue(XmlNode valueNode, object value)
         {
-            if (value == null)
+            if (value is null)
                 return false;
 
             var valueIsXmlNode = value as XmlNode;
             
             // when we didnt get a XmlNode, we try to get a DynamicXml
-            if (valueIsXmlNode == null)
+            if (valueIsXmlNode is null)
             {
                 if (value is DynamicXmlNode valueIsDynamicNode)
                     valueIsXmlNode = valueIsDynamicNode.GetCurrentNode();
@@ -123,10 +123,10 @@ namespace EAI.General.Xml
 
             // when we didnt get a XmlNode or DynamicXml, we assume we got
             // an object that posesses ToString method
-            if (valueIsXmlNode == null)
+            if (valueIsXmlNode is null)
             {
                 var valueIsString = value.ToString();
-                if (valueIsString == null)
+                if (valueIsString is null)
                     return false;
 
                 valueNode.InnerText = valueIsString;
@@ -143,7 +143,7 @@ namespace EAI.General.Xml
             if (Current != null)
                 return Current;
 
-            if (Parent == null)
+            if (Parent is null)
                 return null;
 
             // createNode Logic and xPath depends on parameter indexes
@@ -178,7 +178,7 @@ namespace EAI.General.Xml
                         =>
                     {
                         XmlNode newXmlNode;
-                        while ((newXmlNode = Parent.SelectSingleNode(xPath)) == null)
+                        while ((newXmlNode = Parent.SelectSingleNode(xPath)) is null)
                             CreateNode(Parent, ParentSchemaElement, LocalName);
 
                         return newXmlNode;
@@ -258,7 +258,7 @@ namespace EAI.General.Xml
         {
             // when SchemaValidation is required, then schemaElement must be present
             var schemaElement = parentSchemaElement.GetChildSchemaElement(localName);
-            if (SchemaTyping && schemaElement == null)
+            if (SchemaTyping && schemaElement is null)
                 throw new InvalidOperationException($"{localName} not found in schema");
 
             var newNode = parent.Create(
@@ -321,7 +321,7 @@ namespace EAI.General.Xml
             var currentXmlNode = GetCurrentNode(indexes);
             var currentSchemaElement = GetCurrentSchemaElement();
 
-            result = currentXmlNode == null ?
+            result = currentXmlNode is null ?
                 new DynamicXmlNode(null, null, null, NodeBehavior,NamespaceLookup) :
                 new DynamicXmlNode(currentXmlNode, currentSchemaElement, NodeBehavior, NamespaceLookup);
 
@@ -332,7 +332,7 @@ namespace EAI.General.Xml
         {
             var currentXmlNode = GetCurrentNode(indexes);
 
-            if (value == null)
+            if (value is null)
             {
                 currentXmlNode.RemoveNode();
                 return true;

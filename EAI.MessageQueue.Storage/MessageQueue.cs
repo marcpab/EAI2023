@@ -25,8 +25,8 @@ namespace EAI.MessageQueue.Storage
                 ?? throw new InvalidOperationException("Message Queue configuration 'MQ' is missing in your host.json!");
             MQ = mq;
 
-            if (Configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] == null 
-                && Configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"] == null)
+            if (Configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] is null 
+                && Configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"] is null)
                 throw new InvalidOperationException($"{EAI.Texts.DefaultStorage.StorageConfigurationKey} application setting env is missing!");
 
             var manager = (IMessageManager?)Activator.CreateInstance(MQ.ManagerType, new object[] { configuration, log }) 

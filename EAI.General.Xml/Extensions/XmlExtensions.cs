@@ -14,7 +14,7 @@ namespace EAI.General.Xml.Extensions
 
         public static XmlElement CreateElement(this XmlDocument doc, XName xName, XAttribute xmlns)
         {
-            if (xmlns == null)
+            if (xmlns is null)
                 return doc.CreateElement(null, xName.LocalName, xName.NamespaceName);
 
             if (xName.NamespaceName == xmlns.Value)
