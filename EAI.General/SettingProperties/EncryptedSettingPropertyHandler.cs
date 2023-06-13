@@ -25,7 +25,7 @@ namespace EAI.General.SettingProperties
         public Task ExecuteAsync()
         {
 
-            var properties = JObjectSettingProperty.GetProperties($"$encrypted", _setting);
+            var properties = JObjectSettingProperty.GetProperties("$encrypted", _setting);
 
             if (!properties.Any())
             {

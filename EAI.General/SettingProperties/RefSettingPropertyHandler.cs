@@ -20,7 +20,7 @@ namespace EAI.General.SettingProperties
         public Task ExecuteAsync()
         {
 
-            var properties = JObjectSettingProperty.GetProperties($"ref", _setting);
+            var properties = JObjectSettingProperty.GetProperties("$ref", _setting);
 
             foreach (var property in properties)
             {

@@ -14,12 +14,12 @@ namespace EAI.Dataverse
         {
             var jEvent = JObject.Parse(dataverseEvent);
 
-            JObject jEntity = TransformEventToEntity(propertyName, imageKey, jEvent);
+            JObject jEntity = TransformEventToEntity(jEvent, propertyName, imageKey);
 
             return JsonConvert.DeserializeObject<T>(jEntity.ToString(), ODataClient.JsonSerializerSettings);
         }
 
-        private static JObject TransformEventToEntity(string propertyName, string imageKey, JObject jEvent)
+        public static JObject TransformEventToEntity(JObject jEvent, string propertyName = "PostEntityImages", string imageKey = "PostImage")
         {
             var jAttributes = jEvent
                 .Value<JArray>(propertyName)

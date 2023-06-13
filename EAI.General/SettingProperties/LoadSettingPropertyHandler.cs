@@ -33,7 +33,7 @@ namespace EAI.General.SettingProperties
 
         private async Task ExecuteAsync(JObject setting)
         {
-            var properties = JObjectSettingProperty.GetProperties($"load", setting);
+            var properties = JObjectSettingProperty.GetProperties("$load", setting);
 
             foreach (var property in properties)
                 try

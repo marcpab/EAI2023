@@ -23,7 +23,7 @@ namespace EAI.General.SettingProperties
         public Task ExecuteAsync()
         {
 
-            var properties = JObjectSettingProperty.GetProperties($"$filter", _setting);
+            var properties = JObjectSettingProperty.GetProperties("$filter", _setting);
 
             foreach (var property in properties)
             {

@@ -24,11 +24,11 @@ namespace EAI.General.SettingJson
             };
         }
 
-        public void DeserializeInstance<T>(T value, string json)
+        public void DeserializeInstance(object instance, string json)
         {
-            _context.AddInstance(value);
+            _context.AddInstance(instance);
 
-            JsonConvert.DeserializeObject<T>(json, _settings);
+            JsonConvert.DeserializeObject(json, instance.GetType(), _settings);
         }
     }
 }
