@@ -24,7 +24,7 @@ namespace EAI.Logging.Model
             LogMessageType msgType = LogMessageType.RAW;
             string contentString = EAI.Texts.Properties.NULL;
 
-            if (content == null)
+            if (content is null)
             {
                 return (msgType, contentString);
             }

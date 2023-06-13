@@ -20,7 +20,7 @@ namespace EAI.MessageQueue.Storage
         {
             var meta = new MessageItem();
 
-            if (manager == null || manager.IsAssignableFrom(typeof(IMessageManager)))
+            if (manager is null || manager.IsAssignableFrom(typeof(IMessageManager)))
                 throw new ArgumentOutOfRangeException($"manager {manager?.Name ?? EAI.Texts.Properties.NULL} not accepted");
 
             if (string.IsNullOrWhiteSpace(msgType))

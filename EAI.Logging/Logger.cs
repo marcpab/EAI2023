@@ -110,7 +110,7 @@ namespace EAI.Logging
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            if (value == null)
+            if (value is null)
                 return await String<U, V>(overrideStage, overrideStageId, $"{name} is NULL");
             else
                 return await String<U, V>(overrideStage, overrideStageId, $"{name} = [{value.GetType().Name}]'{value}'");
@@ -134,7 +134,7 @@ namespace EAI.Logging
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            if (value == null)
+            if (value is null)
                 return await String<U, V>($"{name} is NULL");
             else
                 return await String<U, V>($"{name} = [{value.GetType().Name}]'{value}'");

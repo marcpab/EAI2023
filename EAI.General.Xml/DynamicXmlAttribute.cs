@@ -26,7 +26,7 @@ namespace EAI.General.Xml
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            if (value == null)
+            if (value is null)
                 GetAttribute(binder.Name).RemoveNode();
             else
                 GetAttribute(binder.Name).SetValue(value.ToString());
@@ -36,7 +36,7 @@ namespace EAI.General.Xml
 
         private XmlNode GetAttribute(string name)
         {
-            if (Node == null)
+            if (Node is null)
                 return null;
 
             var attributeName = Utilities.GetAsAttributeName(name);

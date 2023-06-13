@@ -11,14 +11,14 @@ namespace EAI.MessageQueue.Storage
         public static async Task<MessageItem?> GetMessageItem(IConfiguration configuration, string ticketJson)
         {
             var baseTicket = JsonConvert.DeserializeObject<MessageQueueTicket>(ticketJson);
-            if(baseTicket == null) 
+            if(baseTicket is null) 
             {
                 return null;
             }
 
             var ticket = (IQueueTicket?)JsonConvert.DeserializeObject(ticketJson, baseTicket.TicketType);            
             var cs = configuration[EAI.Texts.DefaultStorage.StorageConfigurationKey] ?? configuration[$"Values:{EAI.Texts.DefaultStorage.StorageConfigurationKey}"];
-            if(ticket == null || string.IsNullOrWhiteSpace(cs)) 
+            if(ticket is null || string.IsNullOrWhiteSpace(cs)) 
             {
                 return null;
             }

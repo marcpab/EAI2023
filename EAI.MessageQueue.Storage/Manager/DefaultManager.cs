@@ -88,7 +88,7 @@ namespace EAI.MessageQueue.Storage.Manager
 
         public async IAsyncEnumerable<MessageItem> DequeueAsync(IQueueLease lease, string queueName, int maxTickets)
         {
-            if (lease == null) // we didnt got any lock
+            if (lease is null) // we didnt got any lock
             {
                 Status = DequeueStatus.NoLock;
                 yield break;
@@ -137,7 +137,7 @@ namespace EAI.MessageQueue.Storage.Manager
                         var item = await blob.DownloadAsync<MessageItem>();
 
                         // when empty continue
-                        if (item == null)
+                        if (item is null)
                             continue;
 
                         // we decrement after item check!
@@ -216,7 +216,7 @@ namespace EAI.MessageQueue.Storage.Manager
 #pragma warning disable IDE0063
             using (var lease = RequestLeaseAsync(queueName).Result) // we have to sync wait
             {
-                if (lease == null)
+                if (lease is null)
                     yield break;
 
                 freedup = await FreeTimeoutMessagesAsync(lease, queueName, timeoutInSeconds);
@@ -233,7 +233,7 @@ namespace EAI.MessageQueue.Storage.Manager
         {
             bool errors = false;
 
-            if (message == null)
+            if (message is null)
             {
                 if (fault)
                     throw new ArgumentNullException(nameof(message));
@@ -343,7 +343,7 @@ namespace EAI.MessageQueue.Storage.Manager
         {
             var count = 0;
 
-            if (lease == null)
+            if (lease is null)
                 return count;
 
             var dequeueClient = new BlobContainerClient(CS, GetContainerDequeue(queueName));
@@ -433,7 +433,7 @@ namespace EAI.MessageQueue.Storage.Manager
 
                 var item = await ReleaseAsync(blobClient, fault);
 
-                if (item == null)
+                if (item is null)
                 {
                     message.Status = ProcessingStatus.FinishedButNotInQueue;
 

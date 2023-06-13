@@ -12,10 +12,10 @@ namespace EAI.General.Xml.Extensions
     {
         public static dynamic ToDynamic(this XmlNode node, NodeDefaultBehavior missingNodeBehavior = NodeDefaultBehavior.Exception, Func<XmlNode, string, string> namespaceLookup = null, XmlSchema schema = null)
         {
-            if (node == null)
+            if (node is null)
                 return null;
 
-            var schemaElement = schema == null ? 
+            var schemaElement = schema is null ? 
                 null : 
                 schema.Elements[new XmlQualifiedName(node.LocalName, node.NamespaceURI)] as XmlSchemaElement;
 
@@ -24,7 +24,7 @@ namespace EAI.General.Xml.Extensions
 
         public static dynamic ToDynamic(this XmlNode node, NodeDefaultBehavior missingNodeBehavior = NodeDefaultBehavior.Exception)
         {
-            if (node == null)
+            if (node is null)
                 return null;
 
             return new DynamicXmlNode(node, missingNodeBehavior);
@@ -32,7 +32,7 @@ namespace EAI.General.Xml.Extensions
 
         public static XmlDocument ToXmlDocument(this XmlNode node)
         {
-            if (node == null)
+            if (node is null)
                 return null;
 
             var document = new XmlDocument();
@@ -93,7 +93,7 @@ namespace EAI.General.Xml.Extensions
 
         public static string GetValueOrDefault(this XmlNode node, string defaultValue)
         {
-            if (node == null)
+            if (node is null)
                 return defaultValue;
 
             return node.InnerText;
@@ -101,7 +101,7 @@ namespace EAI.General.Xml.Extensions
 
         public static string GetValueOrDefault(this XmlNode node, string xPath, string defaultValue)
         {
-            if (node == null)
+            if (node is null)
                 return defaultValue;
 
             return node.SelectSingleNode(xPath).GetValueOrDefault(defaultValue);
@@ -112,7 +112,7 @@ namespace EAI.General.Xml.Extensions
 
         public static void RemoveNode(this XmlNode node, string xPath)
         {
-            if (node == null)
+            if (node is null)
                 return;
 
             node.SelectSingleNode(xPath).RemoveNode();
@@ -120,7 +120,7 @@ namespace EAI.General.Xml.Extensions
 
         public static void RemoveNode(this XmlNode node)
         {
-            if (node == null)
+            if (node is null)
                 return;
 
             node.ParentNode.RemoveChild(node);
@@ -128,10 +128,10 @@ namespace EAI.General.Xml.Extensions
 
         public static void ReplaceNode(this XmlNode node, XmlNode newNode)
         {
-            if (node == null)
+            if (node is null)
                 return;
 
-            if (newNode == null)
+            if (newNode is null)
                 return;
 
             if (!ReferenceEquals(node.OwnerDocument, newNode.OwnerDocument))
@@ -144,10 +144,10 @@ namespace EAI.General.Xml.Extensions
 
         public static void CopyFrom(this XmlNode node, XmlNode newNode, bool clearSourceNode = false)
         {
-            if (node == null)
+            if (node is null)
                 return;
 
-            if (newNode == null)
+            if (newNode is null)
                 return;
 
             if (!ReferenceEquals(node.OwnerDocument, newNode.OwnerDocument))
@@ -178,7 +178,7 @@ namespace EAI.General.Xml.Extensions
 
         public static void SetValue(this XmlNode node, string xPath, string value)
         {
-            if (node == null)
+            if (node is null)
                 throw new ArgumentNullException($"Parameter node is null. XPath: {xPath}");
 
             var selectedNode = node.SelectSingleNode(xPath)
@@ -189,7 +189,7 @@ namespace EAI.General.Xml.Extensions
 
         public static void SetValue(this XmlNode node, string value)
         {
-            if (node == null)
+            if (node is null)
                 throw new ArgumentNullException(null, "Parameter node is null.");
 
             InternalSetValue(node, value);
