@@ -8,4 +8,10 @@
     <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Extensions\StringExtension.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
 </Project>

@@ -39,5 +39,16 @@ namespace EAI.General.SAPECC.Extensions
 
             return DateTime.ParseExact(sap, "HHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None);
         }
+
+        public static DateTime? ParseSAPDateTime(this string sap, bool whenEmptySetNow = false)
+        {
+            if (string.IsNullOrWhiteSpace(sap) || sap == "000000000000")
+                if (whenEmptySetNow)
+                    return DateTime.Now;
+                else
+                    return null;
+
+            return DateTime.ParseExact(sap, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None);
+        }
     }
 }
