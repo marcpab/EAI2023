@@ -29,23 +29,48 @@ namespace EAI.Dataverse
                 .Select(t => t.Value<JArray>("Attributes"))
                 .Select(t => t.Values<JObject>())
                 .FirstOrDefault()
-                .Select(t => new JProperty(t.Value<string>("key"), GetValue(t.Value<JToken>("value"))));
+                .Select(t => CreateEntityProperty(t));
 
             return new JObject(jAttributes);
         }
 
-        private static JToken GetValue(JToken jValue)
+        private static JProperty CreateEntityProperty(JObject jEventPropertyObject)
         {
-            var jObject = jValue.Value<object>() as JObject;
-            if (jObject == null)
-                return jValue;
+            var jValue = jEventPropertyObject.Value<JToken>("value");
+            var name = jEventPropertyObject.Value<string>("key");
 
-            if(jObject.Value<string>("__type").StartsWith("EntityReference:"))
-                return jObject.Value<JToken>("Id");
+            var value = jValue; // .Value<object>() as JObject;
 
-            if (jObject.Value<string>("__type").StartsWith("OptionSetValue:"))
-                return jObject.Value<JToken>("Value");
+            switch(value)
+            {
+                case JObject jObject:
 
-            return jValue;
-        }    }
+                    var valueType = jObject.Value<string>("__type");
+
+                    var isEntityReference = valueType.StartsWith("EntityReference:");
+                    if (isEntityReference)
+                        return new JProperty($"_{name}_value", jObject.Value<JToken>("Id"));
+
+                    var isOptionsetValue = valueType.StartsWith("OptionSetValue:");
+                    if (isOptionsetValue)
+                        return new JProperty(name, jObject.Value<JToken>("Value"));
+
+                    var isMoney = valueType.StartsWith("Money:");
+                    if (isMoney)
+                        return new JProperty(name, jObject.Value<JToken>("Value"));
+
+                    throw new NotImplementedException($"__type: {valueType}");
+
+                case JArray jArray: // multiple option set
+
+                    var values = jArray.Select(e => e.Value<string>("Value"));
+
+                    return new JProperty(name, string.Join(",", values));
+
+                default:
+                    return new JProperty(name, jValue);
+            }
+        }
+  
+    }
 }
