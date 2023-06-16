@@ -1,21 +1,26 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using EAI.AzureStorage;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
 namespace EAI.AzureFunctions
 {
-    public abstract class QueueTriggerFunction<requestT> : Function
+    public abstract class LargeMessageQueueTriggerFunction<requestT> : Function
     {
-        public async Task RunTestAsync(requestT requestMessage)
+        public async Task RunTestAsync(string queueItem)
         {
             await InitializeTestAsync();
 
             try
             {
+                var queue = GetQueue();
+
+                var queueMessage = await queue.FromStorageQueueTrigger(queueItem);
+
+                var requestMessage = GetMessage<requestT>(queueMessage.MessageContent);
 
                 await ProcessRequestAsync(requestMessage);
-
             }
             catch (Exception ex)
             {
@@ -31,17 +36,26 @@ namespace EAI.AzureFunctions
             {
 #warning log raw request
 
-                var requestMessage = GetMessage<requestT>(queueItem);
+                var queue = GetQueue();
+
+                var queueMessage = await queue.FromStorageQueueTrigger(queueItem);
+
+                var requestMessage = GetMessage<requestT>(queueMessage.MessageContent);
 
 #warning log request
 
                 await ProcessRequestAsync(requestMessage);
+
+                await queue.CompletedAsync(queueMessage);
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "General error");
             }
         }
+
+        protected abstract LargeMessageQueue GetQueue();
 
         protected abstract Task ProcessRequestAsync(requestT requestMessage);
     }

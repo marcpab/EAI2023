@@ -15,36 +15,32 @@ namespace EAI.AzureStorage
     public class LargeMessageQueue : IStorageQueue
     {
         private const int _maxStorageQueueMessageSize = ushort.MaxValue;
+        private const int _maxEncodedStorageQueueMessageSize = ushort.MaxValue / 4 * 3;
 
         private BlobStorage _blobStorage = new BlobStorage();
         private StorageQueue _storageQueue = new StorageQueue();
-        private bool _encodeMessage;
         
         public string StorageQueueConnectionString { get => _storageQueue.ConnectionString; set => _storageQueue.ConnectionString = value; }
         public string StorageQueueName { get => _storageQueue.StorageQueueName; set => _storageQueue.StorageQueueName = value; }
         public string BlobStorageConnectionString { get => _blobStorage.ConnectionString; set => _blobStorage.ConnectionString = value; }
         public string ContainerName { get => _blobStorage.RootPath; set => _blobStorage.RootPath = value; }
-        public bool EncodeMessage { get => _encodeMessage; set => _encodeMessage = value; }
+        public bool EncodeMessage { get => _storageQueue.EncodeMessage; set => _storageQueue.EncodeMessage = value; }
 
         public async Task EnqueueAsync(string messageContent)
         {
-            var encodeMessage = _encodeMessage;
-
-            _storageQueue.EncodeMessage = false;
-
-            if (encodeMessage)
-                messageContent = Convert.ToBase64String(Encoding.UTF8.GetBytes(messageContent));
+            //if (encodeMessage)
+            //    messageContent = Convert.ToBase64String(Encoding.UTF8.GetBytes(messageContent));
 
             var message = new QueueMessage()
             {
-                _encoded = encodeMessage,
                 _storageLocation = StorageLocationEnum.StorageQueue,
                 _content = messageContent
             };
 
             var jMessage = JsonConvert.SerializeObject(message);
 
-            if(jMessage.Length <= _maxStorageQueueMessageSize)
+            var maxMessageSize = _storageQueue.EncodeMessage ? _maxEncodedStorageQueueMessageSize : _maxStorageQueueMessageSize;
+            if(jMessage.Length <= maxMessageSize)
             {
                 await _storageQueue.EnqueueAsync(jMessage);
                 return;
@@ -61,26 +57,15 @@ namespace EAI.AzureStorage
         public async IAsyncEnumerable<StorageQueueMessage> DequeueAsync(int maxMessages, DequeueType dequeueType = DequeueType.ManualComplete)
         {
             await foreach(var storageMessage in _storageQueue.DequeueAsync(maxMessages))
-            {
-                var message = JsonConvert.DeserializeObject<QueueMessage>(storageMessage.MessageContent);
+                yield return await GetMessage(storageMessage, dequeueType); 
+        }
 
-                var content = await GetContentAsync(message);
 
-                if (message._encoded)
-                    content = Encoding.UTF8.GetString(Convert.FromBase64String(content));
+        public async Task<StorageQueueMessage> FromStorageQueueTrigger(string myQueueItem, DequeueType dequeueType = DequeueType.ManualComplete)
+        {
+            var storageQueueMessage = new StorageQueueMessage(null, null, myQueueItem);
 
-                var storageQueueMessage = new LargeStorageQueueMessage(
-                                                    storageMessage.MessageId, 
-                                                    storageMessage.PopReceipt, 
-                                                    content, 
-                                                    message._storageLocation == StorageLocationEnum.BlobStorage ? message._content : null
-                                                );
-
-                if (dequeueType == DequeueType.AutoComplete)
-                    await CompletedAsync(storageQueueMessage);
-
-                yield return storageQueueMessage;
-            }
+            return await GetMessage(storageQueueMessage, dequeueType);
         }
 
         public async Task CompletedAsync(StorageQueueMessage message)
@@ -90,7 +75,26 @@ namespace EAI.AzureStorage
             if(blobName != null)
                 await _blobStorage.DeleteAsync(blobName);
 
-            await _storageQueue.CompletedAsync(message);
+            if(message.MessageId != null)
+                await _storageQueue.CompletedAsync(message);
+        }
+
+        private async Task<LargeStorageQueueMessage> GetMessage(StorageQueueMessage storageMessage, DequeueType dequeueType)
+        {
+            var message = JsonConvert.DeserializeObject<QueueMessage>(storageMessage.MessageContent);
+
+            var content = await GetContentAsync(message);
+
+            var storageQueueMessage = new LargeStorageQueueMessage(
+                                                storageMessage.MessageId,
+                                                storageMessage.PopReceipt,
+                                                content,
+                                                message._storageLocation == StorageLocationEnum.BlobStorage ? message._content : null
+                                            );
+
+            if (dequeueType == DequeueType.AutoComplete)
+                await CompletedAsync(storageQueueMessage);
+            return storageQueueMessage;
         }
 
         private async Task<string> GetContentAsync(QueueMessage message)
