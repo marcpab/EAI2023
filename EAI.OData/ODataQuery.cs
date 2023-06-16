@@ -58,10 +58,6 @@ namespace EAI.OData
 
             if(path !=  null)
             {
-
-                if (!path.EndsWith("/"))
-                    path += "/";
-
                 if (_index != null)
                     path += $"({HttpUtility.UrlEncode(_index.ToString())})";
 
