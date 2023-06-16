@@ -18,7 +18,7 @@ namespace EAI.General.SAPECC.Extensions
             return trimmed;
         }
 
-        public static DateTime ParseSAPDate(this string sap, bool whenEmptySetNow = false)
+        public static DateTime? ParseSAPDate(this string sap, bool whenEmptySetNow = false)
         {
             if (string.IsNullOrWhiteSpace(sap) || sap == "00000000")
                 if (whenEmptySetNow)
