@@ -7,5 +7,6 @@ namespace EAI.PipeMessaging.SAPNcoService.Messaging
     public class RunJRfcRequest
     {
         public string jRfcRequestMessage;
+        public bool autoCommit;
     }
 }

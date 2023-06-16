@@ -30,7 +30,7 @@ namespace EAI.GenericServer.SAPNcoService
                     await sapSystem.DisconnectAsync();
         }
 
-        public Task<string> CallRfcAsync(string name, string jRfcRequestMessage)
+        public Task<string> CallRfcAsync(string name, string jRfcRequestMessage, bool autoCommit = false)
         {
             var sapSystem = _sapSystems
                 .Where(s => s.Name == name)
@@ -39,7 +39,7 @@ namespace EAI.GenericServer.SAPNcoService
             if (sapSystem == null)
                 throw new EAIException($"Sap system '{name}' not defined");
 
-            return sapSystem.RunJRfcRequestAsync(jRfcRequestMessage);
+            return sapSystem.RunJRfcRequestAsync(jRfcRequestMessage, autoCommit);
         }
 
         public Task<string> GetJRfcSchemaAsync(string name, string functionName)

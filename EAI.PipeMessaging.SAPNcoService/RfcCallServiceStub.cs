@@ -57,11 +57,12 @@ namespace EAI.PipeMessaging.SAPNcoService
             return SendRequest<RfcPingResponse>(rfcPingRequest);
         }
 
-        public async Task<string> RunJRfcRequestAsync(string jRfcRequestMessage)
+        public async Task<string> RunJRfcRequestAsync(string jRfcRequestMessage, bool autoCommit)
         {
             var runJRfcRequest = new RunJRfcRequest()
             {
-                jRfcRequestMessage = jRfcRequestMessage
+                jRfcRequestMessage = jRfcRequestMessage,
+                autoCommit = autoCommit
             };
 
             var runJRfcResponse = await SendRequest<RunJRfcResponse>(runJRfcRequest);

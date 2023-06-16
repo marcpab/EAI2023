@@ -34,9 +34,9 @@ namespace EAI.GenericServer.SAPNcoService
             }
         }
 
-        internal Task<string> RunJRfcRequestAsync(string jRfcRequestMessage)
+        internal Task<string> RunJRfcRequestAsync(string jRfcRequestMessage, bool autoCommit)
         {
-            return _rfcCallService.RunJRfcRequestAsync(jRfcRequestMessage);
+            return _rfcCallService.RunJRfcRequestAsync(jRfcRequestMessage, autoCommit);
         }
 
         internal async Task DisconnectAsync()

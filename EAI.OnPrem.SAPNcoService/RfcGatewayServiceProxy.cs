@@ -14,12 +14,13 @@ namespace EAI.OnPrem.SAPNcoService
 
         public OnPremClient OnPremClient { get => _onPremClient; set => _onPremClient = value; }
 
-        public async Task<string> CallRfcAsync(string name, string jRfcRequestMessage)
+        public async Task<string> CallRfcAsync(string name, string jRfcRequestMessage, bool autoCommit = false)
         {
             var callRfcRequest = new CallRfcRequest()
             {
                 _name = name,
-                _jRfcRequestMessage = jRfcRequestMessage
+                _jRfcRequestMessage = jRfcRequestMessage,
+                _autoCommit = autoCommit
             };
 
             var callRfcResponse = await _onPremClient.SendRequest<CallRfcResponse, CallRfcRequest>(callRfcRequest);
@@ -27,12 +28,13 @@ namespace EAI.OnPrem.SAPNcoService
             return callRfcResponse._ret;
         }
 
-        public async Task<T> CallRfcAsync<T>(string name, T jRfcRequestMessage)
+        public async Task<T> CallRfcAsync<T>(string name, T jRfcRequestMessage, bool autoCommit = false)
         {
             var callRfcRequest = new CallRfcRequest()
             {
                 _name = name,
-                _jRfcRequestMessage = JsonConvert.SerializeObject(jRfcRequestMessage)
+                _jRfcRequestMessage = JsonConvert.SerializeObject(jRfcRequestMessage, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore }),
+                _autoCommit = autoCommit
             };
 
             var callRfcResponse = await _onPremClient.SendRequest<CallRfcResponse, CallRfcRequest>(callRfcRequest);

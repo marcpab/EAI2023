@@ -7,5 +7,6 @@ namespace EAI.OnPrem.SAPNcoService
     {
         public string _name;
         public string _jRfcRequestMessage;
+        public bool _autoCommit;
     }
 }

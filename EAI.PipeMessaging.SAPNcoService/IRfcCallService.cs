@@ -8,6 +8,6 @@ namespace EAI.PipeMessaging.SAPNcoService
         Task DisconnectAsync();
         Task<string> GetJRfcSchemaAsync(string functionName);
         Task RfcPingAsync();
-        Task<string> RunJRfcRequestAsync(string jRfcRequestMessage);
+        Task<string> RunJRfcRequestAsync(string jRfcRequestMessage, bool autoCommit);
     }
 }

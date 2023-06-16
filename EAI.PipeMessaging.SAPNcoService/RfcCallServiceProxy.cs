@@ -15,7 +15,7 @@ namespace EAI.PipeMessaging.SAPNcoService
             AddMethod<ConnectRequest>(r => _rfcCallService.ConnectAsync(r.connectionString, r.userName, r.password));
             AddMethod<DisconnectRequest>(r => _rfcCallService.DisconnectAsync());
             AddMethod<RfcPingRequest>(r => _rfcCallService.RfcPingAsync());
-            AddMethod<RunJRfcRequest, RunJRfcResponse>(async r => new RunJRfcResponse { _ret = await _rfcCallService.RunJRfcRequestAsync(r.jRfcRequestMessage) });
+            AddMethod<RunJRfcRequest, RunJRfcResponse>(async r => new RunJRfcResponse { _ret = await _rfcCallService.RunJRfcRequestAsync(r.jRfcRequestMessage, r.autoCommit) });
             AddMethod<GetJRfcSchemaRequest, GetJRfcSchemaResponse>(async r => new GetJRfcSchemaResponse { _ret = await _rfcCallService.GetJRfcSchemaAsync(r.functionName) });
         }
 

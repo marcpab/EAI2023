@@ -39,7 +39,7 @@ namespace EAI.NetFramework.SAPNcoService
 
             foreach (var jRfcFunction in jRfcObject.Properties().ToArray())
             {
-                var jRfcFunctionResponse = _rfcConnection.InvokeJFunction(jRfcFunction);
+                var jRfcFunctionResponse = _rfcConnection.InvokeJFunction(jRfcFunction, null, true);
 
                 jRfcFunction.AddAfterSelf(jRfcFunctionResponse);
             }
@@ -74,9 +74,9 @@ namespace EAI.NetFramework.SAPNcoService
             return Task.Run(() => RfcPing());
         }
 
-        public Task<string> RunJRfcRequestAsync(string jRfcRequestMessage)
+        public Task<string> RunJRfcRequestAsync(string jRfcRequestMessage, bool autoCommit)
         {
-            return Task.Run(() => RunJRfcRequest(jRfcRequestMessage, null, false));
+            return Task.Run(() => RunJRfcRequest(jRfcRequestMessage, null, autoCommit));
         }
 
         public Task<string> GetJRfcSchemaAsync(string functionName)
