@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
+using System;
 using System.Threading.Tasks;
 
 namespace EAI.AzureFunctions
@@ -26,7 +27,7 @@ namespace EAI.AzureFunctions
 
             _logger = NullLoggerFactory.Instance.CreateLogger(currentType);
 
-            return LoadAsync(currentType);        
+            return LoadSettingAsync(currentType);        
         }
 
         protected virtual Task InitializeAsync(FunctionContext functionContext)
@@ -35,10 +36,10 @@ namespace EAI.AzureFunctions
 
             _logger = functionContext.GetLogger(currentType.Name);
 
-            return LoadAsync(currentType);
+            return LoadSettingAsync(currentType);
         }
 
-        private async Task LoadAsync(Type currentType)
+        protected async Task LoadSettingAsync(Type currentType)
         {
             var config = await ConfigurationHandler.Instance.GetConfigurationAsync(currentType);
             var configJson = config.ToString();
