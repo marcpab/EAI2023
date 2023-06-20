@@ -1,11 +1,6 @@
-﻿using Xunit;
-using EAI.AzureStorage;
-using EAI.General.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace EAI.AzureStorage.Tests
 {
@@ -25,7 +20,7 @@ namespace EAI.AzureStorage.Tests
                 storageQueue.ConnectionString = connectionString;
                 storageQueue.StorageQueueName = queueName;
 
-                await storageQueue.EnqueuAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
 
                 var dequeueCount = 0;
                 await foreach (var readQueueContent in storageQueue.DequeueAsync(1))
@@ -60,7 +55,7 @@ namespace EAI.AzureStorage.Tests
                 storageQueue.ConnectionString = connectionString;
                 storageQueue.StorageQueueName = queueName;
 
-                await storageQueue.EnqueuAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
 
                 var dequeueCount = 0;
                 await foreach (var readQueueContent in storageQueue.DequeueAsync(1))
@@ -92,10 +87,10 @@ namespace EAI.AzureStorage.Tests
                 storageQueue.ConnectionString = connectionString;
                 storageQueue.StorageQueueName = queueName;
 
-                await storageQueue.EnqueuAsync(queueContent);
-                await storageQueue.EnqueuAsync(queueContent);
-                await storageQueue.EnqueuAsync(queueContent);
-                await storageQueue.EnqueuAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
 
                 var dequeueCount = 0;
                 await foreach (var readQueueContent in storageQueue.DequeueAsync(2))
