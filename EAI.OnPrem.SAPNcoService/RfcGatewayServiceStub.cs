@@ -30,7 +30,7 @@ namespace EAI.OnPrem.SAPNcoService
 
         private async Task<CallRfcResponse> CallRfcAsyc(CallRfcRequest request)
         {
-            var rfcResponse = await _rfcGatewayService.CallRfcAsync(request._name, request._jRfcRequestMessage);
+            var rfcResponse = await _rfcGatewayService.CallRfcAsync(request._name, request._jRfcRequestMessage, request._autoCommit);
 
             return new CallRfcResponse()
                         {
