@@ -1,11 +1,6 @@
-﻿using Xunit;
-using EAI.AzureStorage;
-using EAI.General.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace EAI.AzureStorage.Tests
 {

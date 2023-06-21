@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="config.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
