@@ -29,7 +29,6 @@ namespace EAI.NetFramework.SAPNco
 
         public void ActivateSession(string sessionID)
         {
-            throw new NotImplementedException();
         }
 
         public bool ChangeEventsSupported()
@@ -39,12 +38,10 @@ namespace EAI.NetFramework.SAPNco
 
         public void ContextFinished()
         {
-            throw new NotImplementedException();
         }
 
         public void ContextStarted()
         {
-            throw new NotImplementedException();
         }
 
         public string CreateSession()
@@ -59,7 +56,6 @@ namespace EAI.NetFramework.SAPNco
 
         public void DestroySession(string sessionID)
         {
-            throw new NotImplementedException();
         }
 
         public string GetCurrentSession()
@@ -74,12 +70,11 @@ namespace EAI.NetFramework.SAPNco
 
         public bool IsAlive(string sessionID)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public void PassivateSession(string sessionID)
         {
-            throw new NotImplementedException();
         }
     }
 

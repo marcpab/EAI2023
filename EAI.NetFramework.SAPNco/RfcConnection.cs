@@ -101,6 +101,10 @@ namespace EAI.NetFramework.SAPNco
         {
             var rfcDestination = GetRfcDestination();
 
+            var isFunctionExisting = rfcDestination.Repository.CheckFunctionExists(functionName);
+            if (!isFunctionExisting)
+                throw new Exception($"Function {functionName} does not exist");
+
             var rfcFunction = rfcDestination.Repository.CreateFunction(functionName);
 
             var jRfc = new JObject();

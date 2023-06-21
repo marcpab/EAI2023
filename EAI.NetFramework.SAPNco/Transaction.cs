@@ -65,7 +65,8 @@ namespace EAI.NetFramework.SAPNco
             if (!_isAlive)
                 throw new InvalidOperationException("Transaction already completed.");
 
-            function.Invoke(_rfcDestination);
+            using (var transactionScope = new TransactionScope(SessionProvider.Instance, this))
+                function.Invoke(_rfcDestination);
         }
 
         public void Dispose()
