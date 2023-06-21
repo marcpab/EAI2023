@@ -19,9 +19,9 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
         {
             _code.AppendLine($"\t\t/// <summary>");
             if (!string.IsNullOrEmpty(DisplayName))
-                _code.AppendLine($"\t\t/// Display name: {DisplayName}");
+                _code.AppendLine($"\t\t/// Display name: {Utils.MultilineComment(DisplayName)}");
             if (!string.IsNullOrEmpty(Description))
-                _code.AppendLine($"\t\t/// Description : {Description}");
+                _code.AppendLine($"\t\t/// Description : {Utils.MultilineComment(Description)}");
             if (!string.IsNullOrEmpty(AttributeOf))
                 _code.AppendLine($"\t\t/// Attribute of: {AttributeOf}");
             _code.AppendLine($"\t\t/// {AttributeType}, length {MaxLength}");

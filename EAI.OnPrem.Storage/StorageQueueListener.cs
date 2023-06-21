@@ -26,17 +26,24 @@ namespace EAI.OnPrem.Storage
 
             while(!cancellationToken.IsCancellationRequested)
             {
-                await foreach(var message in _storageQueue.DequeueAsync(_maxMessages, DequeueType.AutoComplete))
+                try
                 {
-                    await _dequeuedMessageCallback(message.MessageContent);
-                    _currentWait = _initialWait;
+                    await foreach (var message in _storageQueue.DequeueAsync(_maxMessages, DequeueType.AutoComplete))
+                    {
+                        await _dequeuedMessageCallback(message.MessageContent);
+                        _currentWait = _initialWait;
+                    }
+
+                    await Task.Delay(_currentWait);
+
+                    _currentWait += _currentWait * 0.25;
+                    if (_currentWait > _maxWait)
+                        _currentWait = _maxWait;
                 }
+                catch (Exception ignoreException)
+                {
 
-                await Task.Delay(_currentWait);
-
-                _currentWait += _currentWait * 0.25;
-                if (_currentWait > _maxWait)
-                    _currentWait = _maxWait;
+                }
             }
         }
     }

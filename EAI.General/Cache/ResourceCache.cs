@@ -11,6 +11,27 @@ namespace EAI.General.Cache
         private static Dictionary<string, ResourceCacheItem<T>> _cache = new Dictionary<string, ResourceCacheItem<T>>();
         private static DateTimeOffset _nextCleanup = DateTimeOffset.UtcNow;
 
+        static ResourceCache()
+        {
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+        }
+
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            lock (_cache)
+            {
+                foreach (var removeItem in _cache
+                    .ToArray())
+                {
+                    _cache.Remove(removeItem.Key);
+
+                    CleanItem(removeItem.Value);
+                }
+
+                _cache = null;
+            }
+        }
+
         public static async Task<T> GetResourceAsync(string key, Func<Task<ResourceCacheItem<T>>> createResourceAsync, Func<ResourceCacheItem<T>, Task> updateResourceItemAsync = null)
         {
             if (_nextCleanup < DateTimeOffset.UtcNow)
@@ -27,11 +48,12 @@ namespace EAI.General.Cache
                     {
                         _cache.Remove(key);
 
-                        (item as IDisposable)?.Dispose();
+                        CleanItem(item);
+
                         item = null;
                     }
 
-            if(item != null)
+            if (item != null)
             {
                 if(updateResourceItemAsync != null)
                     await updateResourceItemAsync(item);
@@ -51,6 +73,12 @@ namespace EAI.General.Cache
             return item.Item;
         }
 
+        private static void CleanItem(ResourceCacheItem<T> item)
+        {
+            (item.Item as IDisposable)?.Dispose();
+            item.OnRemovedAsync?.Invoke();
+        }
+
         private static void CleanUp()
         {
             lock (_cache)
@@ -58,7 +86,11 @@ namespace EAI.General.Cache
                 foreach (var removeItem in _cache
                     .Where(c => c.Value.ExpiresOn < DateTimeOffset.UtcNow)
                     .ToArray())
+                {
                     _cache.Remove(removeItem.Key);
+
+                    CleanItem(removeItem.Value);
+                }
             }
         }
     }

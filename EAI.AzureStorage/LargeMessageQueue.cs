@@ -104,5 +104,10 @@ namespace EAI.AzureStorage
 
             return await _blobStorage.GetBlobAsStringAsync(message._content);
         }
+
+        public Task DeleteStorageQueueAsync()
+        {
+            return _storageQueue.DeleteAsync();
+        }
     }
 }
