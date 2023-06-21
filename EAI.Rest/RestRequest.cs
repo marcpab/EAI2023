@@ -41,7 +41,7 @@ namespace EAI.Rest
             if (_requestData is string)
                 return new StringContent((string)_requestData);
 
-            return new StringContent(JsonConvert.SerializeObject(_requestData, serializerSettings));
+            return new StringContent(JsonConvert.SerializeObject(_requestData, serializerSettings), Encoding.UTF8, "application/json");
         }
 
         //public void Dispose()
