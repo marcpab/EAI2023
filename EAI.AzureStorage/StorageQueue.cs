@@ -45,14 +45,21 @@ namespace EAI.AzureStorage
             await client.DeleteMessageAsync(message.MessageId, message.PopReceipt);
         }
 
+        public async Task DeleteAsync()
+        {
+            var client = await GetQueueClientAsync();
+
+            await client.DeleteIfExistsAsync();
+        }
+
         private async Task<QueueClient> GetQueueClientAsync()
         {
             return await ResourceCache<QueueClient>.GetResourceAsync(
-                        $"{ConnectionString}-{StorageQueueName}-{EncodeMessage}",
-                        async () => new ResourceCacheItem<QueueClient>(await CreateQueueClientAsync(ConnectionString, StorageQueueName, EncodeMessage))
-                        {
-                            ExpiresOn = DateTime.UtcNow.AddHours(8)
-                        }
+                            $"{ConnectionString}-{StorageQueueName}-{EncodeMessage}",
+                            async () => new ResourceCacheItem<QueueClient>(await CreateQueueClientAsync(ConnectionString, StorageQueueName, EncodeMessage))
+                            {
+                                ExpiresOn = DateTime.UtcNow.AddHours(8)
+                            }
                         );
         }
 
@@ -71,6 +78,5 @@ namespace EAI.AzureStorage
 
             return client;
         }
-
     }
 }

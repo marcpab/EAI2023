@@ -15,7 +15,7 @@ namespace EAI.AzureStorage.Tests
             var blobName = "StringBlob";
             var blobContent = "Hello World!";
             var rootPath = "TestContainer";
-            var connectionString = "";
+            var connectionString = "DefaultEndpointsProtocol=https;AccountName=stmodulteampandidev;AccountKey=w/7Ci2t5rJDU94Wc9VjEze9ezMl+nXLMVjmalsqhtsapQo4FIWat1GEe+ge8PwKN2/MGP1N2ZKTz+AStHyAzPg==;EndpointSuffix=core.windows.net";
 
             try
             {

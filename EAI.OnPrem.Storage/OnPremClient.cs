@@ -2,19 +2,39 @@
 using EAI.General;
 using EAI.General.Cache;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.ExceptionServices;
+using System.Text;
 
 namespace EAI.OnPrem.Storage
 {
     public class OnPremClient
     {
+        private static string _responseQueueInstanceId = GetResponseQueueInstanceId();
+
+        private static string GetResponseQueueInstanceId()
+        {
+            var guid = Guid.NewGuid().ToByteArray();
+            var hash = SipHash.SipHash_2_4_UlongCast_ForcedInline(guid, 0, 0);
+            var bytes = BitConverter.GetBytes(hash);
+            var id = BitConverter.ToString(bytes);
+
+            return id.Replace("-", string.Empty).ToLower() + "h";
+        }
+
         private static JsonSerializerSettings _settings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.Auto,
+            ContractResolver = new ExceptionContractResolver(),
+            SerializationBinder = new ExceptionSerializationBinder(),
             
+            MissingMemberHandling = MissingMemberHandling.Ignore
         };
 
         private static CancellationTokenSource _cancelletionTokenSource = new CancellationTokenSource();
@@ -49,7 +69,7 @@ namespace EAI.OnPrem.Storage
             where  requestT : OnPremMessage
             where responseT : OnPremMessage
         {
-            var responseQueueName = $"{StorageQueueName}Response";
+            var responseQueueName = $"{StorageQueueName}-{_responseQueueInstanceId}";
 
             requestMessage._requestId = Guid.NewGuid();
             requestMessage._responseQueueName = responseQueueName;
@@ -71,14 +91,11 @@ namespace EAI.OnPrem.Storage
             return ResourceCache<StorageQueueListener>.GetResourceAsync(
                 $"{StorageQueueConnectionString}-{responseQueue}", 
                 () => Task.FromResult(
-                    new ResourceCacheItem<StorageQueueListener>(CreateStorageQueueListener(responseQueue))
-                    {
-                        ExpiresOn = DateTime.MaxValue,
-                    })
-                );
+                    CreateStorageQueueListener(responseQueue)
+                ));
         }
 
-        private StorageQueueListener CreateStorageQueueListener(string responseQueue)
+        private ResourceCacheItem<StorageQueueListener> CreateStorageQueueListener(string responseQueue)
         {
             var storageQueue = new LargeMessageQueue()
             {
@@ -93,7 +110,11 @@ namespace EAI.OnPrem.Storage
 
             Task.Run(() => listener.RunAsync(_cancelletionTokenSource.Token));
 
-            return listener;
+            return new ResourceCacheItem<StorageQueueListener>(listener)
+                        {
+                            ExpiresOn = DateTime.MaxValue,
+                            OnRemovedAsync = () => storageQueue.DeleteStorageQueueAsync()
+                        };
         }
     }
 }
