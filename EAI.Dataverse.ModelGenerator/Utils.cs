@@ -31,5 +31,11 @@ namespace EAI.Dataverse.ModelGenerator
 
             return name;
         }
+
+        public static string MultilineComment(string value)
+        {
+            return value?.Replace("\n", "\n\t\t///               ");
+        }
+
     }
 }

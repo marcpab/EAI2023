@@ -31,9 +31,9 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             _code.AppendLine("{");
             _code.AppendLine($"\t/// <summary>");
             if (!string.IsNullOrEmpty(DisplayName))
-                _code.AppendLine($"\t/// Display name: {DisplayName}");
+                _code.AppendLine($"\t/// Display name: {Utils.MultilineComment(DisplayName)}");
             if (!string.IsNullOrEmpty(Description))
-                _code.AppendLine($"\t/// Description : {Description}");
+                _code.AppendLine($"\t/// Description : {Utils.MultilineComment(Description)}");
             _code.AppendLine($"\t/// </summary>");
             _code.AppendLine($"\tpublic partial class {Utils.ExcapeName(Entity)}");
 
