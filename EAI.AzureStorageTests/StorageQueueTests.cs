@@ -16,7 +16,7 @@ namespace EAI.AzureStorage.Tests
         {
             var queueContent = "Hello World!";
             var queueName = "TestQueue";
-            var connectionString = "";
+            var connectionString = "DefaultEndpointsProtocol=https;AccountName=stmodulteampandidev;AccountKey=w/7Ci2t5rJDU94Wc9VjEze9ezMl+nXLMVjmalsqhtsapQo4FIWat1GEe+ge8PwKN2/MGP1N2ZKTz+AStHyAzPg==;EndpointSuffix=core.windows.net";
 
             try
             {
@@ -25,7 +25,7 @@ namespace EAI.AzureStorage.Tests
                 storageQueue.ConnectionString = connectionString;
                 storageQueue.StorageQueueName = queueName;
 
-                await storageQueue.EnqueuAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
 
                 var dequeueCount = 0;
                 await foreach (var readQueueContent in storageQueue.DequeueAsync(1))
@@ -60,7 +60,7 @@ namespace EAI.AzureStorage.Tests
                 storageQueue.ConnectionString = connectionString;
                 storageQueue.StorageQueueName = queueName;
 
-                await storageQueue.EnqueuAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
 
                 var dequeueCount = 0;
                 await foreach (var readQueueContent in storageQueue.DequeueAsync(1))
@@ -92,10 +92,10 @@ namespace EAI.AzureStorage.Tests
                 storageQueue.ConnectionString = connectionString;
                 storageQueue.StorageQueueName = queueName;
 
-                await storageQueue.EnqueuAsync(queueContent);
-                await storageQueue.EnqueuAsync(queueContent);
-                await storageQueue.EnqueuAsync(queueContent);
-                await storageQueue.EnqueuAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
+                await storageQueue.EnqueueAsync(queueContent);
 
                 var dequeueCount = 0;
                 await foreach (var readQueueContent in storageQueue.DequeueAsync(2))
