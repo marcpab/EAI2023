@@ -24,7 +24,7 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             code.AppendLine($"\t\t/// {AttributeType}, targets: {string.Join(", ", Targets)}");
             code.AppendLine($"\t\t/// </summary>");
 
-            code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(ODataName)} {{ get; set; }}");  // {a.AttributeType}, targets: {string.Join(", ", a.Targets)}
+            code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(ODataName)};"); 
         }
     }
 }

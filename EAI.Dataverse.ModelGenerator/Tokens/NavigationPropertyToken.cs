@@ -28,7 +28,7 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             code.AppendLine($"\t\t/// Reference   : {ReferencingRelationshipReferencingAttribute} -> {ReferencingRelationshipReferencedEntity}({ReferencingRelationshipReferencedAttribute})");
             code.AppendLine($"\t\t/// </summary>");
 
-            code.AppendLine($"\t\tpublic {ReferencedEntityTypeFullName ?? "dynamic"} {ReferencingRelationshipReferencingEntityNavigationPropertyName} {{ get; set; }}");
+            code.AppendLine($"\t\tpublic {ReferencedEntityTypeFullName ?? "dynamic"} {ReferencingRelationshipReferencingEntityNavigationPropertyName};");
         }
     }
 }

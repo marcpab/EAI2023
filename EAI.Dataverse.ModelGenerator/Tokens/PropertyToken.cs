@@ -27,7 +27,7 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             _code.AppendLine($"\t\t/// {AttributeType}, length {MaxLength}");
             _code.AppendLine($"\t\t/// </summary>");
 
-            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(ODataName)} {{ get; set; }}  // {AttributeType}, length {MaxLength}");
+            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(ODataName)};");
         }
     }
 }

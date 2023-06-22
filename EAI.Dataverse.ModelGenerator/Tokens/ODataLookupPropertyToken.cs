@@ -24,7 +24,7 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             code.AppendLine($"\t\t/// Schema name : {ReferencingRelationshipSchemaName}");
             code.AppendLine($"\t\t/// </summary>");
 
-            code.AppendLine($"\t\tpublic {nameof(ODataBind)} {ReferencingRelationshipReferencingEntityNavigationPropertyName}Lookup {{ get; set; }}");
+            code.AppendLine($"\t\tpublic {nameof(ODataBind)} {ReferencingRelationshipReferencingEntityNavigationPropertyName}Lookup;");
         }
     }
 }
