@@ -50,8 +50,10 @@ namespace EAI.Logging.SQL
                     break;
             }
 
-            var parameter = new SqlParameter(name, sqlDbType, size);
-            parameter.Value = value ?? DBNull.Value;
+            var parameter = new SqlParameter(name, sqlDbType, size)
+            {
+                Value = value ?? DBNull.Value
+            };
 
             command.Parameters.Add(parameter);
         }
@@ -69,8 +71,10 @@ namespace EAI.Logging.SQL
                         break;
                 }
 
-            var parameter = new SqlParameter(name, sqlDbType, size);
-            parameter.Direction = ParameterDirection.Output;
+            var parameter = new SqlParameter(name, sqlDbType, size)
+            {
+                Direction = ParameterDirection.Output
+            };
             command.Parameters.Add(parameter);
 
             return parameter;
