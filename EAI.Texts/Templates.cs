@@ -6,6 +6,14 @@ namespace EAI.Texts
 {
     public static partial class Templates
     {
+        public static Func<Exception, string> ExceptionILogger = (ex) =>
+        {
+            if (ex is null)
+                return $"Exception object is {EAI.Texts.Properties.NULL}";
+
+            return $"{ex.Message} {ex.InnerException?.Message} stack: {ex.StackTrace}";
+        };
+
         public static Func<HttpStatusCode, string> Leave = (statusCode) =>
         {
             var statusCodeText = $"{statusCode}";
