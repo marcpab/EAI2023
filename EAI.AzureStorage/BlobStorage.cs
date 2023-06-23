@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using EAI.General.Cache;
 using EAI.General.Storage;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
@@ -19,12 +20,26 @@ namespace EAI.AzureStorage
 
             return await blob.ExistsAsync();
         }
+
+        public async Task<T> GetBlob<T>(string blobName)
+        {
+#pragma warning disable IDE0063 // Use simple 'using' statement
+            using (var stream = await GetBlobAsStreamAsync(blobName))
+            using (StreamReader r = new StreamReader(stream))
+            using (var reader = new JsonTextReader(r))
+            {
+                return new JsonSerializer().Deserialize<T>(reader);
+            }
+#pragma warning restore IDE0063 // Use simple 'using' statement
+        }
          
         public async Task<string> GetBlobAsStringAsync(string blobName)
         {
-            using(var stream = await GetBlobAsStreamAsync(blobName))
+#pragma warning disable IDE0063 // Use simple 'using' statement
+            using (var stream = await GetBlobAsStreamAsync(blobName))
             using(var reader = new StreamReader(stream))
                 return await reader.ReadToEndAsync();
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public async Task<Stream> GetBlobAsStreamAsync(string blobName)
@@ -43,7 +58,8 @@ namespace EAI.AzureStorage
 
         public async Task SaveBlobAsync(string blobName, string content)
         {
-            using(var stream = new MemoryStream())
+#pragma warning disable IDE0063 // Use simple 'using' statement
+            using (var stream = new MemoryStream())
             using(var writer = new StreamWriter(stream))
             {
                 await writer.WriteAsync(content);
@@ -53,6 +69,7 @@ namespace EAI.AzureStorage
 
                 await SaveBlobAsync(blobName, stream);
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public async Task SaveBlobAsync(string blobName, Stream stream)
@@ -131,7 +148,7 @@ namespace EAI.AzureStorage
             {
                 var response = clientResponse.GetRawResponse();
 
-#warning                 Log
+#warning Log
             }
 
             return client;
