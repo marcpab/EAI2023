@@ -146,9 +146,7 @@ namespace EAI.AzureStorage
             var clientResponse = await client.CreateIfNotExistsAsync();
             if(clientResponse != null)
             {
-                var response = clientResponse.GetRawResponse();
-
-#warning Log
+                _ = clientResponse.GetRawResponse();
             }
 
             return client;

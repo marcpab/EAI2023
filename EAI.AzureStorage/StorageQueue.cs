@@ -67,8 +67,6 @@ namespace EAI.AzureStorage
             var createResponse = await client.CreateIfNotExistsAsync();
             if (createResponse != null)
             {
-
-#warning                 Log
             }
 
             return client;

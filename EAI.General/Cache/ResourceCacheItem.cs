@@ -6,8 +6,7 @@ namespace EAI.General.Cache
 {
     public class ResourceCacheItem<T>
     {
-        private T _item;
-        private DateTimeOffset _expiresOn;
+        private readonly T _item;
 
         public ResourceCacheItem(T item)
         {
