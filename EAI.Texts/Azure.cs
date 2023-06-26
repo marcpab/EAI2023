@@ -3,7 +3,7 @@
     public static class Azure
     {
         public const string WebJobsStorage = "AzureWebJobsStorage";
-        public const string ServiceConfigurationContainer = "cosmo-configuration";
+        public const string ServiceConfigurationContainer = "eai-configuration";
         public const string ServiceConfigurationBlob = "service-configuration.json";
 
         public static string SrvCfgKey_CDSEndpoint(string mode) 
