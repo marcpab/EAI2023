@@ -188,5 +188,115 @@ namespace EAI.Logging
         public async Task<LogItem> Message<U>(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             => await Message<U, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
+
+        public async Task<LogItem> Exception<U>(LogStage stage, Exception ex, string description, CancellationToken cancellationToken = default)
+            where U : ILogLevel, new()
+            => await Create<U, DefaultWriterId>(stage.ToString(), (int)stage, description, null, ex, cancellationToken);
+        public async Task<LogItem> Exception<U>(string overrideStage, int overrideStageId, Exception ex, string description, CancellationToken cancellationToken = default)
+            where U : ILogLevel, new()
+            => await Create<U, DefaultWriterId>(overrideStage, overrideStageId, description, null, ex, cancellationToken);
+        public async Task<LogItem> Exception<U>(Exception ex, string description, CancellationToken cancellationToken = default)
+            where U : ILogLevel, new()
+            => await Create<U, DefaultWriterId>(Stage, StageId, description, null, ex, cancellationToken);
+
+        public async Task<LogItem> DebugString(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelDebug, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> DebugString(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken  = default, params object[] args)
+            => await String<LevelDebug, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> DebugString(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelDebug, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> WarnString(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelWarning, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> WarnString(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelWarning, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> WarnString(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelWarning, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> ErrorString(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelError, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> ErrorString(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelError, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> ErrorString(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelError, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> CriticalString(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelCritical, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> CriticalString(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelCritical, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> CriticalString(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelCritical, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> TraceString(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelTrace, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> TraceString(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelTrace, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> TraceString(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelTrace, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> InformationString(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelInformation, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> InformationString(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelInformation, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> InformationString(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelInformation, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> ErrorException(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelError, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> ErrorException(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelError, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> ErrorException(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelError, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> CriticalException(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+           => await String<LevelCritical, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> CriticalException(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelCritical, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> CriticalException(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelCritical, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> WarningException(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+           => await String<LevelDebug, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> WarningException(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelWarning, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> WarningException(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelWarning, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> DebugException(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+           => await String<LevelDebug, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> DebugException(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelDebug, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> DebugException(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelDebug, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> InformationException(LogStage stage, string text, CancellationToken cancellationToken = default, params object[] args)
+           => await String<LevelInformation, DefaultWriterId>(stage.ToString(), (int)stage, text, cancellationToken, args);
+        public async Task<LogItem> InformationException(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelInformation, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
+        public async Task<LogItem> InformationException(string text, CancellationToken cancellationToken = default, params object[] args)
+            => await String<LevelInformation, DefaultWriterId>(text, cancellationToken, args);
+        public async Task<LogItem> DebugMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelDebug, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
+        public async Task<LogItem> DebugMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelDebug, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
+        public async Task<LogItem> DebugMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelDebug, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
+        public async Task<LogItem> InformationMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelInformation, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
+        public async Task<LogItem> InformationMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelInformation, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
+        public async Task<LogItem> InformationMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelInformation, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
+        public async Task<LogItem> WarningMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelWarning, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
+        public async Task<LogItem> WarningMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelWarning, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
+        public async Task<LogItem> WarningMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelWarning, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
+        public async Task<LogItem> ErrorMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelError, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
+        public async Task<LogItem> ErrorMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelError, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
+        public async Task<LogItem> ErrorMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelError, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
+        public async Task<LogItem> CriticalMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelCritical, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
+        public async Task<LogItem> CriticalMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelCritical, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
+        public async Task<LogItem> CriticalMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+            => await Message<LevelCritical, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
+
+
     }
+
 }
