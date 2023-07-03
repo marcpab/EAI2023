@@ -33,10 +33,10 @@
         {
             var exceptionList = new List<Exception>();
 
-            if (exception != null)
+            if (exception is not null)
                 exceptionList.Add(exception);
 
-            while (exception?.InnerException != null)
+            while (exception?.InnerException is not null)
             {
                 exception = exception.InnerException;
 

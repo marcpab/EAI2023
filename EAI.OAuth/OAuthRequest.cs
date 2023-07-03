@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace EAI.OAuth
     {
         public const string MSDefaultClientId = "51f81489-12ee-4a9e-aaae-a2591f45987d";
 
-        private Dictionary<string, string> _params = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _params = new Dictionary<string, string>();
 
         public const string ParamClientId     = "client_id";
         public const string ParamClientSecret = "client_secret";

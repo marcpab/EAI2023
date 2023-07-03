@@ -22,19 +22,19 @@ namespace EAI.JOData
         {
             var msg = exception?.Select(x => x.Message);
 
-            if (msg != null && msg.Count() > 0)
+            if (msg is not null && msg.Count() > 0)
                 return msg.Aggregate((x, y) => x + " " + y).Trim();
 
             return string.Empty;
         }
 
-        public RestResponse(HttpResponseMessage msg, string endpoint, Exception? ex = null)
+        public RestResponse(HttpResponseMessage? msg, string endpoint, Exception? ex = null)
         {
             Endpoint = endpoint;
             Exception = ExceptionEntry.GetExceptionEntries(ex);
             Error = GetError(Exception);
 
-            if (msg != null)
+            if (msg is not null)
             {
                 RequestMessage = msg.RequestMessage?.Content?.ReadAsStringAsync().Result;
                 Method = msg.RequestMessage?.Method.ToString();

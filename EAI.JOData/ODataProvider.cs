@@ -63,14 +63,14 @@ namespace EAI.JOData
 
         private async Task<HttpClient> GetAuthenticatedClientAsync()
         {
-            if (_client == null || IsDisposed)
+            if (_client is null || IsDisposed)
             {
                 _client = GetClient();
                 IsDisposed = false;
                 _tokenExpiresOn = null;
             }
 
-            if (_tokenExpiresOn != null && _tokenExpiresOn > DateTime.Now.AddSeconds(5f))
+            if (_tokenExpiresOn is not null && _tokenExpiresOn > DateTime.Now.AddSeconds(5f))
                 return _client;
 
             Token = await AuthenticationDetails.GetTokenAsync();
@@ -89,7 +89,7 @@ namespace EAI.JOData
         }
 
         /// <param name="record">when it finds any CtrlTokens, will remove them from the object</param>
-        private static PreProcessRequest ValidateRecord(JObject record, bool requiresId = false)
+        private static PreProcessRequest ValidateRecord(JObject? record, bool requiresId = false)
         {
             var pp = new PreProcessRequest();
 
@@ -129,23 +129,23 @@ namespace EAI.JOData
                     pp.Tokens[CtrlTokens.EnumerableEntity] = record?[CtrlTokens.EnumerableEntity] ?? JToken.Parse("{}");
                 }
 
-                record.Property(CtrlTokens.EnumerableEntity).Remove();
+                record?.Property(CtrlTokens.EnumerableEntity)?.Remove();
             }
 
-            if (record.ContainsKey(CtrlTokens.AADImpersionationId))
+            if (record?.ContainsKey(CtrlTokens.AADImpersionationId) ?? false)
             {
                 var value = record[CtrlTokens.AADImpersionationId];
-                if (value.Type != JTokenType.Null)
+                if (value is not null && value.Type != JTokenType.Null)
                 {
                     pp.Tokens.Add(CtrlTokens.AADImpersionationId, value);
                 }
-                record.Property(CtrlTokens.AADImpersionationId).Remove();
+                record?.Property(CtrlTokens.AADImpersionationId)?.Remove();
             }
 
             var hasId = false;
-            if (record.ContainsKey(pp.RecordIdName))
+            if ((record is not null) && (record?.ContainsKey(pp.RecordIdName) ?? false))
             {
-                pp.Tokens.Add(pp.RecordIdName, record[pp.RecordIdName]);
+                pp.Tokens.Add(pp.RecordIdName, record[pp.RecordIdName]!);
                 hasId = true;
             }
 
@@ -182,8 +182,9 @@ OData-Version: 4.0
             var client = await GetAuthenticatedClientAsync();
 
             var uri = new Uri($"{_odataUri}/{lookupSource}/{nameAssociation}/$ref", UriKind.Relative);
-            var content = $"{{\"@odata.id\":\"{client.BaseAddress.Scheme}://{client.BaseAddress.Host}/{_odataUri}/{lookupTarget}\"}}";
+            var content = $"{{\"@odata.id\":\"{client?.BaseAddress?.Scheme}://{client?.BaseAddress?.Host}/{_odataUri}/{lookupTarget}\"}}";
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
             {
                 request.Headers.Add("Accept", _mediaType);
@@ -192,7 +193,7 @@ OData-Version: 4.0
 
                 try
                 {
-                    var response = await client.SendAsync(request);
+                    var response = await client?.SendAsync(request)!;
                     return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
                 }
                 catch (Exception ex)
@@ -200,9 +201,10 @@ OData-Version: 4.0
                     return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
-        public async Task<ODataResponse> Create(JObject record)
+        public async Task<ODataResponse> Create(JObject? record)
         {
             var preProcess = ValidateRecord(record);
 
@@ -211,11 +213,12 @@ OData-Version: 4.0
 
             var uri = new Uri($"{_odataUri}/{preProcess.Tokens[CtrlTokens.EnumerableEntity].Value<string>()}", UriKind.Relative);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
             {
                 request.Headers.Add("Accept", _mediaType);
                 request.Headers.Add("Prefer", "return=representation");
-                request.Content = new StringContent(record.ToString(), Encoding.UTF8, _mediaType);
+                request.Content = new StringContent(record?.ToString() ?? "", Encoding.UTF8, _mediaType);
 
                 try
                 {
@@ -227,6 +230,7 @@ OData-Version: 4.0
                     return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
         public async Task<ODataResponse> Create(JToken record) => await Create(record?.ToObject<JObject>());
         public async Task<ODataResponse> Create(string record) => await Create(JToken.Parse(record));
@@ -244,6 +248,7 @@ OData-Version: 4.0
             if (string.IsNullOrWhiteSpace(action))
                 return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException($"action"), _jToken, ResponseContentType.Entity);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
             {
                 request.Headers.Add("Accept", _mediaType);
@@ -261,6 +266,7 @@ OData-Version: 4.0
                     return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public async Task<ODataResponse> Delete(string entity, Guid id)
@@ -272,6 +278,7 @@ OData-Version: 4.0
             if (id == Guid.Empty)
                 return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(id)), _jToken, ResponseContentType.Entity);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Delete, uri))
             {
                 request.Headers.Add("Prefer", "return=minimal");
@@ -286,6 +293,7 @@ OData-Version: 4.0
                     return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public static JObject BuildFetch(string entity, string filter, int top = 0, bool islink = false)
@@ -298,7 +306,7 @@ OData-Version: 4.0
                 });
 
             var property = new JProperty("@odata.type", $"#Microsoft.Dynamics.CRM.{entity}");
-            request.First.AddBeforeSelf(property);
+            request.First!.AddBeforeSelf(property);
 
             return request;
         }
@@ -313,20 +321,23 @@ OData-Version: 4.0
             {
                 // create request
                 var request = ODataProvider.BuildFetch(enumerableEntity, filter, top, isLink);
-                request.Last.AddAfterSelf(new JProperty("custom", query));
-                request.Last.AddAfterSelf(new JProperty(CtrlTokens.EnumerableEntity, enumerableEntity));
+                request?.Last?.AddAfterSelf(new JProperty("custom", query));
+                request?.Last?.AddAfterSelf(new JProperty(CtrlTokens.EnumerableEntity, enumerableEntity));
+
+                if (request is null)
+                    throw new Exception("FetchPagingCustom request cannot be null here");
 
                 // fetch
-                var response = (ODataResponse)await Fetch(request);
+                var response = await Fetch(request);
 
                 // process response
-                if (!response.IsSuccess)
+                if (!response.IsSuccess || response.Content is null || !response.Content.Contains("value"))
                     return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response?.Response, _jToken, ResponseContentType.EntityList);
 
                 records.Merge(response.Content["value"] as JArray);
-
+                
                 filter = response.Content["@odata.nextLink"]?.Value<string>();
-                if (filter != null)
+                if (filter is not null)
                 {
                     isLink = true;
                 }
@@ -341,11 +352,14 @@ OData-Version: 4.0
             JArray records = new();
             var isLink = false;
 
+            if (filter is null)
+                throw new ArgumentException(nameof(filter));
+
             while (true)
             {
                 // create request
-                var request = ODataProvider.BuildFetch(enumerableEntity, filter, top, isLink);
-                request.Last.AddAfterSelf(new JProperty(CtrlTokens.EnumerableEntity, enumerableEntity));
+                var request = ODataProvider.BuildFetch(enumerableEntity, filter, top, isLink)!;
+                request.Last?.AddAfterSelf(new JProperty(CtrlTokens.EnumerableEntity, enumerableEntity));
                 // fetch
                 var response = (ODataResponse)await Fetch(request);
 
@@ -353,11 +367,12 @@ OData-Version: 4.0
                 if (!response.IsSuccess)
                     return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response.Response, _jToken, ResponseContentType.EntityList);
 
-                records.Merge(response.Content["value"] as JArray);
+                records.Merge(response.Content?["value"] as JArray);
 
-                filter = response.Content["@odata.nextLink"]?.Value<string>();
-                if (filter != null)
+                var intfilter = response.Content?["@odata.nextLink"]?.Value<string>();
+                if (intfilter is not null)
                 {
+                    filter = intfilter;
                     isLink = true;
                 }
                 else
@@ -372,6 +387,7 @@ OData-Version: 4.0
         {
             var uri = new Uri($"{_odataUri}/$metadata", UriKind.Relative);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
                 request.Headers.Add("Accept", "application/xml");
@@ -383,15 +399,17 @@ OData-Version: 4.0
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public async Task<ODataResponse> Fetch(string enumerableEntity, Guid key)
         {
             var uri = new Uri($"{_odataUri}/{enumerableEntity}({key})", UriKind.Relative);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
                 request.Headers.Add("Accept", _mediaType);
@@ -404,45 +422,46 @@ OData-Version: 4.0
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public async Task<ODataResponse> Fetch<T>(Guid key) where T : IDataverseEntity, new()
             => await Fetch((new T()).NameCollection, key);
 
-        public async Task<ODataResponse> Fetch(JObject record)
+        public async Task<ODataResponse> Fetch(JObject? record)
         {
             var preProcess = ValidateRecord(record);
 
             if (!preProcess.IsValid)
-                return new ODataResponse((HttpResponseMessage)null, _odataUri, new ArgumentException($"{preProcess.Error}"), _jToken, ResponseContentType.EntityList);
+                return new ODataResponse((HttpResponseMessage?)null, _odataUri, new ArgumentException($"{preProcess.Error}"), _jToken, ResponseContentType.EntityList);
 
             var entity = preProcess.Tokens[CtrlTokens.EnumerableEntity].Value<string>();
             var uri = new Uri($"{_odataUri}/{entity}", UriKind.Relative);
 
             // read fetch params
             var top = 0;
-            if (record.ContainsKey("top"))
-                top = record["top"].Value<int>();
+            if (record?.ContainsKey("top") ?? false)
+                top = record["top"]?.Value<int>() ?? 0;
 
-            var filter = (string)null;
-            if (record.ContainsKey("filter"))
-                filter = record["filter"].Value<string>();
+            var filter = (string?)null;
+            if (record?.ContainsKey("filter") ?? false)
+                filter = record["filter"]?.Value<string>() ?? "";
 
-            var custom = (string)null;
-            if (record.ContainsKey("custom"))
-                custom = record["custom"].Value<string>();
+            var custom = (string?)null;
+            if (record?.ContainsKey("custom") ?? false)
+                custom = record["custom"]?.Value<string>() ?? "";
 
             var isLink = false;
-            if (record.ContainsKey("islink"))
-                isLink = record["islink"].Value<bool>();
-            else if (filter.StartsWith("https:"))
+            if (record?.ContainsKey("islink") ?? false)
+                isLink = record["islink"]?.Value<bool>() ?? false;
+            else if (filter?.StartsWith("https:") ?? false)
                 isLink = true;
 
             if (string.IsNullOrWhiteSpace(filter) && string.IsNullOrWhiteSpace(custom))
-                return new ODataResponse((HttpResponseMessage)null, uri, new ArgumentException($"record missing field 'filter' or 'custom'!"), _jToken, ResponseContentType.EntityList);
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentException($"record missing field 'filter' or 'custom'!"), _jToken, ResponseContentType.EntityList);
 
             // filter is a paging link?
             if (isLink)
@@ -452,6 +471,7 @@ OData-Version: 4.0
             else
                 uri = new Uri($"{_odataUri}/{entity}?$filter={filter}", UriKind.Relative);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
                 request.Headers.Add("Accept", _mediaType);
@@ -468,9 +488,10 @@ OData-Version: 4.0
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.EntityList);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public async Task<ODataResponse> Fetch(JToken record) => await Fetch(record?.ToObject<JObject>());
@@ -479,6 +500,7 @@ OData-Version: 4.0
         {
             var uri = new Uri($"{_odataUri}/{enumerableEntity}?fetchXml={HttpUtility.UrlEncode(fetchXml.ToString(SaveOptions.DisableFormatting))}", UriKind.Relative);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
                 request.Headers.Add("Accept", _mediaType);
@@ -491,9 +513,10 @@ OData-Version: 4.0
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.EntityList);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
         public async Task<ODataResponse> FetchXml<T>(XElement fetchXml) where T : IDataverseEntity, new()
@@ -514,7 +537,7 @@ OData-Version: 4.0
             }
             catch (Exception ex)
             {
-                return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.LocalOptionSet);
+                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.LocalOptionSet);
             }
         }
 
@@ -536,7 +559,7 @@ OData-Version: 4.0
             }
             catch (Exception ex)
             {
-                return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.Status);
+                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Status);
             }
         }
 
@@ -558,14 +581,14 @@ OData-Version: 4.0
             }
             catch (Exception ex)
             {
-                return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.LocalOptionSet);
+                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.LocalOptionSet);
             }
         }
 
         public async Task<ODataResponse> GetOptionSetMetadata<T>(string attributeName) where T : IDataverseEntity, new()
             => await GetOptionSetMetadata((new T()).Name, attributeName);
 
-        public async Task<ODataResponse> Update(JObject record)
+        public async Task<ODataResponse> Update(JObject? record)
         {
             var preProcess = ValidateRecord(record, true);
 
@@ -590,11 +613,13 @@ OData-Version: 4.0
                 }
             }
             string? impersonation = null;
-            if (preProcess.Tokens.ContainsKey(CtrlTokens.AADImpersionationId))
+            if (preProcess is not null &&
+                preProcess.Tokens.ContainsKey(CtrlTokens.AADImpersionationId))
                 impersonation = preProcess?.Tokens[CtrlTokens.AADImpersionationId]?.Value<string>();
 
             var uri = new Uri($"{_odataUri}/{entity}({id})", UriKind.Relative);
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), uri))
             {
                 request.Headers.Add("Accept", _mediaType);
@@ -602,7 +627,7 @@ OData-Version: 4.0
                 if (!string.IsNullOrWhiteSpace(impersonation))
                     request.Headers.Add("CallerObjectId", impersonation);
 
-                request.Content = new StringContent(record.ToString(), Encoding.UTF8, _mediaType);
+                request.Content = new StringContent(record?.ToString() ?? "", Encoding.UTF8, _mediaType);
 
                 try
                 {
@@ -611,9 +636,10 @@ OData-Version: 4.0
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
                 }
             }
+#pragma warning restore IDE0063 // Use simple 'using' statement
         }
         public async Task<ODataResponse> Update(JToken record) => await Update(record?.ToObject<JObject>());
         public async Task<ODataResponse> Update(string record) => await Update(JToken.Parse(record));
@@ -623,7 +649,7 @@ OData-Version: 4.0
 
         public void Dispose()
         {
-            if (_client != null && !IsDisposed)
+            if (_client is not null && !IsDisposed)
             {
                 GC.SuppressFinalize(this);
                 IsDisposed = true;

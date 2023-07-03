@@ -115,11 +115,11 @@ namespace EAI.Logging
                 return await String<U, V>(overrideStage, overrideStageId, $"{name} = [{value.GetType().Name}]'{value}'", cancellationToken);
         }
 
-        public async Task<LogItem> Message<U, V>(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> Message<U, V>(string overrideStage, int overrideStageId, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
-            return await Create<U, V>(overrideStage, overrideStageId, description, new LogMessage(operation, content), null, cancellationToken);
+            return await Create<U, V>(overrideStage, overrideStageId, description, new LogMessage(operation: operation, content: content), null, cancellationToken);
         }
 
         public async Task<LogItem> String<U, V>(string overridestage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
@@ -139,7 +139,7 @@ namespace EAI.Logging
                 return await String<U, V>($"{name} = [{value.GetType().Name}]'{value}'", cancellationToken);
         }
 
-        public async Task<LogItem> Message<U,V>(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> Message<U,V>(string operation, object content, string description = null, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             where V : ILogWriterId, new()
         {
@@ -161,10 +161,6 @@ namespace EAI.Logging
             where U : ILogLevel, new()
             => await Variable<U, DefaultWriterId>(name, value.GetHashCode(), cancellationToken);
 
-        public async Task<LogItem> Message<U>(string operation, string content, string description = null, CancellationToken cancellationToken = default)
-            where U : ILogLevel, new() 
-            => await Message<U, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
-
         public async Task<LogItem> String<U>(string overrideStage, int overrideStageId, string text, CancellationToken cancellationToken = default, params object[] args)
             where U : ILogLevel, new()
             => await String<U, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
@@ -173,7 +169,7 @@ namespace EAI.Logging
             where U : ILogLevel, new()
             => await Variable<U, DefaultWriterId>(overrideStage, overrideStageId, name, value, cancellationToken);
 
-        public async Task<LogItem> Message<U>(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> Message<U>(string overrideStage, int overrideStageId, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             => await Message<U, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
 
@@ -185,9 +181,12 @@ namespace EAI.Logging
             where U : ILogLevel, new()
             => await Variable<U, DefaultWriterId>(stage.ToString(), (int)stage, name, value, cancellationToken);
 
-        public async Task<LogItem> Message<U>(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> Message<U>(LogStage stage, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
             => await Message<U, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
+        public async Task<LogItem> Message<U>(string operation, object content, string description = null, CancellationToken cancellationToken = default)
+            where U : ILogLevel, new()
+            => await Message<U, DefaultWriterId>(operation, content, description, cancellationToken);
 
         public async Task<LogItem> Exception<U>(LogStage stage, Exception ex, string description, CancellationToken cancellationToken = default)
             where U : ILogLevel, new()
@@ -265,36 +264,35 @@ namespace EAI.Logging
             => await String<LevelInformation, DefaultWriterId>(overrideStage, overrideStageId, text, cancellationToken, args);
         public async Task<LogItem> InformationException(string text, CancellationToken cancellationToken = default, params object[] args)
             => await String<LevelInformation, DefaultWriterId>(text, cancellationToken, args);
-        public async Task<LogItem> DebugMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> DebugMessage(LogStage stage, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelDebug, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
-        public async Task<LogItem> DebugMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> DebugMessage(string overrideStage, int overrideStageId, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelDebug, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
-        public async Task<LogItem> DebugMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> DebugMessage(string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelDebug, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
-        public async Task<LogItem> InformationMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> InformationMessage(LogStage stage, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelInformation, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
-        public async Task<LogItem> InformationMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> InformationMessage(string overrideStage, int overrideStageId, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelInformation, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
-        public async Task<LogItem> InformationMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> InformationMessage(string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelInformation, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
-        public async Task<LogItem> WarningMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> WarningMessage(LogStage stage, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelWarning, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
-        public async Task<LogItem> WarningMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> WarningMessage(string overrideStage, int overrideStageId, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelWarning, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
-        public async Task<LogItem> WarningMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> WarningMessage(string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelWarning, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
-        public async Task<LogItem> ErrorMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> ErrorMessage(LogStage stage, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelError, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
-        public async Task<LogItem> ErrorMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> ErrorMessage(string overrideStage, int overrideStageId, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelError, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
-        public async Task<LogItem> ErrorMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> ErrorMessage(string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelError, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
-        public async Task<LogItem> CriticalMessage(LogStage stage, string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> CriticalMessage(LogStage stage, string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelCritical, DefaultWriterId>(stage.ToString(), (int)stage, operation, content, description, cancellationToken);
         public async Task<LogItem> CriticalMessage(string overrideStage, int overrideStageId, string operation, string content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelCritical, DefaultWriterId>(overrideStage, overrideStageId, operation, content, description, cancellationToken);
-        public async Task<LogItem> CriticalMessage(string operation, string content, string description = null, CancellationToken cancellationToken = default)
+        public async Task<LogItem> CriticalMessage(string operation, object content, string description = null, CancellationToken cancellationToken = default)
             => await Message<LevelCritical, DefaultWriterId>(operation: operation, content: content, description: description, cancellationToken: cancellationToken);
-
     }
 }

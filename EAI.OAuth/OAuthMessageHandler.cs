@@ -16,7 +16,7 @@ namespace EAI.OAuth
         private OAuthRequest _oauthRequest;
         private Uri _uri;
         private HttpMethod _method;
-        private int _defaultLivetime;
+        private readonly int _defaultLivetime = 70;
         private IMessageHandler _next;
 
         public OAuthClient OAuthClient { get => _oauthClient; set => _oauthClient = value; }

@@ -19,6 +19,12 @@ namespace EAI.Logging.Model
             Content = string.IsNullOrWhiteSpace(content) ? null : content;
         }
 
+        public LogMessage(string operation, object content)
+        {
+            Operation = string.IsNullOrWhiteSpace(operation) ? null : operation;
+            (MsgType, Content) = DeductMessageType(content);
+        }
+
         private static (LogMessageType MsgType, string Content) DeductMessageType(object content)
         {
             LogMessageType msgType = LogMessageType.RAW;
@@ -79,10 +85,5 @@ namespace EAI.Logging.Model
             return (msgType, contentString);
         }
 
-        public LogMessage(string operation, object content)
-        {
-            Operation = string.IsNullOrWhiteSpace(operation) ? null : operation;
-            (MsgType, Content) = DeductMessageType(content);            
-        }
     }
 }

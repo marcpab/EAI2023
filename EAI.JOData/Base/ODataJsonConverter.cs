@@ -38,7 +38,7 @@ namespace EAI.JOData.Base
                 string? oDataTypePropertyName = null;
 
                 var metaObjectProvider = value as IDynamicMetaObjectProvider;
-                if (metaObjectProvider != null)
+                if (metaObjectProvider is not null)
                 {
                     var metaObject = metaObjectProvider.GetMetaObject(_typeofObjectParam);
 

@@ -55,7 +55,7 @@ namespace EAI.JOData
                     Content = JToken.Parse(Response.Content);
                     IsJsonResponse = true;
 
-                    if (Content.SelectToken("error") != null)
+                    if (Content.SelectToken("error") is not null)
                     {
                         var errcode = Content.SelectToken("error")?.SelectToken("code");
                         var errmsg = Content.SelectToken("error")?.SelectToken("message");
@@ -102,7 +102,7 @@ namespace EAI.JOData
                     Content = JToken.Parse(Response.Content);
                     IsJsonResponse = true;
 
-                    if (Content.SelectToken("error") != null)
+                    if (Content.SelectToken("error") is not null)
                     {
                         var errcode = Content.SelectToken("error")?.SelectToken("code");
                         var errmsg = Content.SelectToken("error")?.SelectToken("message");
@@ -123,13 +123,13 @@ namespace EAI.JOData
         public ODataResponse(JToken content, Uri endpoint, Exception ex, JToken token, ResponseContentType type = ResponseContentType.Undefined)
             : this(content, endpoint, new RestResponse(null, endpoint, ex), token, type) { }
 
-        public ODataResponse(JToken content, Uri endpoint, RestResponse response, JToken token, ResponseContentType type = ResponseContentType.Undefined, bool overrideContent = false)
+        public ODataResponse(JToken content, Uri endpoint, RestResponse? response, JToken token, ResponseContentType type = ResponseContentType.Undefined, bool overrideContent = false)
         {
             Response = response;
             Endpoint = $"{endpoint}";
-            StatusCode = Response.StatusCode;
-            StatusReason = Response.StatusReason;
-            StatusText = Response.StatusText;
+            StatusCode = Response?.StatusCode ?? 0;
+            StatusReason = Response?.StatusReason ?? "";
+            StatusText = Response?.StatusText ?? "";
             Token = token ?? JToken.Parse("{}");
             SoftError = string.Empty;
 
@@ -138,7 +138,7 @@ namespace EAI.JOData
             Message = content?.ToString();
             Content = content;
 
-            if (content == null || !content.HasValues)
+            if (content is null || !content.HasValues)
             {
                 if (!overrideContent && Response?.Content is not null)
                 {
@@ -146,9 +146,9 @@ namespace EAI.JOData
                     {
                         Content = JToken.Parse(Response.Content);
                         IsJsonResponse = true;
-                        Message = response.Content;
+                        Message = response?.Content;
 
-                        if (Content.SelectToken("error") != null)
+                        if (Content.SelectToken("error") is not null)
                         {
                             var errcode = Content.SelectToken("error")?.SelectToken("code");
                             var errmsg = Content.SelectToken("error")?.SelectToken("message");
@@ -175,7 +175,7 @@ namespace EAI.JOData
         /// <returns>null or dictionary</returns>
         public Dictionary<int, Dictionary<int, string>>? GetContentAsOptionSet()
         {
-            if (Content == null)
+            if (Content is null)
                 return null;
 
             if (ContentType != ResponseContentType.LocalOptionSet && ContentType != ResponseContentType.Status)
@@ -188,7 +188,7 @@ namespace EAI.JOData
                 key = "GlobalOptionSet";
 
             var options = Content[key]?["Options"]?.Children();
-            if (options == null)
+            if (options is null)
                 return null;
 
             foreach (var o in options)
@@ -233,6 +233,36 @@ namespace EAI.JOData
             return result;
         }
 
+        public Dictionary<int, string?>? GetContentAsOptionExternal()
+        {
+            if (Content is null)
+                return null;
+
+            if (ContentType != ResponseContentType.LocalOptionSet && ContentType != ResponseContentType.Status)
+                return null;
+
+            var result = new Dictionary<int, string?>();
+
+            var key = "OptionSet";
+            if (ContentType == ResponseContentType.Status)
+                key = "GlobalOptionSet";
+
+            var options = Content[key]?["Options"]?.Children();
+            if (options is null)
+                return null;
+
+            foreach (var o in options)
+            {
+                var value = o["Value"]?.ToObject<int>();
+                var external = o["ExternalValue"]?.ToString();
+
+                if(value is not null)
+                    result.Add((int)value, external);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// returns null when not an os result set
         /// </summary>
@@ -243,7 +273,7 @@ namespace EAI.JOData
 
         public List<JToken>? ToList()
         {
-            if (Content == null)
+            if (Content is null)
                 return null;
 
             if (ContentType == ResponseContentType.Entity)
@@ -257,7 +287,7 @@ namespace EAI.JOData
 
         public List<JToken>? ToValueList()
         {
-            if (Content?.SelectToken("value") != null)
+            if (Content?.SelectToken("value") is not null)
                 return Content?["value"]?.Children().ToList();
 
             return null;
@@ -285,7 +315,7 @@ namespace EAI.JOData
                 .SingleOrDefault()?
                 .Value;
 
-            if (jtokens == null || jtokens.Count == 0)
+            if (jtokens is null || jtokens.Count is 0)
                 return null;
 
             return jtokens?[row]?
@@ -307,7 +337,7 @@ namespace EAI.JOData
                     .SingleOrDefault(y => y.Name == key)?
                     .Value.ToString();
 
-                if (jtokens == null || jtokens.Count == 0)
+                if (jtokens is null || jtokens.Count is 0)
                     return null;
 
                 return jtokens?[row]?

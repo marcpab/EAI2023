@@ -9,7 +9,7 @@
         public static string SrvCfgKey_CDSEndpoint(string mode) 
             => $"cds{Templates.TrimAll(mode)?.ToUpper()}";
         public static readonly string SrvCfg_EndpointUrl = "ServiceUrl";
-        public static readonly string SrvCfg_TenanntId = "TennantId";
+        public static readonly string SrvCfg_TennantId = "TennantId";
         public static readonly string SrvCfg_ClientId = "ClientId";
         public static readonly string SrvCfg_ClientSecret = "ClientSecret";
 
