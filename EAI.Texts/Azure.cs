@@ -3,13 +3,13 @@
     public static class Azure
     {
         public const string WebJobsStorage = "AzureWebJobsStorage";
-        public const string ServiceConfigurationContainer = "cosmo-configuration";
+        public const string ServiceConfigurationContainer = "eai-configuration";
         public const string ServiceConfigurationBlob = "service-configuration.json";
 
         public static string SrvCfgKey_CDSEndpoint(string mode) 
             => $"cds{Templates.TrimAll(mode)?.ToUpper()}";
         public static readonly string SrvCfg_EndpointUrl = "ServiceUrl";
-        public static readonly string SrvCfg_TenanntId = "TennantId";
+        public static readonly string SrvCfg_TennantId = "TennantId";
         public static readonly string SrvCfg_ClientId = "ClientId";
         public static readonly string SrvCfg_ClientSecret = "ClientSecret";
 
