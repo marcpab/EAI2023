@@ -39,7 +39,7 @@ namespace EAI.NetFramework.SAPNcoService
 
             foreach (var jRfcFunction in jRfcObject.Properties().ToArray())
             {
-                var jRfcFunctionResponse = _rfcConnection.InvokeJFunction(jRfcFunction, null, true);
+                var jRfcFunctionResponse = _rfcConnection.InvokeJFunction(jRfcFunction, null, autoCommit);
 
                 jRfcFunction.AddAfterSelf(jRfcFunctionResponse);
             }
