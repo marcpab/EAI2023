@@ -56,14 +56,14 @@ namespace EAI.MessageQueue.Storage.Manager
                 var client = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.ConfigurationContainer);
                 var blob = client.GetBlobClient(EAI.Texts.DefaultStorage.ConfigurationFile);
 
-                if (await blob.ExistsAsync().ConfigureAwait(true) == false)
+                if (await blob.ExistsAsync() == false)
                 {
                     
                     Log.LogWarning("[MQ] DefaultManager.GetConfiguration: no global {ConfigFile} found, trying to read from host.json...", EAI.Texts.DefaultStorage.ConfigurationFile);
                     return configuration.Get<MessageQueueConfiguration>("MQ");
                 }
 
-                return await blob.DownloadAsync<MessageQueueConfiguration>().ConfigureAwait(true);
+                return await blob.DownloadAsync<MessageQueueConfiguration>();
             }
             catch (Exception ex)
             {
@@ -75,7 +75,7 @@ namespace EAI.MessageQueue.Storage.Manager
         public async Task<int> ContainerCount(string containerName)
         {
             var client = new BlobContainerClient(CS, containerName);
-            return await ContainerCount(client).ConfigureAwait(true);
+            return await ContainerCount(client);
         }
 
         private static async Task<int> ContainerCount(BlobContainerClient client)
@@ -265,6 +265,7 @@ namespace EAI.MessageQueue.Storage.Manager
             try
             {
                 var client = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.BlobLockContainer);
+                _ = await client.CreateIfNotExistsAsync();
                 var blob = client.GetBlobClient(EAI.Texts.DefaultStorage.FileSemaphore(queueName));
 
                 if (await blob.ExistsAsync()== false)
@@ -368,13 +369,13 @@ namespace EAI.MessageQueue.Storage.Manager
                             // ...we enqueue it again
                             await EnqueueAsync(item);
                             count++;
-                            Log.LogWarning("[MQ.{Queue}] DefaultManager.FreeTimeoutMessagesAsync removed {Blob} key: {ItemKey} from dequeue", queueName, b, item.MessageKey);
+                            Log.LogWarning("[MQ.{Queue}] DefaultManager.FreeTimeoutMessagesAsync removed {Blob} key: {ItemKey} from dequeue", GetContainerDequeue(queueName), b, item.MessageKey);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError("[MQ.{Queue}] DefaultManager.FreeTimeoutMessagesAsync ex: {Ex} {InnerEx}", queueName, ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
+                    Log.LogError("[MQ.{Queue}] DefaultManager.FreeTimeoutMessagesAsync ex: {Ex} {InnerEx}", GetContainerDequeue(queueName), ex.Message, ex.InnerException?.Message ?? EAI.Texts.Properties.NULL);
                 }
             }
 
@@ -484,6 +485,8 @@ namespace EAI.MessageQueue.Storage.Manager
                 var retry = true;
                 bool result = false;
                 var client = new BlobContainerClient(CS, EAI.Texts.DefaultStorage.BlobLockContainer);
+                _ = await client.CreateIfNotExistsAsync();
+
                 var blob = client.GetBlobClient(name);
 
                 if (!blob.Exists())
