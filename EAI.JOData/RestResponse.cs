@@ -22,7 +22,7 @@ namespace EAI.JOData
         {
             var msg = exception?.Select(x => x.Message);
 
-            if (msg is not null && msg.Count() > 0)
+            if (msg is not null && msg.Any())
                 return msg.Aggregate((x, y) => x + " " + y).Trim();
 
             return string.Empty;
