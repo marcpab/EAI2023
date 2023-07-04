@@ -269,12 +269,12 @@ OData-Version: 4.0
 #pragma warning restore IDE0063 // Use simple 'using' statement
         }
 
-        public async Task<ODataResponse> Delete(string entity, Guid id)
+        public async Task<ODataResponse> Delete(string enumerableEntity, Guid id)
         {
-            var uri = new Uri($"{_odataUri}/{entity}({id})", UriKind.Relative);
+            var uri = new Uri($"{_odataUri}/{enumerableEntity}({id})", UriKind.Relative);
 
-            if (string.IsNullOrWhiteSpace(entity))
-                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(entity)), _jToken, ResponseContentType.Entity);
+            if (string.IsNullOrWhiteSpace(enumerableEntity))
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(enumerableEntity)), _jToken, ResponseContentType.Entity);
             if (id == Guid.Empty)
                 return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(id)), _jToken, ResponseContentType.Entity);
 
