@@ -353,7 +353,7 @@ OData-Version: 4.0
             var isLink = false;
 
             if (filter is null)
-                throw new ArgumentException(nameof(filter));
+                throw new ArgumentException(null, nameof(filter));
 
             while (true)
             {
