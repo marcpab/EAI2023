@@ -58,7 +58,7 @@ namespace EAI.Dataverse.ModelGenerator
                 var entityTokenList = new List<IToken>();
 
                 entityTokenList.Add(new EntitySetToken() { EntitySetName = entityDefinition.EntitySetName });
-                entityTokenList.Add(new ODataTypeToken() { EntityName = entityDefinition.SchemaName });
+                entityTokenList.Add(new ODataTypeToken() { EntityName = entityDefinition.LogicalName });
 
                 if (GenerateLookups)
                     entityTokenList.Add(new ToLookupToken()
