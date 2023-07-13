@@ -1,5 +1,9 @@
-﻿using EAI.General.SettingJson;
+﻿using EAI.General;
+using EAI.General.SettingJson;
 using EAI.General.Settings;
+using EAI.LoggingV2;
+using EAI.LoggingV2.Levels;
+using EAI.Messaging.Abstractions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,12 +17,22 @@ namespace EAI.AzureFunctions
     {
         protected ILogger _logger;
 
+        public LoggerV2 Log { get; set; }
+        public string Stage { get; set; }
+
+        public ProcessContext Context { get => ProcessContext.GetCurrent(); }
+
         protected T GetMessage<T>(string messageContent)
         {
             if (typeof(T) == typeof(string))
                 return (T)(object)messageContent;
 
             return JsonConvert.DeserializeObject<T>(messageContent);
+        }
+
+        protected virtual void SetupProcessContext(string processId)
+        {
+            ProcessContext.Create(processId, Stage, GetType().FullName);
         }
 
         protected virtual Task InitializeTestAsync()
@@ -45,6 +59,28 @@ namespace EAI.AzureFunctions
             var configJson = config.ToString();
 
             new SettingJsonHandler(_logger).DeserializeInstance(this, configJson);
+        }
+
+        protected void SetMetadataAndLog<requestT>(requestT requestMessage)
+        {
+            if (typeof(requestT) != typeof(string))
+            {
+                var parentProcessContext = (requestMessage as IMessageProcessContext)?.ProcessContext;
+                if (parentProcessContext != null)
+                    ProcessContext.SetParentContext(parentProcessContext);
+
+                var transactionKey = (requestMessage as IMessageTransactionKey)?.TransactionKey;
+                if (transactionKey != null)
+                {
+                    if (Log != null)
+                    {
+                        Log.TransactionKey = transactionKey;
+                        Log.Update<None>();
+                    }
+                }
+
+                Log?.Message<Debug>(nameof(requestMessage), requestMessage, "initial message");
+            }
         }
     }
 }

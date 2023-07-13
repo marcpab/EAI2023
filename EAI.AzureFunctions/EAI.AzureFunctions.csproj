@@ -13,6 +13,8 @@
   <ItemGroup>
     <ProjectReference Include="..\EAI.AzureStorage\EAI.AzureStorage.csproj" />
     <ProjectReference Include="..\EAI.General\EAI.General.csproj" />
+    <ProjectReference Include="..\EAI.LoggingV2\EAI.LoggingV2.csproj" />
+    <ProjectReference Include="..\EAI.Messaging.Abstractions\EAI.Messaging.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

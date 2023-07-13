@@ -1,4 +1,5 @@
 ﻿using EAI.AzureStorage;
+using EAI.LoggingV2.Levels;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,29 +13,71 @@ namespace EAI.AzureFunctions
         {
             await InitializeTestAsync();
 
+            SetupProcessContext(null);
+
             try
             {
+                Log?.Start<Info>(nameof(queueItem), queueItem, "Start (test)");
+
                 var queue = GetQueue();
 
                 var queueMessage = await queue.FromStorageQueueTrigger(queueItem);
 
                 var requestMessage = GetMessage<requestT>(queueMessage.MessageContent);
 
+                SetMetadataAndLog(requestMessage);
+
                 await ProcessRequestAsync(requestMessage);
+
+                Log?.Success<Info>();
+
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "General error");
+                Log?.Failed<Error>(ex);
             }
+
+            if (Log != null)
+                await Log.FlushAsync();
+        }
+
+        public async Task RunEntityTestAsync(requestT requestMessage)
+        {
+            await InitializeTestAsync();
+
+            SetupProcessContext(null);
+
+            try
+            {
+                Log?.Start<Info>(nameof(requestMessage), requestMessage, "Start (test)");
+
+                var queue = GetQueue();
+
+                SetMetadataAndLog(requestMessage);
+
+                await ProcessRequestAsync(requestMessage);
+
+                Log?.Success<Info>();
+
+            }
+            catch (Exception ex)
+            {
+                Log?.Failed<Error>(ex);
+            }
+
+            if (Log != null)
+                await Log.FlushAsync();
         }
 
         protected async Task RunQueueRequestAsync(FunctionContext functionContext, string queueItem)
         {
             await InitializeAsync(functionContext);
 
+            SetupProcessContext(null);
+
             try
             {
-#warning log raw request
+                Log?.Start<Info>(nameof(queueItem), queueItem);
 
                 var queue = GetQueue();
 
@@ -42,17 +85,21 @@ namespace EAI.AzureFunctions
 
                 var requestMessage = GetMessage<requestT>(queueMessage.MessageContent);
 
-#warning log request
+                SetMetadataAndLog(requestMessage);
 
                 await ProcessRequestAsync(requestMessage);
 
                 await queue.CompletedAsync(queueMessage);
 
+                Log.Success<Info>();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "General error");
+                Log?.Failed<Error>(ex);
             }
+
+            if (Log != null)
+                await Log?.FlushAsync();
         }
 
         protected abstract LargeMessageQueue GetQueue();
