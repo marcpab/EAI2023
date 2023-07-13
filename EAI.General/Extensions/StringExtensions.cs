@@ -51,5 +51,14 @@ namespace EAI.General.Extensions
             onParseFailed?.Invoke();
             return defaultValue;
         }
+
+        public static byte[] CalculateSipHash(this string content, Encoding encoding = null, ulong k0 = 0, ulong k1 = 0)
+        {
+            if(encoding == null) 
+                encoding = Encoding.UTF8;
+
+            return BitConverter.GetBytes(SipHash.SipHash_2_4_UlongCast_ForcedInline(encoding.GetBytes(content), k0, k1));
+        }
+
     }
 }
