@@ -76,6 +76,7 @@ namespace EAI.OnPrem.Storage
 
             onPremRequestMessage._requestId = Guid.NewGuid();
             onPremRequestMessage._responseQueueName = responseQueueName;
+            onPremRequestMessage._processContext = ProcessContext.GetCurrent();
 
             Log?.Message<Debug>(nameof(onPremRequestMessage), onPremRequestMessage, "On prem request message");
 

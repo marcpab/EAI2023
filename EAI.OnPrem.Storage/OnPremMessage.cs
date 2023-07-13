@@ -8,6 +8,7 @@ namespace EAI.OnPrem.Storage
     {
         public Guid _requestId;
         public string _responseQueueName;
+        public ProcessContext _processContext;
 
         //[JsonProperty("$type")]
         //public string _type;

@@ -1,5 +1,7 @@
 ﻿using EAI.AzureStorage;
 using EAI.General;
+using EAI.LoggingV2;
+using EAI.LoggingV2.Levels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +18,11 @@ namespace EAI.OnPrem.Storage
             TypeNameHandling = TypeNameHandling.Auto,
         };
 
+        private Dictionary<Type, Func<OnPremMessage, Task<OnPremMessage>>> _requestMap = new Dictionary<Type, Func<OnPremMessage, Task<OnPremMessage>>>();
+        private LargeMessageQueue _storageQueue = new LargeMessageQueue();
+        private IServiceRequestDispatcher[] _dispatchers;
+        private LoggerV2 _log;
+
         public string StorageQueueConnectionString { get => _storageQueue.StorageQueueConnectionString; set => _storageQueue.StorageQueueConnectionString = value; }
         public string StorageQueueName { get => _storageQueue.StorageQueueName; set => _storageQueue.StorageQueueName = value; }
 
@@ -26,26 +33,40 @@ namespace EAI.OnPrem.Storage
 
         public IServiceRequestDispatcher[] Dispatchers { get => _dispatchers; set => _dispatchers = value; }
 
-        private Dictionary<Type, Func<OnPremMessage, Task<OnPremMessage>>> _requestMap = new Dictionary<Type, Func<OnPremMessage, Task<OnPremMessage>>>();
-        private LargeMessageQueue _storageQueue = new LargeMessageQueue();
-        private IServiceRequestDispatcher[] _dispatchers;
-
-
+        public LoggerV2 Log { get => _log; set => _log = value; }
 
         public Task RunAsync(CancellationToken cancellationToken)
         {
-            if(_dispatchers != null)
-                foreach (var dispatcher in _dispatchers)
-                    dispatcher.Initialize(this);
 
-            var storeageQueueListener = new StorageQueueListener(_storageQueue, RequestReceivedAsync);
+            using (var _ = new ProcessScope(null, null, GetType().FullName))
+                try
+                {
+                    Log?.Start<Info>(null, null, $"Starting service {GetType().FullName}");
 
-            return Task.Run(() => storeageQueueListener.RunAsync(cancellationToken));
+                    if (_dispatchers != null)
+                        foreach (var dispatcher in _dispatchers)
+                            dispatcher.Initialize(this);
+
+                    var storeageQueueListener = new StorageQueueListener(_storageQueue, RequestReceivedAsync);
+
+                    return Task.Run(() => storeageQueueListener.RunAsync(cancellationToken));
+
+                    Log?.Success<Info>();
+                }
+                catch (Exception ex)
+                {
+                    Log?.Failed<Error>(ex);
+
+                    throw;
+                }
         }
 
         private async Task RequestReceivedAsync(string jOnPremRequestMessage)
         {
             var onPremRequestMessage = (OnPremMessage)JsonConvert.DeserializeObject(jOnPremRequestMessage, _settings);
+            
+            ProcessContext.Restore(onPremRequestMessage._processContext);
+
             var requestId = onPremRequestMessage._requestId;
             var sendStorageQueue = CreateResponseQueue(onPremRequestMessage._responseQueueName);
 
