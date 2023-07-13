@@ -11,6 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
 using System.Text;
+using EAI.LoggingV2;
+using EAI.LoggingV2.Levels;
 
 namespace EAI.OnPrem.Storage
 {
@@ -62,28 +64,43 @@ namespace EAI.OnPrem.Storage
 
         public bool EncodeMessage { get => _storageQueue.EncodeMessage; set => _storageQueue.EncodeMessage = value; }
 
+        public LoggerV2 Log { get; set; }
 
         private LargeMessageQueue _storageQueue = new LargeMessageQueue();
 
-        public async Task<responseT> SendRequest<responseT, requestT>(requestT requestMessage)
+        public async Task<responseT> SendRequest<responseT, requestT>(requestT onPremRequestMessage)
             where  requestT : OnPremMessage
             where responseT : OnPremMessage
         {
             var responseQueueName = $"{StorageQueueName}-{_responseQueueInstanceId}";
 
-            requestMessage._requestId = Guid.NewGuid();
-            requestMessage._responseQueueName = responseQueueName;
+            onPremRequestMessage._requestId = Guid.NewGuid();
+            onPremRequestMessage._responseQueueName = responseQueueName;
 
-            var tcs = _requestHandler.RegisterRequest(requestMessage);
+            Log?.Message<Debug>(nameof(onPremRequestMessage), onPremRequestMessage, "On prem request message");
 
-            var jOnPremRequestMessage = JsonConvert.SerializeObject(requestMessage, typeof(OnPremMessage), _settings);
-            await _storageQueue.EnqueueAsync(jOnPremRequestMessage);
+            try
+            {
+                var tcs = _requestHandler.RegisterRequest(onPremRequestMessage);
 
-            await StartListenerAsync(responseQueueName);
+                var jOnPremRequestMessage = JsonConvert.SerializeObject(onPremRequestMessage, typeof(OnPremMessage), _settings);
 
-            var onPremResponseMessage = await tcs.Task;
+                await _storageQueue.EnqueueAsync(jOnPremRequestMessage);
 
-            return (responseT)onPremResponseMessage;
+                await StartListenerAsync(responseQueueName);
+
+                var onPremResponseMessage = await tcs.Task;
+
+                Log?.Message<Debug>(nameof(onPremResponseMessage), onPremResponseMessage, "On prem response message");
+
+                return (responseT)onPremResponseMessage;
+            }
+            catch (Exception ex)
+            {
+                Log?.Exception<Error>(ex, "On prem exception");
+
+                throw;
+            }
         }
 
         private Task StartListenerAsync(string responseQueue)
