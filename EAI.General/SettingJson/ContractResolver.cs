@@ -5,23 +5,23 @@ using System.Runtime.Serialization;
 
 namespace EAI.General.SettingJson
 {
-    internal class ContractResolver : IContractResolver
+    internal class ContractResolver : DefaultContractResolver
     {
         private readonly SerializerContext _context;
-        private readonly IContractResolver _defaultResolver;
+//        private readonly IContractResolver _defaultResolver;
         private readonly SerializationCallback _onDeserializedCallback;
 
 
         public ContractResolver(SerializerContext context)
         {
             _context = context;
-            _defaultResolver = new DefaultContractResolver();
+//            _defaultResolver = new DefaultContractResolver();
             _onDeserializedCallback = new SerializationCallback(OnDeserialized);
         }
 
-        public JsonContract ResolveContract(Type type)
+        public override JsonContract ResolveContract(Type type)
         {
-            var contract = _defaultResolver.ResolveContract(type);
+            var contract = base.ResolveContract(type);
             if (!contract.OnDeserializingCallbacks.Contains(_onDeserializedCallback))
                 contract.OnDeserializingCallbacks.Add(_onDeserializedCallback);
 
@@ -81,5 +81,7 @@ namespace EAI.General.SettingJson
 
             }
         }
+
+        
     }
 }
