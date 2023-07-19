@@ -9,6 +9,13 @@ namespace EAI.JOData
         public Uri Uri => new($"https://login.microsoftonline.com/{TennantId}/oauth2/v2.0/token");
         public OAuthClient OAuthClient { get; private set; } = new();
 
+        public ODataAuth(OAuthRequest request, string tennant = "Common")
+        {
+            Request = request;
+
+            TennantId = tennant;
+        }
+
         public ODataAuth(string client, string secret, string scope, string tennantId)
         {
             Request = new OAuthRequest()
