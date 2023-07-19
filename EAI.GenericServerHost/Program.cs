@@ -53,17 +53,25 @@ namespace EAI.GenericServerHost
 
                 while (!cancellationTokenSoucre.Token.IsCancellationRequested)
                 {
-                    var key = Console.ReadKey();
+                    if (serviceTask.IsFaulted)
+                        break;
 
-                    switch (key.KeyChar)
+                    if (Console.KeyAvailable)
                     {
-                        case 'q':
-                        case 'Q':
-                        case 'x':
-                        case 'X':
-                            cancellationTokenSoucre.Cancel();
-                            break;
+                        var key = Console.ReadKey();
+
+                        switch (key.KeyChar)
+                        {
+                            case 'q':
+                            case 'Q':
+                            case 'x':
+                            case 'X':
+                                cancellationTokenSoucre.Cancel();
+                                break;
+                        }
                     }
+
+                    await Task.Delay(100);
                 }
 
                 await serviceTask;

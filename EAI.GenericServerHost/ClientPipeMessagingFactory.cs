@@ -47,7 +47,8 @@ namespace EAI.GenericServerHost
         {
             await Task.WhenAll(_clientTasks);
 
-            await _process.WaitForExitAsync();
+            if(_process != null)
+                await _process.WaitForExitAsync();
         }
     }
 }

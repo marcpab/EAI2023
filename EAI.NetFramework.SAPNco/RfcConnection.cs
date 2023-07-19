@@ -88,7 +88,7 @@ namespace EAI.NetFramework.SAPNco
 
             JRfc.RfcDataToJson(rfcFunction, jRfcResponse);
 
-            return new JProperty($"{rfcFunction.Metadata.Name}_Response", jRfcResponse);
+            return new JProperty(GetResponsePropertyName(rfcFunction), jRfcResponse);
         }
 
 
@@ -109,20 +109,22 @@ namespace EAI.NetFramework.SAPNco
 
             var jRfc = new JObject();
 
-
             var jRfcFunctionObject = new JObject();
             JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionObject, RfcDirection.IMPORT);
 
             jRfc.Add(new JProperty(rfcFunction.Metadata.Name, jRfcFunctionObject));
 
-
             var jRfcFunctionResponseObject = new JObject();
             JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionResponseObject, RfcDirection.EXPORT);
 
-            jRfc.Add(new JProperty($"{rfcFunction.Metadata.Name}Response", jRfcFunctionResponseObject));
-
+            jRfc.Add(new JProperty(GetResponsePropertyName(rfcFunction), jRfcFunctionResponseObject));
 
             return jRfc;
+        }
+
+        private static string GetResponsePropertyName(IRfcFunction rfcFunction)
+        {
+            return $"{rfcFunction.Metadata.Name}_Response";
         }
 
         public void Disconnect()

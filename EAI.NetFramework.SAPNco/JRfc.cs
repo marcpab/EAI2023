@@ -2,6 +2,7 @@
 using SAP.Middleware.Connector;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,6 +69,18 @@ namespace EAI.NetFramework.SAPNco
                         JsonToRfcData(jStruct, rfcStruct, null);
                         break;
 
+                    case RfcDataType.BCD:
+                        {
+                            var stringValue = (jParam.Value as JValue)?.Value?.ToString();
+
+                            decimal decValue = 0;
+                            if (!string.IsNullOrEmpty(stringValue))
+                                decValue = decimal.Parse(stringValue, CultureInfo.InvariantCulture);
+
+                            rfcData.SetValue(jParam.Name, decValue);
+
+                            break;
+                        }
                     default:
 
                         rfcData.SetValue(jParam.Name, (jParam.Value as JValue)?.Value?.ToString());
@@ -193,7 +206,7 @@ namespace EAI.NetFramework.SAPNco
 
                     default:
 
-                        var rfcValue = $"rfc type: {elementMetadata.DataType}, abap type: {GetAbapType(elementMetadata.DataType)}, decimals: {elementMetadata.Decimals}, uc len: {elementMetadata.UcLength}";
+                        var rfcValue = $"rfc type: {elementMetadata.DataType}, abap type: {GetAbapType(elementMetadata.DataType)}, decimals: {elementMetadata.Decimals}, nuc len: {elementMetadata.NucLength}";
 
                         var jParam = new JValue(rfcValue);
 
