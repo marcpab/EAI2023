@@ -73,7 +73,10 @@ namespace EAI.LoggingV2
         public void Exception<U>(Exception ex, string text, params object[] args)
             where U : ILogLevel, new()
         {
-            Create<U>(LogActionEnum.logRecord, FormatString(text, args), null, null, ex);
+            Create<U>(LogActionEnum.logRecord, ex.GetExceptionInformation(), null, null, ex);
+
+            if(text != null)
+                Create<U>(LogActionEnum.logRecord, FormatString(text, args), null, null, null);
         }
 
         public void Success<U>(string text = null, params object[] args)
