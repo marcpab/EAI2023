@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RfcServerState.cs" />
+    <Compile Include="IRfcServerCallback.cs" />
     <Compile Include="JRfc.cs" />
     <Compile Include="SessionProvider.cs" />
     <Compile Include="TransactionScope.cs" />
