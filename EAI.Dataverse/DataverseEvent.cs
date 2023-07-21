@@ -31,7 +31,11 @@ namespace EAI.Dataverse
                 .FirstOrDefault()
                 .Select(t => CreateEntityProperty(t));
 
-            return new JObject(jAttributes);
+            return new JObject(jAttributes)
+            {
+                new JProperty(nameof(IDataverseEvent.Action), jEvent.Value<string>("MessageName")),
+                new JProperty(nameof(IDataverseEvent.PrimaryEntityName), jEvent.Value<string>("PrimaryEntityName"))
+            };
         }
 
         private static JProperty CreateEntityProperty(JObject jEventPropertyObject)

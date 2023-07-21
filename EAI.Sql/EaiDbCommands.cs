@@ -78,7 +78,7 @@ namespace EAI.Sql
                 cmd.AddParameter("@MessageHash",    SqlDbType.Binary,   8, messageHash);
                 cmd.AddParameter("@MessageContentType", 
                                                     SqlDbType.NVarChar, 250, messageContentType);
-                cmd.AddParameter("@MessageContent", SqlDbType.NVarChar, 10000, messageContent);
+                cmd.AddParameter("@MessageContent", SqlDbType.NVarChar, -1, messageContent);
                 cmd.AddParameter("@CreatedOnUTC",   SqlDbType.DateTimeOffset, 0, createdOnUTC);
 
                 var id_log = cmd.AddParameterOutput("@Id_Log", SqlDbType.BigInt, 0);
