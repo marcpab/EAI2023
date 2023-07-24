@@ -1,5 +1,6 @@
 ﻿using EAI.Abstraction.SAPNcoService;
 using EAI.OnPrem.Storage;
+using EAI.SAPNco.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -55,5 +56,19 @@ namespace EAI.OnPrem.SAPNcoService
 
             return getJRfcSchemaResponse._ret;
         }
+
+        public async Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string name, string functionName)
+        {
+            var getRfcFunctionMetadataRequest = new GetRfcFunctionMetadataRequest()
+            {
+                _name = name,
+                _functionName = functionName
+            };
+
+            var getJRfcSchemaResponse = await _onPremClient.SendRequest<GetRfcFunctionMetadataResponse, GetRfcFunctionMetadataRequest>(getRfcFunctionMetadataRequest);
+
+            return getJRfcSchemaResponse._ret;
+        }
+
     }
 }

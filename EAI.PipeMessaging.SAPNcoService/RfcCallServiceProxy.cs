@@ -17,6 +17,7 @@ namespace EAI.PipeMessaging.SAPNcoService
             AddMethod<RfcPingRequest>(r => _rfcCallService.RfcPingAsync());
             AddMethod<RunJRfcRequest, RunJRfcResponse>(async r => new RunJRfcResponse { _ret = await _rfcCallService.RunJRfcRequestAsync(r.jRfcRequestMessage, r.autoCommit) });
             AddMethod<GetJRfcSchemaRequest, GetJRfcSchemaResponse>(async r => new GetJRfcSchemaResponse { _ret = await _rfcCallService.GetJRfcSchemaAsync(r.functionName) });
+            AddMethod<GetRfcFunctionMetadataRequest, GetRfcFunctionMetadataResponse>(async r => new GetRfcFunctionMetadataResponse { _ret = await _rfcCallService.GetRfcFunctionMetadataAsync(r.functionName) });
         }
 
         protected override void SetupRemoteInstance()

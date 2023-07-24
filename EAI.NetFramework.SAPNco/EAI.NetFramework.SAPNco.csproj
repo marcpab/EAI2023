@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RfcMetadataFactory.cs" />
     <Compile Include="RfcServerState.cs" />
     <Compile Include="IRfcServerCallback.cs" />
     <Compile Include="JRfc.cs" />
@@ -61,6 +62,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EAI.SAPNco.Model\EAI.SAPNco.Model.csproj">
+      <Project>{bafd03a8-90fb-47db-b7f8-6c93d7b672ef}</Project>
+      <Name>EAI.SAPNco.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

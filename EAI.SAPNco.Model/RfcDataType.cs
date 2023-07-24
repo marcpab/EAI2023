@@ -1,0 +1,34 @@
+﻿namespace EAI.SAPNco.Model
+{
+    public enum RfcDataType
+    {
+        CHAR,
+        BYTE,
+        NUM,
+        BCD,
+        DATE,
+        TIME,
+        UTCLONG,
+        UTCSECOND,
+        UTCMINUTE,
+        DTDAY,
+        DTWEEK,
+        DTMONTH,
+        TSECOND,
+        TMINUTE,
+        CDAY,
+        FLOAT,
+        INT1,
+        INT2,
+        INT4,
+        INT8,
+        DECF16,
+        DECF34,
+        STRING,
+        XSTRING,
+        STRUCTURE,
+        TABLE,
+        CLASS,
+        UNKNOWN
+    }
+}

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using EAI.SAPNco.Model;
+using System.Threading.Tasks;
 
 namespace EAI.Abstraction.SAPNcoService
 {
@@ -6,5 +7,6 @@ namespace EAI.Abstraction.SAPNcoService
     {
         Task<string> CallRfcAsync(string name, string jRfcRequestMessage, bool autoCommit = false);
         Task<string> GetJRfcSchemaAsync(string name, string functionName);
+        Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string name, string functionName);
     }
 }

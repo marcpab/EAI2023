@@ -57,6 +57,10 @@
       <Project>{b08bde85-bdae-41a1-b1f9-18bb9d8f4db8}</Project>
       <Name>EAI.PipeMessaging.SAPNcoService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EAI.SAPNco.Model\EAI.SAPNco.Model.csproj">
+      <Project>{BAFD03A8-90FB-47DB-B7F8-6C93D7B672EF}</Project>
+      <Name>EAI.SAPNco.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -4,8 +4,4 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EAI.SAPNco.Model\EAI.SAPNco.Model.csproj" />
-  </ItemGroup>
-
 </Project>
