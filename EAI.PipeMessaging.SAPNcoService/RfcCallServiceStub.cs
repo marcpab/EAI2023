@@ -1,5 +1,6 @@
 ﻿using EAI.PipeMessaging.Ping;
 using EAI.PipeMessaging.SAPNcoService.Messaging;
+using EAI.SAPNco.Model;
 using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging.SAPNcoService
@@ -46,6 +47,18 @@ namespace EAI.PipeMessaging.SAPNcoService
             var getJRfcSchemaResponse = await SendRequest<GetJRfcSchemaResponse>(getJRfcSchemaRequest);
 
             return getJRfcSchemaResponse._ret;
+        }
+
+        public async Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string functionName)
+        {
+            var getRfcFunctionMetadataRequest = new GetRfcFunctionMetadataRequest()
+            {
+                functionName = functionName
+            };
+
+            var getRfcFunctionMetadataResponse = await SendRequest<GetRfcFunctionMetadataResponse>(getRfcFunctionMetadataRequest);
+
+            return getRfcFunctionMetadataResponse._ret;
         }
 
         public Task RfcPingAsync()

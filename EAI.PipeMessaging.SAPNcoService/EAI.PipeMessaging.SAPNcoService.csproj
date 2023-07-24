@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EAI.PipeMessaging\EAI.PipeMessaging.csproj" />
+    <ProjectReference Include="..\EAI.SAPNco.Model\EAI.SAPNco.Model.csproj" />
   </ItemGroup>
 
 </Project>

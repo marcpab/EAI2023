@@ -3,6 +3,7 @@ using EAI.General;
 using EAI.LoggingV2;
 using EAI.LoggingV2.Levels;
 using EAI.OnPrem.SAPNcoService;
+using EAI.SAPNco.Model;
 using Newtonsoft.Json;
 
 namespace EAI.GenericServer.SAPNcoService
@@ -30,13 +31,25 @@ namespace EAI.GenericServer.SAPNcoService
 
                     if (_sapSystems != null)
                         foreach (var sapSystem in _sapSystems)
+                        {
+                            Log.String<Info>($"conecting sap system {sapSystem.Name}, connection string {sapSystem.ConnectionString}");
+
                             await sapSystem.ConnectAsync(_pipeName);
+
+                            Log.String<Info>($"connected sap system {sapSystem.Name}");
+                        }
 
                     await tcs.Task;
 
                     if (_sapSystems != null)
                         foreach (var sapSystem in _sapSystems)
+                        {
+                            Log.String<Info>($"disconecting sap system {sapSystem.Name}");
+
                             await sapSystem.DisconnectAsync();
+
+                            Log.String<Info>($"disconnected sap system {sapSystem.Name}");
+                        }
 
                     Log?.Success<Info>();
                 }
@@ -91,6 +104,31 @@ namespace EAI.GenericServer.SAPNcoService
                     Log?.Variable<Debug>(nameof(sapSystem.ConnectionString), sapSystem.ConnectionString);
 
                     return sapSystem.GetJRfcSchemaAsync(functionName);
+                }
+                catch (Exception ex)
+                {
+                    Log?.Failed<Error>(ex);
+
+                    throw;
+                }
+        }
+
+        public Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string name, string functionName)
+        {
+            using (var _ = new ProcessScope(null, null, $"{GetType().FullName}+{nameof(GetRfcFunctionMetadataAsync)}"))
+                try
+                {
+                    Log?.Start<Info>(null, null, $"Request metadata {functionName} on {name}");
+                            var sapSystem = _sapSystems
+                        .Where(s => s.Name == name)
+                        .FirstOrDefault();
+
+                    if (sapSystem == null)
+                        throw new EAIException($"Sap system '{name}' not defined");
+
+                    Log?.Variable<Debug>(nameof(sapSystem.ConnectionString), sapSystem.ConnectionString);
+
+                    return sapSystem.GetRfcFunctionMetadataAsync(functionName);
                 }
                 catch (Exception ex)
                 {

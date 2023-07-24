@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using SAP.Middleware.Connector;
+using NCo = SAP.Middleware.Connector;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using EAI.SAPNco.Model;
 
 namespace EAI.NetFramework.SAPNco
 {
@@ -15,7 +16,7 @@ namespace EAI.NetFramework.SAPNco
         private string _connectionString;
         private string _userName;
         private string _password;
-        private RfcConfigParameters _rfcParams;
+        private NCo.RfcConfigParameters _rfcParams;
 
         public string ConnectionString { get => _connectionString; set => _connectionString = value; }
         public string UserName { get => _userName; set => _userName = value; }
@@ -26,10 +27,10 @@ namespace EAI.NetFramework.SAPNco
             if (_rfcParams != null)
                 throw new SapException("Allready connected");
 
-            _rfcParams = new RfcConfigParameters();
+            _rfcParams = new NCo.RfcConfigParameters();
 
-            _rfcParams[RfcConfigParameters.User] = _userName;
-            _rfcParams[RfcConfigParameters.Password] = _password;
+            _rfcParams[NCo.RfcConfigParameters.User] = _userName;
+            _rfcParams[NCo.RfcConfigParameters.Password] = _password;
 
             var builder = new DbConnectionStringBuilder();
             builder.ConnectionString = _connectionString;
@@ -37,8 +38,8 @@ namespace EAI.NetFramework.SAPNco
             foreach (var paramKey in builder.Keys.Cast<string>())
                 _rfcParams.Add(paramKey.ToUpper(), builder[paramKey]?.ToString());
 
-            if (!_rfcParams.ContainsKey(RfcConfigParameters.Name))
-                _rfcParams[RfcConfigParameters.Name] = string.Join("-", _rfcParams.Where(p => p.Key != RfcConfigParameters.Password).OrderBy(p => p.Key).Select(p => p.Value));
+            if (!_rfcParams.ContainsKey(NCo.RfcConfigParameters.Name))
+                _rfcParams[NCo.RfcConfigParameters.Name] = string.Join("-", _rfcParams.Where(p => p.Key != NCo.RfcConfigParameters.Password).OrderBy(p => p.Key).Select(p => p.Value));
         }
 
         public void Ping()
@@ -48,14 +49,14 @@ namespace EAI.NetFramework.SAPNco
             rfcDestination.Ping();
         }
 
-        public IRfcFunction GetRfcFunction(string name)
+        public NCo.IRfcFunction GetRfcFunction(string name)
         {
             var rfcDestination = GetRfcDestination();
 
             return rfcDestination.Repository.CreateFunction(name);
         }
 
-        public void InvokeFunction(IRfcFunction rfcFunction, Transaction transaction = null, bool autoCommit = false)
+        public void InvokeFunction(NCo.IRfcFunction rfcFunction, Transaction transaction = null, bool autoCommit = false)
         {
             if (transaction != null)
             {
@@ -92,12 +93,38 @@ namespace EAI.NetFramework.SAPNco
         }
 
 
-        public RfcDestination GetRfcDestination()
+        public NCo.RfcDestination GetRfcDestination()
         {
-            return RfcDestinationManager.GetDestination(_rfcParams);
+            return NCo.RfcDestinationManager.GetDestination(_rfcParams);
         }
 
         public JObject GetJRfcSchema(string functionName)
+        {
+            var rfcDestination = GetRfcDestination();
+
+            CheckFunctionExists(rfcDestination, functionName);
+
+            var rfcFunction = rfcDestination.Repository.CreateFunction(functionName);
+
+            var jRfc = new JObject();
+
+
+            var jRfcFunctionObject = new JObject();
+            JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionObject, NCo.RfcDirection.IMPORT);
+
+            jRfc.Add(new JProperty(rfcFunction.Metadata.Name, jRfcFunctionObject));
+
+
+            var jRfcFunctionResponseObject = new JObject();
+            JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionResponseObject, NCo.RfcDirection.EXPORT);
+
+            jRfc.Add(new JProperty($"{rfcFunction.Metadata.Name}Response", jRfcFunctionResponseObject));
+
+
+            return jRfc;
+        }
+
+        public RfcFunctionMetadata GetRfcFunctionMetadata(string functionName)
         {
             var rfcDestination = GetRfcDestination();
 
@@ -107,22 +134,16 @@ namespace EAI.NetFramework.SAPNco
 
             var rfcFunction = rfcDestination.Repository.CreateFunction(functionName);
 
-            var jRfc = new JObject();
+            var rfcFunctionMetadata = rfcFunction.Metadata;
 
+            return RfcMetadataFactory.Instance.CreateRfcFunctionMetadata(rfcFunctionMetadata);
+        }
 
-            var jRfcFunctionObject = new JObject();
-            JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionObject, RfcDirection.IMPORT);
-
-            jRfc.Add(new JProperty(rfcFunction.Metadata.Name, jRfcFunctionObject));
-
-
-            var jRfcFunctionResponseObject = new JObject();
-            JRfc.RfcMetadataToJsonSchema(rfcFunction, jRfcFunctionResponseObject, RfcDirection.EXPORT);
-
-            jRfc.Add(new JProperty($"{rfcFunction.Metadata.Name}Response", jRfcFunctionResponseObject));
-
-
-            return jRfc;
+        private static void CheckFunctionExists(NCo.RfcDestination rfcDestination, string functionName)
+        {
+            var isFunctionExisting = rfcDestination.Repository.CheckFunctionExists(functionName);
+            if (!isFunctionExisting)
+                throw new Exception($"Function {functionName} does not exist");
         }
 
         public void Disconnect()

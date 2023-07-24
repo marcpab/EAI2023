@@ -1,4 +1,5 @@
 ﻿using EAI.PipeMessaging.SAPNcoService;
+using EAI.SAPNco.Model;
 
 namespace EAI.GenericServer.SAPNcoService
 {
@@ -49,6 +50,10 @@ namespace EAI.GenericServer.SAPNcoService
         internal Task<string> GetJRfcSchemaAsync(string functionName)
         {
             return _rfcCallService.GetJRfcSchemaAsync(functionName);
+        }
+        internal Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string functionName)
+        {
+            return _rfcCallService.GetRfcFunctionMetadataAsync(functionName);
         }
     }
 }

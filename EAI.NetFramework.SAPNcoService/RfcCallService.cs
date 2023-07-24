@@ -1,5 +1,6 @@
 ﻿using EAI.NetFramework.SAPNco;
 using EAI.PipeMessaging.SAPNcoService;
+using EAI.SAPNco.Model;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
@@ -54,6 +55,13 @@ namespace EAI.NetFramework.SAPNcoService
             return jRfc.ToString();
         }
 
+        public RfcFunctionMetadata GetRfcFunctionMetadata(string functionName)
+        {
+            var rfcMetadata = _rfcConnection.GetRfcFunctionMetadata(functionName);
+
+            return rfcMetadata;
+        }
+
         public void Disconnect()
         {
             _rfcConnection.Disconnect();
@@ -82,6 +90,10 @@ namespace EAI.NetFramework.SAPNcoService
         public Task<string> GetJRfcSchemaAsync(string functionName)
         {
             return Task.Run(() => GetJRfcSchema(functionName));
+        }
+        public Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string functionName)
+        {
+            return Task.Run(() => GetRfcFunctionMetadata(functionName));
         }
     }
 }

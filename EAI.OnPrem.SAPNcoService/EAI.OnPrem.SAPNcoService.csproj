@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EAI.Abstraction.SAPNcoService\EAI.Abstraction.SAPNcoService.csproj" />
     <ProjectReference Include="..\EAI.OnPrem.Storage\EAI.OnPrem.Storage.csproj" />
+    <ProjectReference Include="..\EAI.SAPNco.Model\EAI.SAPNco.Model.csproj" />
   </ItemGroup>
 
 </Project>
