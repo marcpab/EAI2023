@@ -12,5 +12,9 @@ namespace EAI.SAPNco.Model
 
         public RfcStructureMetadata _structureMetadata;
         public RfcTableMetadata _tableMetadata;
+
+        public override string ToString()
+            => $"PARAMETER: {_name}, {_direction}, {_rfcDataType}";
+
     }
 }

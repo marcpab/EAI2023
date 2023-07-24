@@ -8,6 +8,9 @@ namespace EAI.SAPNco.Model
     {
         public string _name;
         public RfcStructureMetadata _lineType;
+
+        public override string ToString()
+            => $"TABLE: {_name}";
     }
 
 

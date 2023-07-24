@@ -121,7 +121,7 @@ namespace EAI.NetFramework.SAPNco
             return jRfc;
         }
 
-        private static string GetResponsePropertyName(IRfcFunction rfcFunction)
+        private static string GetResponsePropertyName(NCo.IRfcFunction rfcFunction)
         {
             return $"{rfcFunction.Metadata.Name}_Response";
         }

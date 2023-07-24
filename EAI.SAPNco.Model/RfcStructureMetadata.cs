@@ -4,5 +4,8 @@
     {
         public string _name;
         public RfcFieldMetadata[] _fields;
+
+        public override string ToString()
+            => $"STRUCTURE: {_name}";
     }
 }

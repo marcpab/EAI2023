@@ -7,5 +7,8 @@
 
         public RfcStructureMetadata _structureMetadata;
         public RfcTableMetadata _tableMetadata;
+
+        public override string ToString()
+            => $"PARAMETER: {_name}, {_rfcDataType}";
     }
 }
