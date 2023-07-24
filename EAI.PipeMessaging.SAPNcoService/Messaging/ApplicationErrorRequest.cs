@@ -4,6 +4,6 @@ namespace EAI.PipeMessaging.SAPNcoService.Messaging
 {
     internal class ApplicationErrorRequest
     {
-        public Exception _error { get; set; }
+        public ExceptionData _error { get; set; }
     }
 }

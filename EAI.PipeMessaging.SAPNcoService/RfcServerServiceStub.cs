@@ -10,14 +10,14 @@ namespace EAI.PipeMessaging.SAPNcoService
         {
             var stub = new RfcServerServiceStub();
 
-            await stub.CreateRemoteInstance<RfcServerServiceStub>(pipeName);
+            await stub.CreateRemoteInstance<RfcServerServiceProxy>(pipeName);
 
             return stub;
         }
 
         private IRfcServerCallbackAsync _rfcServerCallback;
 
-        public RfcServerServiceStub()
+        private RfcServerServiceStub()
         {
             AddMethod<ApplicationErrorRequest, ApplicationErrorResponse>(async r =>
             {
@@ -52,23 +52,23 @@ namespace EAI.PipeMessaging.SAPNcoService
 
         public Task StartAsync(string connectionString, string userName, string password)
         {
-            var connectRequest = new ConnectRequest()
+            var startRequest = new StartRequest()
             {
                 connectionString = connectionString,
                 userName = userName,
                 password = password
             };
 
-            return SendRequest<ConnectResponse>(connectRequest);
+            return SendRequest<ConnectResponse>(startRequest);
         }
 
         public Task StopAsync()
         {
-            var disconnectRequest = new DisconnectRequest()
+            var stopRequest = new StopRequest()
             {
             };
 
-            return SendRequest<DisconnectResponse>(disconnectRequest);
+            return SendRequest<DisconnectResponse>(stopRequest);
         }
 
         public void SetCallback(IRfcServerCallbackAsync rfcServerCallback)

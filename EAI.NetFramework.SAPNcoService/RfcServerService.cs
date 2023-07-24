@@ -1,5 +1,6 @@
 ﻿using EAI.NetFramework.SAPNco;
 using EAI.PipeMessaging.SAPNcoService;
+using EAI.PipeMessaging.SAPNcoService.Messaging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace EAI.NetFramework.SAPNcoService
 
         public void ApplicationError(Exception error)
         {
-            _rfcServerCallback.ApplicationErrorAsync(error);
+            _rfcServerCallback.ApplicationErrorAsync(ExceptionData.FromException(error));
         }
 
         public void InvokeFunction(string functionName, JObject function)
@@ -60,7 +61,7 @@ namespace EAI.NetFramework.SAPNcoService
 
         public void ServerError(Exception error)
         {
-            _rfcServerCallback.ServerErrorAsync(error);
+            _rfcServerCallback.ServerErrorAsync(ExceptionData.FromException(error));
         }
 
         public void StateChanged(RfcServerState oldState, RfcServerState newState)

@@ -23,7 +23,7 @@ namespace EAI.PipeMessaging.SAPNcoService
             _rfcServerService.SetCallback(this);
         }
 
-        public Task ApplicationErrorAsync(Exception error)
+        public Task ApplicationErrorAsync(ExceptionData error)
         {
             return SendRequest<ApplicationErrorResponse>(new ApplicationErrorRequest
             {
@@ -40,7 +40,7 @@ namespace EAI.PipeMessaging.SAPNcoService
             });
         }
 
-        public Task ServerErrorAsync(Exception error)
+        public Task ServerErrorAsync(ExceptionData error)
         {
             return SendRequest<ServerErrorResponse>(new ServerErrorRequest
             {

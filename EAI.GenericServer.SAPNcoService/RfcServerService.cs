@@ -4,6 +4,7 @@ using EAI.LoggingV2;
 using EAI.LoggingV2.Levels;
 using EAI.OnPrem.SAPNcoService;
 using EAI.PipeMessaging.SAPNcoService;
+using EAI.PipeMessaging.SAPNcoService.Messaging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -33,11 +34,14 @@ namespace EAI.GenericServer.SAPNcoService
                 {
                     _processContext = ProcessContext.GetCurrent();
 
-                    Log?.Start<Info>(nameof(_sapSystem), _sapSystem, $"Starting service {GetType().FullName}");
+                    Log?.Start<Info>(null, null, $"Starting service {GetType().FullName}");
+                    Log?.Variable<Info>(nameof(_sapSystem.Name), _sapSystem.Name);
+                    Log?.Variable<Info>(nameof(_sapSystem.ConnectionString), _sapSystem.ConnectionString);
 
-                    _rfcServerService = new RfcServerServiceStub();
+                    _rfcServerService = await RfcServerServiceStub.CreateObjectAsync();
+                    _rfcServerService.SetCallback(this);
 
-                    Log?.String<Info>($"Start rfc server {_sapSystem.Name}");
+                    Log?.String<Info>($"Start rfc server");
 
                     await _rfcServerService.StartAsync(
                         _sapSystem.ConnectionString, 
@@ -64,11 +68,11 @@ namespace EAI.GenericServer.SAPNcoService
                 }
         }
 
-        public Task ApplicationErrorAsync(Exception error)
+        public Task ApplicationErrorAsync(ExceptionData error)
         {
             ProcessContext.Restore(_processContext);
 
-            Log.Exception<Error>(error, $"SAP application error");
+            Log.Message<Error>(nameof(error), error, $"SAP application error: {error._message}");
 
             return Task.CompletedTask;
         }
@@ -87,11 +91,11 @@ namespace EAI.GenericServer.SAPNcoService
             return Task.CompletedTask;
         }
 
-        public Task ServerErrorAsync(Exception error)
+        public Task ServerErrorAsync(ExceptionData error)
         {
             ProcessContext.Restore(_processContext);
 
-            Log.Exception<Error>(error, $"SAP server error");
+            Log.Message<Error>(nameof(error), error, $"SAP server error: {error._message}");
 
             return Task.CompletedTask;
         }
