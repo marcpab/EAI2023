@@ -65,21 +65,29 @@ namespace EAI.AzureFunctions
         {
             if (typeof(requestT) != typeof(string))
             {
-                var parentProcessContext = (requestMessage as IMessageProcessContext)?.ProcessContext;
-                if (parentProcessContext != null)
-                    ProcessContext.SetParentContext(parentProcessContext);
+                SetParentContext((requestMessage as IMessageProcessContext)?.ProcessContext);
 
-                var transactionKey = (requestMessage as IMessageTransactionKey)?.TransactionKey;
-                if (transactionKey != null)
-                {
-                    if (Log != null)
-                    {
-                        Log.TransactionKey = transactionKey;
-                        Log.Update<None>();
-                    }
-                }
+                SetTransactionKey((requestMessage as IMessageTransactionKey)?.TransactionKey);
 
                 Log?.Message<Debug>(nameof(requestMessage), requestMessage, "initial message");
+            }
+        }
+
+        protected static void SetParentContext(ProcessContext parentProcessContext)
+        {
+            if (parentProcessContext != null)
+                ProcessContext.SetParentContext(parentProcessContext);
+        }
+
+        private void SetTransactionKey(string transactionKey)
+        {
+            if (transactionKey != null)
+            {
+                if (Log != null)
+                {
+                    Log.TransactionKey = transactionKey;
+                    Log.Update<None>();
+                }
             }
         }
     }

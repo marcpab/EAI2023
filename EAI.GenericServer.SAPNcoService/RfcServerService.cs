@@ -17,10 +17,12 @@ namespace EAI.GenericServer.SAPNcoService
         private LoggerV2 _log;
         private IRfcServerService _rfcServerService;
         private ProcessContext _processContext;
-
+        private RfcServerDestination[] _destinations;
 
         public SapSystem SapSystem { get => _sapSystem; set => _sapSystem = value; }
         public string PipeName { get => _pipeName; set => _pipeName = value; }
+
+        public RfcServerDestination[] Destinations { get => _destinations; set => _destinations = value; }
 
         public LoggerV2 Log { get => _log; set => _log = value; }
 
@@ -77,18 +79,30 @@ namespace EAI.GenericServer.SAPNcoService
             return Task.CompletedTask;
         }
 
-        public Task InvokeFunctionAsync(string functionName, JObject functionData)
+        public async Task InvokeFunctionAsync(string functionName, JObject functionData)
         {
             ProcessContext.Restore(_processContext);
 
             using (var _ = new ProcessScope(null, null, GetType().FullName))
-            {
+                try
+                {
+                    Log.Start<Info>(nameof(functionData), functionData, $"Received rfc call {functionName}");
 
-                Log.Message<Debug>(nameof(functionData), functionData, $"Received rfc call {functionName}");
 
-            }
+                    if (_destinations != null)
+                        foreach (var destination in _destinations)
+                            if (destination.IsMatch(functionName))
+                            {
+                                await destination.SendMessage(functionData);
+                                break;
+                            }
 
-            return Task.CompletedTask;
+                    Log.Success<Info>();
+                }
+                catch(Exception ex)
+                {
+                    Log.Failed<Error>(ex);
+                }
         }
 
         public Task ServerErrorAsync(ExceptionData error)

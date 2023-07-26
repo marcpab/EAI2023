@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EAI.General\EAI.General.csproj" />
+    <ProjectReference Include="..\EAI.Messaging.Abstractions\EAI.Messaging.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

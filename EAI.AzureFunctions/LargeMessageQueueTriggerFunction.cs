@@ -1,5 +1,6 @@
 ﻿using EAI.AzureStorage;
 using EAI.LoggingV2.Levels;
+using EAI.Messaging.Abstractions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,6 +23,8 @@ namespace EAI.AzureFunctions
                 var queue = GetQueue();
 
                 var queueMessage = await queue.FromStorageQueueTrigger(queueItem);
+
+                SetParentContext((queueMessage as IMessageProcessContext)?.ProcessContext);
 
                 var requestMessage = GetMessage<requestT>(queueMessage.MessageContent);
 

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Buffers.Text;
 using Newtonsoft.Json;
+using EAI.General;
 
 namespace EAI.AzureStorage
 {
@@ -33,6 +34,7 @@ namespace EAI.AzureStorage
 
             var message = new QueueMessage()
             {
+                _processContext = ProcessContext.GetCurrent(),
                 _storageLocation = StorageLocationEnum.StorageQueue,
                 _content = messageContent
             };
@@ -88,6 +90,7 @@ namespace EAI.AzureStorage
             var storageQueueMessage = new LargeStorageQueueMessage(
                                                 storageMessage.MessageId,
                                                 storageMessage.PopReceipt,
+                                                message._processContext,
                                                 content,
                                                 message._storageLocation == StorageLocationEnum.BlobStorage ? message._content : null
                                             );
