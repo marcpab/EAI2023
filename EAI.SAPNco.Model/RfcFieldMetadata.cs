@@ -9,6 +9,6 @@
         public RfcTableMetadata _tableMetadata;
 
         public override string ToString()
-            => $"PARAMETER: {_name}, {_rfcDataType}";
+            => $"FIELD: {_name}, {_rfcDataType}";
     }
 }

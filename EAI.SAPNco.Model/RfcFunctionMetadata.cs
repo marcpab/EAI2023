@@ -8,6 +8,7 @@ namespace EAI.SAPNco.Model
     {
         public string _name;
         public RfcParameterMetadata[] _parameters;
+        public string _description;
 
         public override string ToString()
             => $"FUNCTION: {_name}";

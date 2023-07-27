@@ -19,6 +19,7 @@ namespace EAI.NetFramework.SAPNco
             => new RfcFunctionMetadata()
             {
                 _name = sapFunction.Name,
+                _description = sapFunction.GetDescription(),
                 _parameters = EnumElements(sapFunction, sapFunction.ParameterCount)
                     .Select(p => GetParameter(p))
                     .ToArray()
