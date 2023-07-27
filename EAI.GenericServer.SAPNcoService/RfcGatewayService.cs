@@ -1,5 +1,6 @@
 ﻿using EAI.Abstraction.SAPNcoService;
 using EAI.General;
+using EAI.General.Tasks;
 using EAI.LoggingV2;
 using EAI.LoggingV2.Levels;
 using EAI.OnPrem.SAPNcoService;
@@ -13,7 +14,7 @@ namespace EAI.GenericServer.SAPNcoService
         private IEnumerable<SapSystem> _sapSystems;
         private string _pipeName;
         private LoggerV2 _log;
-
+        private AsyncManualResetEvent _syncRunning = new AsyncManualResetEvent();
         public IEnumerable<SapSystem> SapSystems { get => _sapSystems; set => _sapSystems = value; }
         public string PipeName { get => _pipeName; set => _pipeName = value; }
 
@@ -32,23 +33,27 @@ namespace EAI.GenericServer.SAPNcoService
                     if (_sapSystems != null)
                         foreach (var sapSystem in _sapSystems)
                         {
-                            Log.String<Info>($"conecting sap system {sapSystem.Name}, connection string {sapSystem.ConnectionString}");
+                            Log?.String<Info>($"conecting sap system {sapSystem.Name}, connection string {sapSystem.ConnectionString}");
 
                             await sapSystem.ConnectAsync(_pipeName);
 
-                            Log.String<Info>($"connected sap system {sapSystem.Name}");
+                            Log?.String<Info>($"connected sap system {sapSystem.Name}");
                         }
 
+                    _syncRunning.Set();
+
                     await tcs.Task;
+
+                    _syncRunning.Reset();
 
                     if (_sapSystems != null)
                         foreach (var sapSystem in _sapSystems)
                         {
-                            Log.String<Info>($"disconecting sap system {sapSystem.Name}");
+                            Log?.String<Info>($"disconecting sap system {sapSystem.Name}");
 
                             await sapSystem.DisconnectAsync();
 
-                            Log.String<Info>($"disconnected sap system {sapSystem.Name}");
+                            Log?.String<Info>($"disconnected sap system {sapSystem.Name}");
                         }
 
                     Log?.Success<Info>();
@@ -62,8 +67,10 @@ namespace EAI.GenericServer.SAPNcoService
 
         }
 
-        public Task<string> CallRfcAsync(string name, string jRfcRequestMessage, bool autoCommit = false)
+        public async Task<string> CallRfcAsync(string name, string jRfcRequestMessage, bool autoCommit = false)
         {
+            await _syncRunning.WaitAsync();
+
             using (var _ = new ProcessScope(null, null, $"{GetType().FullName}+{nameof(CallRfcAsync)}"))
                 try
                 {
@@ -78,7 +85,11 @@ namespace EAI.GenericServer.SAPNcoService
 
                     Log?.Variable<Debug>(nameof(sapSystem.ConnectionString), sapSystem.ConnectionString);
 
-                    return sapSystem.RunJRfcRequestAsync(jRfcRequestMessage, autoCommit);
+                    var result = await sapSystem.RunJRfcRequestAsync(jRfcRequestMessage, autoCommit);
+
+                    Log?.Success<Info>();
+
+                    return result;
                 }
                 catch (Exception ex)
                 {
@@ -88,8 +99,10 @@ namespace EAI.GenericServer.SAPNcoService
                 }
             }
 
-        public Task<string> GetJRfcSchemaAsync(string name, string functionName)
+        public async Task<string> GetJRfcSchemaAsync(string name, string functionName)
         {
+            await _syncRunning.WaitAsync();
+
             using (var _ = new ProcessScope(null, null, $"{GetType().FullName}+{nameof(GetJRfcSchemaAsync)}"))
                 try
                 {
@@ -103,7 +116,11 @@ namespace EAI.GenericServer.SAPNcoService
 
                     Log?.Variable<Debug>(nameof(sapSystem.ConnectionString), sapSystem.ConnectionString);
 
-                    return sapSystem.GetJRfcSchemaAsync(functionName);
+                    var result = await sapSystem.GetJRfcSchemaAsync(functionName);
+
+                    Log?.Success<Info>();
+
+                    return result;
                 }
                 catch (Exception ex)
                 {
@@ -113,8 +130,10 @@ namespace EAI.GenericServer.SAPNcoService
                 }
         }
 
-        public Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string name, string functionName)
+        public async Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string name, string functionName)
         {
+            await _syncRunning.WaitAsync();
+
             using (var _ = new ProcessScope(null, null, $"{GetType().FullName}+{nameof(GetRfcFunctionMetadataAsync)}"))
                 try
                 {
@@ -128,7 +147,11 @@ namespace EAI.GenericServer.SAPNcoService
 
                     Log?.Variable<Debug>(nameof(sapSystem.ConnectionString), sapSystem.ConnectionString);
 
-                    return sapSystem.GetRfcFunctionMetadataAsync(functionName);
+                    var result = await sapSystem.GetRfcFunctionMetadataAsync(functionName);
+
+                    Log?.Success<Info>();
+
+                    return result;
                 }
                 catch (Exception ex)
                 {

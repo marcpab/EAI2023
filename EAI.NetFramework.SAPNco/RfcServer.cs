@@ -45,6 +45,8 @@ namespace EAI.NetFramework.SAPNco
 
         public void Start(IRfcServerCallback rfcServerCallback)
         {
+//            GeneralConfiguration.CPICTraceLevel = 3;
+
             _rfcServerCallback = rfcServerCallback;
 
             _rfcConnection = new RfcConnection()
@@ -64,7 +66,7 @@ namespace EAI.NetFramework.SAPNco
             _rfcServer.RfcServerError += _rfcServer_RfcServerError;
             _rfcServer.RfcServerStateChanged += _rfcServer_RfcServerStateChanged;
 
-//            _rfcServer.TransactionIDHandler = new RfcTransactionIdHandler();
+            _rfcServer.TransactionIDHandler = new RfcTransactionIdHandler();
 
             _rfcServer.Start();
         }
@@ -120,4 +122,5 @@ namespace EAI.NetFramework.SAPNco
             }
         }
     }
+
 }

@@ -88,6 +88,10 @@ namespace EAI.GenericServer.SAPNcoService
                 {
                     Log.Start<Info>(nameof(functionData), functionData, $"Received rfc call {functionName}");
 
+                    functionData = new JObject(
+                            new JProperty(functionName, functionData)
+                        );
+
 
                     if (_destinations != null)
                         foreach (var destination in _destinations)
