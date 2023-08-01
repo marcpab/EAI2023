@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Web;
 
 namespace EAI.Texts
 {
@@ -26,6 +27,20 @@ namespace EAI.Texts
         public static Func<int, string> LeaveInt = (statusCode) =>
         {
             return Leave((HttpStatusCode)statusCode);
+        };
+
+        public static Func<string, string> EscapeOdataQuery = (string input) =>
+        {
+            var output = SanitizeProblematicWhitespaces(input);
+
+            if(string.IsNullOrWhiteSpace(output))
+                return output;
+
+            output = output.Replace("'", "''");
+
+            output = HttpUtility.UrlEncode(output);
+
+            return output;
         };
 
         public static Func<string, string> SanitizeProblematicWhitespaces = (string input) =>
