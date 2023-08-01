@@ -10,12 +10,32 @@ namespace EAI.General
     {
         private static AsyncLocal<ProcessContext> _executionContext = new AsyncLocal<ProcessContext>();
 
+        private Dictionary<Type, object> _services;
+
         public string ParentStage { get; set; }
         public string ParentProcessId { get; set; }
 
         public string Stage { get; set; }
         public string ProcessId { get; set; }
         public string ServiceName { get; set; }
+
+        public void SetService<T>(T instance)
+        {
+            if(_services == null)
+                _services = new Dictionary<Type, object>();
+
+            _services[typeof(T)] = instance;
+        }
+
+        public T GetService<T>()
+        {
+            if (_services == null)
+                return default(T);
+
+            return (T)_services[typeof(T)];
+        }
+
+
 
         public static ProcessContext Create(string processId, string stage, string serviceName)
         {

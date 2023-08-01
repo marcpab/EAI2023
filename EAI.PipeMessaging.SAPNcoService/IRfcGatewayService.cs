@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging.SAPNcoService
 {
-    public interface IRfcCallService
+    public interface IRfcGatewayService
     {
         Task ConnectAsync(string connectionString, string userName, string password);
         Task DisconnectAsync();
@@ -11,5 +11,9 @@ namespace EAI.PipeMessaging.SAPNcoService
         Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string functionName);
         Task RfcPingAsync();
         Task<string> RunJRfcRequestAsync(string jRfcRequestMessage, bool autoCommit);
+        Task StartServerAsync();
+        Task StopServerAsync();
+
+        void SetServerCallback(IRfcServerCallbackAsync rfcServerCallback);
     }
 }

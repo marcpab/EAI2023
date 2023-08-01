@@ -5,15 +5,50 @@ using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging.SAPNcoService
 {
-    public class RfcCallServiceStub : PipeObject, IRfcCallService
+    public class RfcGatewayServiceStub : PipeObject, IRfcGatewayService
     {
-        public static async Task<IRfcCallService> CreateObjectAsync(string pipeName = null)
+        public static async Task<IRfcGatewayService> CreateObjectAsync(string pipeName = null)
         {
-            var stub = new RfcCallServiceStub();
+            var stub = new RfcGatewayServiceStub();
 
-            await stub.CreateRemoteInstance<RfcCallServiceProxy>(pipeName);
+            await stub.CreateRemoteInstance<RfcGatewayServiceProxy>(pipeName);
 
             return stub;
+        }
+
+        private IRfcServerCallbackAsync _rfcServerCallback;
+
+        private RfcGatewayServiceStub()
+        {
+            AddMethod<ApplicationErrorRequest, ApplicationErrorResponse>(async r =>
+            {
+                await _rfcServerCallback.ApplicationErrorAsync(r._error);
+
+                return new ApplicationErrorResponse();
+            });
+
+            AddMethod<InvokeFunctionRequest, InvokeFunctionResponse>(async r =>
+            {
+                await _rfcServerCallback.InvokeFunctionAsync(r._functionName, r._functionData);
+
+                return new InvokeFunctionResponse();
+            });
+
+            AddMethod<ServerErrorRequest, ServerErrorResponse>(async r =>
+            {
+                await _rfcServerCallback.ServerErrorAsync(r._error);
+
+                return new ServerErrorResponse();
+            });
+
+            AddMethod<StateChangedRequest, StateChangedResponse>(async r =>
+            {
+                await _rfcServerCallback.StateChangedAsync(r._oldState, r._newState);
+
+                return new StateChangedResponse();
+            });
+
+
         }
 
         public Task ConnectAsync(string connectionString, string userName, string password)
@@ -26,6 +61,24 @@ namespace EAI.PipeMessaging.SAPNcoService
             };
 
             return SendRequest<ConnectResponse>(connectRequest);
+        }
+
+        public Task StartServerAsync()
+        {
+            var startRequest = new StartServerRequest()
+            {
+            };
+
+            return SendRequest<StartServerResponse>(startRequest);
+        }
+
+        public Task StopServerAsync()
+        {
+            var stopRequest = new StopServerRequest()
+            {
+            };
+
+            return SendRequest<StopServerResponse>(stopRequest);
         }
 
         public Task DisconnectAsync()
@@ -81,6 +134,11 @@ namespace EAI.PipeMessaging.SAPNcoService
             var runJRfcResponse = await SendRequest<RunJRfcResponse>(runJRfcRequest);
 
             return runJRfcResponse._ret;
+        }
+
+        public void SetServerCallback(IRfcServerCallbackAsync rfcServerCallback)
+        {
+            _rfcServerCallback = rfcServerCallback;
         }
     }
 }

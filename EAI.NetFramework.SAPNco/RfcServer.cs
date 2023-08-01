@@ -28,35 +28,28 @@ namespace EAI.NetFramework.SAPNco
             _rfcServerMap.Remove(rfcServer._rfcServer);
         }
 
-
         private RfcConnection _rfcConnection;
         private NCo.RfcDestination _rfcDestination;
         private NCo.RfcServer _rfcServer;
 
-        private string _connectionString;
-        private string _userName;
-        private string _password;
-
-        public string ConnectionString { get => _connectionString; set => _connectionString = value; }
-        public string UserName { get => _userName; set => _userName = value; }
-        public string Password { get => _password; set => _password = value; }
-
         private IRfcServerCallback _rfcServerCallback;
+
+        public RfcServer(RfcConnection rfcConnection)
+        {
+            _rfcConnection = rfcConnection;
+        }
+
+        public bool IsStarted { get => _rfcServer != null; }
 
         public void Start(IRfcServerCallback rfcServerCallback)
         {
-//            GeneralConfiguration.CPICTraceLevel = 3;
+            if(IsStarted)
+                throw new SapException("allready started");
+
+            //            GeneralConfiguration.CPICTraceLevel = 3;
 
             _rfcServerCallback = rfcServerCallback;
 
-            _rfcConnection = new RfcConnection()
-            {
-                ConnectionString = _connectionString,
-                UserName = _userName,
-                Password = _password
-            };
-
-            _rfcConnection.Connect();
             _rfcDestination = _rfcConnection.GetRfcDestination();
             _rfcServer = NCo.RfcServerManager.GetServer(_rfcDestination.Parameters, new[] { typeof(RfcServer) }, _rfcDestination.Repository);
 
@@ -73,6 +66,9 @@ namespace EAI.NetFramework.SAPNco
 
         public void Stop()
         {
+            if(!IsStarted)
+                throw new SapException("not started");
+
             var rfcServer = _rfcServer;
             _rfcServer = null;
 
@@ -122,5 +118,4 @@ namespace EAI.NetFramework.SAPNco
             }
         }
     }
-
 }

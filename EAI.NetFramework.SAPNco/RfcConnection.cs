@@ -22,10 +22,12 @@ namespace EAI.NetFramework.SAPNco
         public string UserName { get => _userName; set => _userName = value; }
         public string Password { get => _password; set => _password = value; }
 
+        public bool IsConnected { get => _rfcParams != null; }
+
         public void Connect()
         {
-            if (_rfcParams != null)
-                throw new SapException("Allready connected");
+            if (IsConnected)
+                throw new SapException("allready connected");
 
             _rfcParams = new NCo.RfcConfigParameters();
 
@@ -150,6 +152,9 @@ namespace EAI.NetFramework.SAPNco
 
         public void Disconnect()
         {
+            if (!IsConnected)
+                throw new SapException("not connected");
+
             _rfcParams = null;
         }
     }
