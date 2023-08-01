@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace EAI.SAPNco.ModelGenerator
 {
@@ -15,13 +16,29 @@ namespace EAI.SAPNco.ModelGenerator
         {
             var files = new List<string>();
 
-            var autogenPath = Path.GetDirectoryName(GetAssemblySourceFileNames(modelAssembly).First());
+            var assemblyPath = Path.GetDirectoryName(GetAssemblySourceFileNames(modelAssembly).First());
 
             foreach (var token in tokens)
             {
-                var tokenName = (token as ITokenName)?.Name;
+                var tokenFileName = token as ITokenFileName;
+                if (tokenFileName == null)
+                    continue;
 
-                var autogenFilePath = Path.Combine(autogenPath, $"{tokenName}.autogen.cs");
+                var fileName = tokenFileName.Name;
+                if (fileName == null)
+                    continue;
+
+                var autogenFilePath = assemblyPath;
+
+                if (!string.IsNullOrEmpty(tokenFileName.Folder))
+                {
+                    autogenFilePath = Path.Combine(autogenFilePath, tokenFileName.Folder);
+                    Directory.CreateDirectory(autogenFilePath);
+                }
+
+                fileName = Regex.Replace(fileName, @"[<>:""/\\|?*]", "_");
+
+                autogenFilePath = Path.Combine(autogenFilePath, $"{fileName}.autogen.cs");
 
                 var code = CreateCode(new[] { token });
 

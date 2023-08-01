@@ -23,7 +23,7 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
             _code.AppendLine($"\t\t/// Type         : {DataType} ({AbapType}), length {NuLength}, decimals {Decimals}");
             _code.AppendLine($"\t\t/// </summary>");
 
-            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(FieldName)} {{ get; set; }}");
+            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.EscapeName(FieldName)} {{ get; set; }}");
         }
     }
 }

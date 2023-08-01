@@ -125,17 +125,21 @@ namespace EAI.SAPNco.ModelGenerator
                     return nameof(Single);
                 case RfcDataType.DECF34:
                     return nameof(Double);
+                case RfcDataType.FLOAT:
+                    return nameof(Double);
+                case RfcDataType.BYTE:
+                    return $"{nameof(Byte)}[]";
                 case RfcDataType.STRUCTURE:
                     {
                         var structureToken = GenerateRfcStructure(structureMetadata);
 
-                        return structureToken.StructureName;
+                        return Utils.Codeify(structureToken.StructureName);
                     }
                 case RfcDataType.TABLE:
                     {
                         var structureToken = GenerateRfcStructure(tableMetadata._lineType);
 
-                        return $"List<{structureToken.StructureName}>";
+                        return $"List<{Utils.Codeify(structureToken.StructureName)}>";
                     }
                 default:
                     throw new NotImplementedException($"RfcDataType {rfcDataType} not implemented yet.");

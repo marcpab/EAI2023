@@ -60,5 +60,16 @@ namespace EAI.General.Extensions
             return BitConverter.GetBytes(SipHash.SipHash_2_4_UlongCast_ForcedInline(encoding.GetBytes(content), k0, k1));
         }
 
+        public static string Size(this string stringValue, int length, char padChar = ' ')
+        {
+            if (stringValue.Length < length)
+                return stringValue.PadRight(length, padChar);
+
+            if (stringValue.Length > length)
+                return stringValue.Substring(0, length);
+
+            return stringValue;
+        }
+
     }
 }

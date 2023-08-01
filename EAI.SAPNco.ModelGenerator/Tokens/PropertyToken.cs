@@ -18,7 +18,7 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
                 _code.AppendLine($"\t\t/// Description: {Utils.MultilineComment(Description)}");
             _code.AppendLine($"\t\t/// </summary>");
 
-            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(PropertyName)} {{ get; set; }}");
+            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.EscapeName(PropertyName)} {{ get; set; }}");
         }
     }
 }

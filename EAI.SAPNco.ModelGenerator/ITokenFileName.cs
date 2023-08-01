@@ -4,8 +4,9 @@ using System.Text;
 
 namespace EAI.SAPNco.ModelGenerator
 {
-    public interface ITokenName
+    public interface ITokenFileName
     {
-        string Name { get; set; }
+        string Folder { get; }
+        string Name { get; }
     }
 }

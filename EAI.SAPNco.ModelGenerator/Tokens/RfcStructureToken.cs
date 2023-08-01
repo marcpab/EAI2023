@@ -4,14 +4,15 @@ using System.Text;
 
 namespace EAI.SAPNco.ModelGenerator.Tokens
 {
-    class RfcStructureToken : IToken, ITokenName
+    class RfcStructureToken : IToken, ITokenFileName
     {
         public string Namespace { get; set; }
         public string StructureName { get; set; }
 
         public IEnumerable<IToken> ChildTokens { get; set; }
 
-        public string Name { get => StructureName; set => StructureName = value; } 
+        public string Name { get => StructureName; }
+        public string Folder { get => "_structure"; }
 
         public void Write(StringBuilder code)
         {
@@ -35,7 +36,7 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
             _code.AppendLine($"\t/// <summary>");
             _code.AppendLine($"\t/// Rfc structure : {StructureName}");
             _code.AppendLine($"\t/// </summary>");
-            _code.AppendLine($"\tpublic partial class {Utils.ExcapeName(StructureName)}");
+            _code.AppendLine($"\tpublic partial class {Utils.Codeify(StructureName)}");
             _code.AppendLine("\t{");
         }
 

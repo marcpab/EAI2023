@@ -30,7 +30,7 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
             _code.AppendLine($"\t\t/// DefaultValue : {DefaultValue}");
             _code.AppendLine($"\t\t/// </summary>");
 
-            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(ParameterName)} {{ get; set; }}");
+            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.EscapeName(ParameterName)} {{ get; set; }}");
         }
     }
 }

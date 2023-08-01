@@ -12,21 +12,23 @@ namespace EAI.SAPNco.ModelGenerator
 {
     public class Utils
     {
-        private static string[] _excapeNames = new[] { "is", "as", "in", "for", "new" };
+        private static string[] _escapeNames = new[] { "is", "as", "in", "for", "new" };
 
-        //public static string Codeify(string optionLabel)
-        //{
-        //    optionLabel = Regex.Replace(optionLabel, @"[^\w_]", string.Empty);
-
-        //    if (Regex.IsMatch(optionLabel, @"^\d"))
-        //        optionLabel = $"_{optionLabel}";
-
-        //    return optionLabel;
-        //}
-
-        public static string ExcapeName(string name)
+        public static string Codeify(string name)
         {
-            if (_excapeNames.Contains(name))
+            name = Regex.Replace(name, @"[^\w_]", "_");
+
+            if (Regex.IsMatch(name, @"^\d"))
+                name = $"_{name}";
+
+            name = EscapeName(name);
+
+            return name;
+        }
+
+        public static string EscapeName(string name)
+        {
+            if (_escapeNames.Contains(name))
                 return $"@{name}";
 
             return name;

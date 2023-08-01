@@ -4,23 +4,21 @@ using System.Text;
 
 namespace EAI.SAPNco.ModelGenerator.Tokens
 {
-    class RfcFunctionToken : IToken, ITokenFileName
+    internal class IdocSegmentGroupToken : IToken, ITokenFileName
     {
         public string Namespace { get; set; }
-
-        public string Description { get; set; }
-        public string RfcFunctionName { get; set; }
+        public string SegmentName { get; set; }
 
         public IEnumerable<IToken> ChildTokens { get; set; }
 
-        public string Folder { get => null; }
-        public string Name { get => RfcFunctionName; }
+        public string Name { get => $"{SegmentName}GRP"; }
+        public string Folder { get => "_segment"; }
 
         public void Write(StringBuilder code)
         {
             WriteStart(code);
 
-            if(ChildTokens!= null)
+            if (ChildTokens != null)
                 foreach (var token in ChildTokens)
                     token.Write(code);
 
@@ -36,11 +34,9 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
             _code.AppendLine("\tusing System.Collections.Generic;");
             _code.AppendLine($"");
             _code.AppendLine($"\t/// <summary>");
-            if (!string.IsNullOrEmpty(Description))
-                _code.AppendLine($"\t/// Description : {Utils.MultilineComment(Description)}");
+            _code.AppendLine($"\t/// idoc segment group : {SegmentName}");
             _code.AppendLine($"\t/// </summary>");
-            _code.AppendLine($"\tpublic partial class {Utils.Codeify(RfcFunctionName)}");
-
+            _code.AppendLine($"\tpublic partial class {Utils.Codeify(SegmentName)}GRP");
             _code.AppendLine("\t{");
         }
 
@@ -52,5 +48,4 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
         }
 
     }
-
 }

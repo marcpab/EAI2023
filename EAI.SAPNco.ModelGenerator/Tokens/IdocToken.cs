@@ -4,17 +4,15 @@ using System.Text;
 
 namespace EAI.SAPNco.ModelGenerator.Tokens
 {
-    class RfcFunctionToken : IToken, ITokenFileName
+    class IdocToken : IToken, ITokenFileName
     {
         public string Namespace { get; set; }
-
-        public string Description { get; set; }
-        public string RfcFunctionName { get; set; }
+        public string IdocName { get; set; }
 
         public IEnumerable<IToken> ChildTokens { get; set; }
 
+        public string Name { get => IdocName; }
         public string Folder { get => null; }
-        public string Name { get => RfcFunctionName; }
 
         public void Write(StringBuilder code)
         {
@@ -34,13 +32,12 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
             _code.AppendLine("{");
             _code.AppendLine("\tusing System;");
             _code.AppendLine("\tusing System.Collections.Generic;");
+            _code.AppendLine("\tusing EAI.SAPNco.IDOC.Json;");
             _code.AppendLine($"");
             _code.AppendLine($"\t/// <summary>");
-            if (!string.IsNullOrEmpty(Description))
-                _code.AppendLine($"\t/// Description : {Utils.MultilineComment(Description)}");
+            _code.AppendLine($"\t/// Rfc structure : {IdocName}");
             _code.AppendLine($"\t/// </summary>");
-            _code.AppendLine($"\tpublic partial class {Utils.Codeify(RfcFunctionName)}");
-
+            _code.AppendLine($"\tpublic partial class {Utils.Codeify(IdocName)} : JIdoc");
             _code.AppendLine("\t{");
         }
 

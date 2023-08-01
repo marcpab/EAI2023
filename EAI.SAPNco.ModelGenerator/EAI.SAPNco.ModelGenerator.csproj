@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EAI.OnPrem.SAPNcoService\EAI.OnPrem.SAPNcoService.csproj" />
     <ProjectReference Include="..\EAI.OnPrem.Storage\EAI.OnPrem.Storage.csproj" />
+    <ProjectReference Include="..\EAI.SAPNco.IDOC\EAI.SAPNco.IDOC.csproj" />
   </ItemGroup>
 
 </Project>
