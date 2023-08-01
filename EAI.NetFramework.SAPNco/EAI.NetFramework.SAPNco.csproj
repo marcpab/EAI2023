@@ -52,6 +52,7 @@
     <Compile Include="RfcServerState.cs" />
     <Compile Include="IRfcServerCallback.cs" />
     <Compile Include="JRfc.cs" />
+    <Compile Include="RfcTransactionIdHandler.cs" />
     <Compile Include="SessionProvider.cs" />
     <Compile Include="TransactionScope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
