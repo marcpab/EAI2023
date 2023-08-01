@@ -11,6 +11,8 @@ namespace EAI.OnPrem.SAPNcoService
 {
     public class RfcGatewayServiceProxy : IRfcGatewayService
     {
+        private static readonly JsonSerializerSettings _rfcSerializerSettings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore };
+
         private OnPremClient _onPremClient;
 
         public OnPremClient OnPremClient { get => _onPremClient; set => _onPremClient = value; }
@@ -34,7 +36,7 @@ namespace EAI.OnPrem.SAPNcoService
             var callRfcRequest = new CallRfcRequest()
             {
                 _name = name,
-                _jRfcRequestMessage = JsonConvert.SerializeObject(jRfcRequestMessage, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore }),
+                _jRfcRequestMessage = JsonConvert.SerializeObject(jRfcRequestMessage, _rfcSerializerSettings),
                 _autoCommit = autoCommit
             };
 
@@ -42,7 +44,6 @@ namespace EAI.OnPrem.SAPNcoService
 
             return JsonConvert.DeserializeObject<T>(callRfcResponse._ret);
         }
-
 
         public async Task<string> GetJRfcSchemaAsync(string name, string functionName)
         {
@@ -69,6 +70,5 @@ namespace EAI.OnPrem.SAPNcoService
 
             return getJRfcSchemaResponse._ret;
         }
-
     }
 }
