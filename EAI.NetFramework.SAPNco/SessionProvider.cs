@@ -1,5 +1,6 @@
 ﻿using SAP.Middleware.Connector;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace EAI.NetFramework.SAPNco
@@ -7,7 +8,6 @@ namespace EAI.NetFramework.SAPNco
     public class SessionProvider : ISessionProvider
     {
         private static SessionProvider _instance = new SessionProvider();
-
         public static SessionProvider Instance { get { return _instance; } }
 
         static SessionProvider()
@@ -15,25 +15,24 @@ namespace EAI.NetFramework.SAPNco
             RfcSessionManager.RegisterSessionProvider(Instance);
         }
 
-        private ThreadLocal<Transaction> _currentTransaction = new ThreadLocal<Transaction>();
+        private Dictionary<string, RfcSession> _sessions = new Dictionary<string, RfcSession>();
+        private int _sessionCounter = 0;
+        private ThreadLocal<string> _currentSession = new ThreadLocal<string>();
 
-        
-
-        internal void SetCurrentTransaction(Transaction transaction)
+        internal void SetCurrentSession(string sessionId)
         {
-            _currentTransaction.Value = transaction;
-        }
+            lock (_sessions)
+                if (!_sessions.ContainsKey(sessionId))
+                    throw new RfcInvalidSessionException(sessionId);
 
+            _currentSession.Value = sessionId;
+        }
 
         public event RfcSessionManager.SessionChangeHandler SessionChanged;
 
-        public void ActivateSession(string sessionID)
-        {
-        }
-
         public bool ChangeEventsSupported()
         {
-            return false;
+            return true;
         }
 
         public void ContextFinished()
@@ -46,36 +45,68 @@ namespace EAI.NetFramework.SAPNco
 
         public string CreateSession()
         {
-            var currentTransaction = _currentTransaction.Value;
+            var session = new RfcSession(Interlocked.Increment(ref _sessionCounter).ToString());
 
-            if (currentTransaction == null)
-                throw new InvalidOperationException("No current transaction");
+            lock (_sessions)
+                _sessions.Add(session.SessionId, session);
 
-            return currentTransaction.TransactionId;
+            _currentSession.Value = session.SessionId;
+
+            return session.SessionId;
         }
 
-        public void DestroySession(string sessionID)
+        public void DestroySession(string sessionId)
         {
+            lock (_sessions)
+                _sessions.Remove(sessionId);
+
+            if(_currentSession.Value == sessionId)
+                _currentSession.Value = null;
+
+            SessionChanged?.Invoke(new RfcSessionEventArgs(RfcSessionManager.EventType.DESTROYED, sessionId));
         }
 
         public string GetCurrentSession()
         {
-            var currentTransaction = _currentTransaction.Value;
+            var sessionId = _currentSession.Value;
+            if (sessionId == null)
+                return null;
 
-            if (currentTransaction == null)
-                throw new InvalidOperationException("No current transaction");
+            lock (_sessions)
+            {
+                if (!_sessions.TryGetValue(sessionId, out RfcSession session))
+                    throw new RfcInvalidSessionException(sessionId);
 
-            return currentTransaction.TransactionId;
+                return sessionId;
+            }
         }
 
-        public bool IsAlive(string sessionID)
+        public bool IsAlive(string sessionId)
         {
-            return true;
+            lock (_sessions)
+                return _sessions.ContainsKey(sessionId);
         }
 
-        public void PassivateSession(string sessionID)
+        public void ActivateSession(string sessionId)
         {
+            lock (_sessions)
+            {
+                if (!_sessions.TryGetValue(sessionId, out RfcSession session))
+                    throw new RfcInvalidSessionException(sessionId);
+
+                session.IsActive = true;
+            }
+        }
+
+        public void PassivateSession(string sessionId)
+        {
+            lock (_sessions)
+            {
+                if (!_sessions.TryGetValue(sessionId, out RfcSession session))
+                    throw new RfcInvalidSessionException(sessionId);
+
+                session.IsActive = false;
+            }
         }
     }
-
 }

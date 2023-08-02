@@ -9,13 +9,12 @@ namespace EAI.NetFramework.SAPNco
         public TransactionScope(SessionProvider sessionProvider, Transaction transaction)
         {
             _sessionProvider = sessionProvider;
-            _sessionProvider.SetCurrentTransaction(transaction);
+            _sessionProvider.SetCurrentSession(transaction.SessionId);
         }
 
         public void Dispose()
         {
-            _sessionProvider.SetCurrentTransaction(null);
+            _sessionProvider.SetCurrentSession(null);
         }
     }
-
 }
