@@ -11,9 +11,7 @@ namespace EAI.PipeMessaging.SAPNcoService
         Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string functionName);
         Task RfcPingAsync();
         Task<string> RunJRfcRequestAsync(string jRfcRequestMessage, bool autoCommit);
-        Task StartServerAsync();
+        Task StartServerAsync(IRfcServerCallbackAsync rfcServerCallback);
         Task StopServerAsync();
-
-        void SetServerCallback(IRfcServerCallbackAsync rfcServerCallback);
     }
 }

@@ -18,15 +18,13 @@ namespace EAI.PipeMessaging.SAPNcoService
             AddMethod<RunJRfcRequest, RunJRfcResponse>(async r => new RunJRfcResponse { _ret = await _rfcGatewayService.RunJRfcRequestAsync(r.jRfcRequestMessage, r.autoCommit) });
             AddMethod<GetJRfcSchemaRequest, GetJRfcSchemaResponse>(async r => new GetJRfcSchemaResponse { _ret = await _rfcGatewayService.GetJRfcSchemaAsync(r.functionName) });
             AddMethod<GetRfcFunctionMetadataRequest, GetRfcFunctionMetadataResponse>(async r => new GetRfcFunctionMetadataResponse { _ret = await _rfcGatewayService.GetRfcFunctionMetadataAsync(r.functionName) });
-            AddMethod<StartServerRequest>(r => _rfcGatewayService.StartServerAsync());
+            AddMethod<StartServerRequest>(r => _rfcGatewayService.StartServerAsync(this));
             AddMethod<StopServerRequest>(r => _rfcGatewayService.StopServerAsync());
         }
 
         protected override void SetupRemoteInstance()
         {
-            _rfcGatewayService = (IRfcGatewayService)PipeMessaging.InstanceFactory.CreateInstance("EAI.NetFramework.SAPNcoService.RfcCallService", "EAI.NetFramework.SAPNcoService");
-
-            _rfcGatewayService.SetServerCallback(this);
+            _rfcGatewayService = (IRfcGatewayService)PipeMessaging.InstanceFactory.CreateInstance("EAI.NetFramework.SAPNcoService.RfcGatewayService", "EAI.NetFramework.SAPNcoService");
         }
 
         public Task ApplicationErrorAsync(ExceptionData error)

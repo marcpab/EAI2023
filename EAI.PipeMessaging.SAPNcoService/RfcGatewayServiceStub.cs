@@ -1,6 +1,7 @@
 ﻿using EAI.PipeMessaging.Ping;
 using EAI.PipeMessaging.SAPNcoService.Messaging;
 using EAI.SAPNco.Model;
+using System;
 using System.Threading.Tasks;
 
 namespace EAI.PipeMessaging.SAPNcoService
@@ -63,8 +64,13 @@ namespace EAI.PipeMessaging.SAPNcoService
             return SendRequest<ConnectResponse>(connectRequest);
         }
 
-        public Task StartServerAsync()
+        public Task StartServerAsync(IRfcServerCallbackAsync rfcServerCallback)
         {
+            if (rfcServerCallback == null)
+                throw new ArgumentNullException(nameof(rfcServerCallback));
+
+            _rfcServerCallback = rfcServerCallback;
+
             var startRequest = new StartServerRequest()
             {
             };
@@ -134,11 +140,6 @@ namespace EAI.PipeMessaging.SAPNcoService
             var runJRfcResponse = await SendRequest<RunJRfcResponse>(runJRfcRequest);
 
             return runJRfcResponse._ret;
-        }
-
-        public void SetServerCallback(IRfcServerCallbackAsync rfcServerCallback)
-        {
-            _rfcServerCallback = rfcServerCallback;
         }
     }
 }

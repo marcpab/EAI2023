@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using EAI.Abstraction.SAPNcoService;
 using EAI.General;
 
-namespace EAI.IdocReceiver
+namespace EAI.SAPNco.IDOC
 {
     public class IdocMessageSender : IMessageSender
     {

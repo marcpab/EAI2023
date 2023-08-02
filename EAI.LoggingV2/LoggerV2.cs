@@ -94,6 +94,7 @@ namespace EAI.LoggingV2
             if (text == null)
                 text = "Leave (failed)";
 
+            Create<U>(LogActionEnum.logRecord, ex.GetExceptionInformation(), null, null, ex);
             Create<U>(LogActionEnum.leave, FormatString(text, args), null, null, ex);
         }
 
