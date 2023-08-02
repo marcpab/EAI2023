@@ -33,8 +33,8 @@ namespace EAI.SAPNco.IDOC.Metadata
         public decimal MaxOccurrence { get => _segment.OCCMAX; }
         public bool IsGroup { get => _segment.PARFLG == "X"; }
         public bool IsGroupRequired { get => _segment.MUSTFL == "X"; }
-        public decimal MinGroupOccurrence { get => _segment.OCCMIN; }
-        public decimal MaxGroupOccurrence { get => _segment.OCCMAX; }
+        public decimal MinGroupOccurrence { get => _segment.GRP_OCCMIN; }
+        public decimal MaxGroupOccurrence { get => _segment.GRP_OCCMAX; }
 
         public override string ToString()
             => $"{nameof(IdocSegment)}/{Type}/{Name}";
