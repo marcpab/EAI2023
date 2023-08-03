@@ -1,9 +1,13 @@
 ﻿using EAI.General.Extensions;
+using System;
 
 namespace EAI.SAPNco.IDOC.ValueConverter
 {
     internal class FieldValueConverterString : IIdocFieldValueConverter
     {
+
+        public Type ClrType { get => typeof(string); }
+
         public object FromIDOC(string stringValue)
         {
             if (string.IsNullOrWhiteSpace(stringValue))

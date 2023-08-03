@@ -13,6 +13,8 @@ namespace EAI.SAPNco.IDOC.ValueConverter
             _format = format;
         }
 
+        public Type ClrType { get => typeof(DateTimeOffset); }
+
         public object FromIDOC(string stringValue)
         {
             if (string.IsNullOrWhiteSpace(stringValue))

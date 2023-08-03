@@ -24,6 +24,8 @@ namespace EAI.SAPNco.IDOC
         public IEnumerable<IdocSegment> ChildSegments { get => _segments; }
         public IEnumerable<IdocSegmentMetadata> ChildSegmentsMetadata { get => _idocMetadata?.RootSegments; }
 
+        public string Number { get => _dc40.GetIdocNumber(); }
+        public string Type { get => _dc40.GetIdocType(); }
         public EDI_DC40 DC40 { get => _dc40; }
 
         public IdocSegment AddSegment(string segmentDef)
@@ -45,7 +47,7 @@ namespace EAI.SAPNco.IDOC
         }
 
         public override string ToString()
-            => $"{nameof(Idoc)}/{_dc40.IDOCTYP}/{_dc40.CIMTYP}/{_dc40.DOCREL}/{_dc40.MESTYP}/{_dc40.DOCNUM}";
+            => $"{nameof(Idoc)}/{Type}/{Number}";
 
         private IdocSegment AddSegment(string segmentDef, EDI_DD40 dd40)
         {
