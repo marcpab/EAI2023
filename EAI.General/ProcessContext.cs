@@ -45,6 +45,9 @@ namespace EAI.General
 
             context.ParentStage = parentContext?.Stage;
             context.ParentProcessId = parentContext?.ProcessId;
+            
+            if(parentContext?._services != null)
+                context._services = new Dictionary<Type, object>(parentContext?._services);
 
             context.Stage = stage ?? parentContext?.Stage;
             context.ServiceName = serviceName ?? parentContext?.ServiceName;
