@@ -54,7 +54,7 @@ namespace EAI.SAPNco.ModelGenerator
                             ChildTokens = 
                                     new[] { new PropertyToken()
                                         {
-                                            CSharpType = $"{segement.Name}",
+                                            CSharpType = $"{segement.Name}?",
                                             PropertyName = $"{segement.Name}",
                                             Description = segement.Description
                                         }
@@ -76,7 +76,7 @@ namespace EAI.SAPNco.ModelGenerator
                         Namespace = Namespace,
                         ChildTokens = segement.Fields.Select(f => new PropertyToken()
                         {
-                            CSharpType = "object",
+                            CSharpType = $"{f.ClrType.Name}?",
                             Description = f.Description,
                             PropertyName = f.Name
                         })
@@ -96,14 +96,14 @@ namespace EAI.SAPNco.ModelGenerator
                 if (segmentMetadata.MaxGroupOccurrence > 1)
                     return new PropertyToken()
                         {
-                            CSharpType = $"List<{segmentMetadata.Name}GRP>",
+                            CSharpType = $"List<{segmentMetadata.Name}GRP>?",
                             PropertyName = $"{segmentMetadata.Name}GRP",
                             Description = segmentMetadata.Description
                         };
                 else
                     return new PropertyToken()
                     {
-                        CSharpType = $"{segmentMetadata.Name}GRP",
+                        CSharpType = $"{segmentMetadata.Name}GRP?",
                         PropertyName = $"{segmentMetadata.Name}GRP",
                         Description = segmentMetadata.Description
                     };
@@ -113,15 +113,15 @@ namespace EAI.SAPNco.ModelGenerator
                 if (segmentMetadata.MaxOccurrence > 1)
                     return new PropertyToken()
                     {
-                        CSharpType = $"List<{segmentMetadata.Name}>",
-                        PropertyName = $"{segmentMetadata.Name}",
+                        CSharpType = $"List<{segmentMetadata.Name}>?",
+                        PropertyName = segmentMetadata.Name,
                         Description = segmentMetadata.Description
                     };
                 else
                     return new PropertyToken()
                     {
-                        CSharpType = $"{segmentMetadata.Name}",
-                        PropertyName = $"{segmentMetadata.Name}",
+                        CSharpType = $"{segmentMetadata.Name}?",
+                        PropertyName = segmentMetadata.Name,
                         Description = segmentMetadata.Description
                     };
             }
