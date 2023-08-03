@@ -1,4 +1,5 @@
 ﻿using EAI.SAPNco.IDOC.Model.Structure;
+using EAI.SAPNco.IDOC.ValueConverter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +46,8 @@ namespace EAI.SAPNco.IDOC.Metadata
                 return DataTypeEnum.Unknown;
             }
         }
+
+        public Type ClrType { get => IdocFieldValueConverter.Instance.ClrType(DataType);  }
 
         public override string ToString()
             => $"{nameof(IdocFieldMetadata)}/{Name}/{Position}/{IdocDataType}";

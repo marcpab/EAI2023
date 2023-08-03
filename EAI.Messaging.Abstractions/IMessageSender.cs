@@ -7,6 +7,7 @@ namespace EAI.Messaging.Abstractions
 {
     public interface IMessageSender
     {
+        Task SendMessageAsync(object message, string messageType, string transactionKey);
         Task SendMessageAsync(object message);
     }
 }

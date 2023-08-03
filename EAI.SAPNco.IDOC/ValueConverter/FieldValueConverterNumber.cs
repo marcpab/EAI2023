@@ -1,9 +1,11 @@
 ﻿using EAI.General.Extensions;
+using System;
 using System.Globalization;
 
 namespace EAI.SAPNco.IDOC.ValueConverter
 {
-    internal class FieldValueConverterNumber : IIdocFieldValueConverter
+    internal class FieldValueConverterNumber<T> : IIdocFieldValueConverter
+        where T : struct
     {
         private string _format;
         private bool _decimalPlaces;
@@ -14,13 +16,15 @@ namespace EAI.SAPNco.IDOC.ValueConverter
             _decimalPlaces = decimalPlaces;
         }
 
+        public Type ClrType { get => typeof(T); }
+
         public object FromIDOC(string stringValue)
         {
             if (string.IsNullOrWhiteSpace(stringValue))
                 return null;
 
             if (decimal.TryParse(stringValue, _decimalPlaces ? NumberStyles.Any : NumberStyles.Integer, CultureInfo.InvariantCulture, out var tryDecimalValue))
-                return tryDecimalValue;
+                return (T)Convert.ChangeType(tryDecimalValue, typeof(T));
 
             return null;
         }
