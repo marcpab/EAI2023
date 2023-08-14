@@ -45,7 +45,7 @@ namespace Roedl.Azure.Standard.Sql.Diagnostics
 #if NETSTANDARD2_1
                             await 
 #endif
-                            tMessage.AddMessageAsync(
+                            tLogMessage.AddMessageAsync(
                                 connection, 
                                 logEntry.LogMessage);
 
@@ -65,7 +65,7 @@ namespace Roedl.Azure.Standard.Sql.Diagnostics
 #if NETSTANDARD2_1
                             await 
 #endif
-                            tTaskException.AddDebugLogExceptionAsync(
+                            tLogException.AddDebugLogExceptionAsync(
                                 connection,
                                 logExceptionEntry,
                                 logId

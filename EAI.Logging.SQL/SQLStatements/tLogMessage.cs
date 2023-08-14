@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace EAI.Logging.SQL
 {
-    internal class tMessage
+    internal class tLogMessage
     {
         public static
 #if NETSTANDARD2_1
@@ -16,7 +16,7 @@ namespace EAI.Logging.SQL
 #endif
         AddMessageAsync(SqlConnectionAsync connection, LogMessage message)
         {
-            var cmd = new SqlCommand(@"dbo.up_AddMessage", connection);
+            var cmd = new SqlCommand(@"dbo.up_AddLogMessage", connection);
 #if NETSTANDARD2_1
             await
 #else
@@ -26,7 +26,7 @@ namespace EAI.Logging.SQL
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.AddParameter("@messageType", SqlDbType.NVarChar, 5, message.MsgType);
-                cmd.AddParameter("@messageData", SqlDbType.NVarChar, int.MaxValue, message.Content);
+                cmd.AddParameter("@messageContent", SqlDbType.NVarChar, int.MaxValue, message.Content);
                 var id_Message = cmd.AddOutputParameter("@id_Message", SqlDbType.BigInt, 0);
                                     
 #if NETSTANDARD2_1
