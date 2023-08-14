@@ -72,7 +72,11 @@ namespace EAI.Logging.Model
                     contentString = xElement.ToString();
                     return (msgType, contentString);
                 }
+            }
+            catch { }
 
+            try
+            { 
                 jToken = JToken.Parse(stringMessage);
                 {
                     msgType = LogMessageType.JSON;
