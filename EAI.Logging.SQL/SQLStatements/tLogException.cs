@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 namespace EAI.Logging.SQL
 {
-    internal class tTaskException
+    internal class tLogException
     {
         public static
 #if NETSTANDARD2_1
@@ -14,7 +14,7 @@ namespace EAI.Logging.SQL
 #endif
             AddDebugLogExceptionAsync(SqlConnectionAsync connection, LogException exceptionItem, long logId)
         {
-            var cmd = new SqlCommand(@"dbo.up_AddException", connection);
+            var cmd = new SqlCommand(@"dbo.up_AddLogException", connection);
 #if NETSTANDARD2_1
             await
 #else
