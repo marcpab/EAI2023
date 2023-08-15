@@ -7,9 +7,11 @@ using System.Security.Cryptography;
 
 namespace EAI.Logging.SQL
 {
+#pragma warning disable IDE1006 // Naming Styles
     internal class tLog
+#pragma warning restore IDE1006 // Naming Styles
     {
-        static Int32 sha256(string content)
+        static Int32 CalculateSha256(string content)
         {
             var crypt = new SHA256Managed();
             byte[] crypto = crypt.ComputeHash(Encoding.ASCII.GetBytes(content));
@@ -38,7 +40,7 @@ namespace EAI.Logging.SQL
                 cmd.AddParameter("@Id_Stage", SqlDbType.Int, 0, item.StageId);
                 cmd.AddParameter("@Service", SqlDbType.NVarChar, 80, item.Service ?? string.Empty);
                 cmd.AddParameter("@ParentProcessId", SqlDbType.NVarChar, 50, item.Transaction ?? string.Empty);
-                cmd.AddParameter("@ParentProcessHash", SqlDbType.Int, 0, sha256(item.Transaction));
+                cmd.AddParameter("@ParentProcessHash", SqlDbType.Int, 0, CalculateSha256(item.Transaction));
                 cmd.AddParameter("@ProcessId", SqlDbType.NVarChar, 50, item.ChildTransaction ?? string.Empty);
                 cmd.AddParameter("@MessageId", SqlDbType.NVarChar, 80, item.TransactionKey ?? string.Empty);
                 cmd.AddParameter("@Text", SqlDbType.NVarChar, int.MaxValue, item.Description ?? string.Empty);
