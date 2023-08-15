@@ -4,7 +4,9 @@ using System.Data.SqlClient;
 
 namespace EAI.Logging.SQL
 {
+#pragma warning disable IDE1006 // Naming Styles
     internal class tLogException
+#pragma warning restore IDE1006 // Naming Styles
     {
         public static
 #if NETSTANDARD2_1

@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml.Linq;
 using System.Xml;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace EAI.Logging.Model
 {
@@ -61,32 +62,45 @@ namespace EAI.Logging.Model
             {
                 msgType = LogMessageType.TEXT;
                 contentString = stringMessage;
-            }
 
-            try
-            {
-                xElement = XElement.Parse(stringMessage);
-                if (xElement != null)
+                try
                 {
-                    msgType = LogMessageType.XML;
-                    contentString = xElement.ToString();
-                    return (msgType, contentString);
+                    xElement = XElement.Parse(stringMessage);
+                    if (xElement != null)
+                    {
+                        msgType = LogMessageType.XML;
+                        contentString = xElement.ToString();
+                        return (msgType, contentString);
+                    }
                 }
-            }
-            catch { }
+                catch { }
 
-            try
-            { 
-                jToken = JToken.Parse(stringMessage);
+                try
+                {
+                    jToken = JToken.Parse(stringMessage);
+                    {
+                        msgType = LogMessageType.JSON;
+                        contentString = jToken.ToString();
+                        return (msgType, contentString);
+                    }
+                }
+                catch { }
+
+                return (msgType, contentString);
+            }
+
+
+            if(msgType == LogMessageType.RAW)
+            {
+                try
                 {
                     msgType = LogMessageType.JSON;
-                    contentString = jToken.ToString();
-                    return (msgType, contentString);
+                    contentString = JsonConvert.SerializeObject(content);
                 }
+                catch { }
             }
-            catch { }
 
-            return (msgType, contentString);
+            return (msgType, "[Unkown Message]");
         }
 
     }
