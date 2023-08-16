@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Roedl.Azure.Standard.Sql.Diagnostics
+namespace EAI.Logging.SQL
 {
     public class SqlWriterId : ILogWriterId
     {
