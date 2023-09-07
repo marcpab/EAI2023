@@ -1,6 +1,6 @@
-﻿namespace EAI.LoggingV2.Model
+﻿namespace EAI.General
 {
-    enum EnumContentType
+    public enum EnumMessageContentType
     {
         XML,
         Unknown,

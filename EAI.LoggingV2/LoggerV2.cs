@@ -165,7 +165,7 @@ namespace EAI.LoggingV2
                 return new MessageData(
                     messageName,
                                 null,
-                                EnumContentType.Unknown.ToString(),
+                                EnumMessageContentType.Unknown.ToString(),
                                 null);
 
             switch (messageContent)
@@ -174,7 +174,7 @@ namespace EAI.LoggingV2
                     return new MessageData(
                                     messageName,
                                     null,
-                                    EnumContentType.RAW.ToString(),
+                                    EnumMessageContentType.RAW.ToString(),
                                     stringContent);
                 case XElement xElement:
                     return GetMessageDataFromXElement(messageName, xElement);
@@ -188,7 +188,7 @@ namespace EAI.LoggingV2
                     return new MessageData(
                                     messageName,
                                     messageContent.GetType().FullName,
-                                    EnumContentType.Json.ToString(),
+                                    EnumMessageContentType.Json.ToString(),
                                     Json.JsonConvert.SerializeObject(messageContent, Json.Formatting.Indented));
             }
         }
@@ -198,7 +198,7 @@ namespace EAI.LoggingV2
             return new MessageData(
                     messageName,
                     $"{xElement.Name.NamespaceName}#{xElement.Name.NamespaceName}",
-                    EnumContentType.XML.ToString(),
+                    EnumMessageContentType.XML.ToString(),
                     xElement.ToString()
                 );
         }
@@ -208,7 +208,7 @@ namespace EAI.LoggingV2
             return new MessageData(
                             messageName,
                             null,
-                            EnumContentType.Json.ToString(),
+                            EnumMessageContentType.Json.ToString(),
                             jToken.ToString());
         }
 
