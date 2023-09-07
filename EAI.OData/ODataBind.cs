@@ -5,7 +5,7 @@ namespace EAI.OData
 {
     public class ODataBind
     {
-        public const string PropertyPostfix = "Bind";
+        public const string PropertyPostfix = "Lookup";
 
         public string EntityName { get; set; }
 

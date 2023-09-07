@@ -11,7 +11,7 @@ namespace EAI.Dataverse.ModelGenerator
         private Assembly _modelAssembly;
 
         public IEnumerable<Type> Types { get => _modelAssembly
-                                    .GetTypes(); 
+                                    .GetExportedTypes(); 
         }
 
         public Assembly ModelAssembly { get => _modelAssembly; set => _modelAssembly = value; }
