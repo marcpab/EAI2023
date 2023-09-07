@@ -59,10 +59,26 @@
       <Project>{188c7b41-a4ba-4e4d-96fb-02e565b8569e}</Project>
       <Name>EAI.NetFramework.SAPNcoService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EAI.PipeMessaging.SAPNcoService\EAI.PipeMessaging.SAPNcoService.csproj">
+      <Project>{426e9829-dc13-4bd1-a30d-07c5c9ae595f}</Project>
+      <Name>EAI.PipeMessaging.SAPNcoService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EAI.PipeMessaging\EAI.PipeMessaging.csproj">
       <Project>{7c926a3a-9665-4b01-a1f2-917c0a2a0f9c}</Project>
       <Name>EAI.PipeMessaging</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

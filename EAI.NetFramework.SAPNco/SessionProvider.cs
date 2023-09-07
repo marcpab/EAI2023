@@ -21,9 +21,10 @@ namespace EAI.NetFramework.SAPNco
 
         internal void SetCurrentSession(string sessionId)
         {
-            lock (_sessions)
-                if (!_sessions.ContainsKey(sessionId))
-                    throw new RfcInvalidSessionException(sessionId);
+            if(sessionId != null)
+                lock (_sessions)
+                    if (!_sessions.ContainsKey(sessionId))
+                        throw new RfcInvalidSessionException(sessionId);
 
             _currentSession.Value = sessionId;
         }

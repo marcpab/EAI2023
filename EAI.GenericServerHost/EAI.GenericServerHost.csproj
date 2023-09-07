@@ -16,6 +16,7 @@
     <ProjectReference Include="..\EAI.GenericServer\EAI.GenericServer.csproj" />
     <ProjectReference Include="..\EAI.OnPrem.Storage\EAI.OnPrem.Storage.csproj" />
     <ProjectReference Include="..\EAI.PipeMessaging\EAI.PipeMessaging.csproj" />
+    <ProjectReference Include="..\EAI.Sql\EAI.Sql.csproj" />
   </ItemGroup>
 
   <ItemGroup>

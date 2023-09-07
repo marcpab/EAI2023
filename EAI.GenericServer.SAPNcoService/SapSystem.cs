@@ -16,7 +16,7 @@ namespace EAI.GenericServer.SAPNcoService
         private string _password;
         private bool _startRfcServer;
         private RfcGatewayService _rfcGatewayService;
-        private pipe.IRfcGatewayService _rfcCallService;
+        private pipe.IRfcGatewayService _remoteRfcGatewayService;
 
         public string Name { get => _name; set => _name = value; }
         public string ConnectionString { get => _connectionString; set => _connectionString = value; }
@@ -31,9 +31,9 @@ namespace EAI.GenericServer.SAPNcoService
             {
                 _rfcGatewayService = rfcGatewayService;
 
-                _rfcCallService = await pipe.RfcGatewayServiceStub.CreateObjectAsync(_rfcGatewayService.PipeName);
+                _remoteRfcGatewayService = await pipe.RfcGatewayServiceStub.CreateObjectAsync(_rfcGatewayService.PipeName);
 
-                await _rfcCallService.ConnectAsync(
+                await _remoteRfcGatewayService.ConnectAsync(
                     _connectionString,
                     _userName,
                     _password);
@@ -46,28 +46,28 @@ namespace EAI.GenericServer.SAPNcoService
 
         internal Task StartServerAsync()
         {
-            return _rfcCallService.StartServerAsync();
+            return _remoteRfcGatewayService.StartServerAsync(this);
         }
 
         internal Task<string> RunJRfcRequestAsync(string jRfcRequestMessage, bool autoCommit)
         {
-            return _rfcCallService.RunJRfcRequestAsync(jRfcRequestMessage, autoCommit);
+            return _remoteRfcGatewayService.RunJRfcRequestAsync(jRfcRequestMessage, autoCommit);
         }
 
         internal async Task DisconnectAsync()
         {
-            await _rfcCallService.DisconnectAsync();
+            await _remoteRfcGatewayService.DisconnectAsync();
 
-            (_rfcCallService as IDisposable)?.Dispose();
+            (_remoteRfcGatewayService as IDisposable)?.Dispose();
         }
 
         internal Task<string> GetJRfcSchemaAsync(string functionName)
         {
-            return _rfcCallService.GetJRfcSchemaAsync(functionName);
+            return _remoteRfcGatewayService.GetJRfcSchemaAsync(functionName);
         }
         internal Task<RfcFunctionMetadata> GetRfcFunctionMetadataAsync(string functionName)
         {
-            return _rfcCallService.GetRfcFunctionMetadataAsync(functionName);
+            return _remoteRfcGatewayService.GetRfcFunctionMetadataAsync(functionName);
         }
 
 

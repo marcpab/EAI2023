@@ -29,9 +29,14 @@ namespace EAI.NetFramework.SAPNcoService
             _rfcConnection.Connect();
         }
 
-        public void StartServer()
+        public void StartServer(IRfcServerCallbackAsync rfcServerCallback)
         {
+            if (rfcServerCallback == null)
+                throw new ArgumentNullException(nameof(rfcServerCallback));
+
             ThrowNotConnected();
+
+            _rfcServerCallback = rfcServerCallback;
 
             _rfcServer = new RfcServer(_rfcConnection);
 
@@ -86,11 +91,6 @@ namespace EAI.NetFramework.SAPNcoService
             return rfcMetadata;
         }
 
-        public void SetServerCallback(IRfcServerCallbackAsync rfcServerCallback)
-        {
-            _rfcServerCallback = rfcServerCallback;
-        }
-
         public void StopServer()
         {
             _rfcServer.Stop();
@@ -132,9 +132,9 @@ namespace EAI.NetFramework.SAPNcoService
             return Task.Run(() => Connect(connectionString, userName, password));
         }
 
-        public Task StartServerAsync()
+        public Task StartServerAsync(IRfcServerCallbackAsync rfcServerCallback)
         {
-            return Task.Run(() => StartServer());
+            return Task.Run(() => StartServer(rfcServerCallback));
         }
 
         public Task StopServerAsync()
