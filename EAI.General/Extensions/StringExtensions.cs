@@ -37,6 +37,24 @@ namespace EAI.General.Extensions
             return defaultValue;
         }
 
+        public static decimal? TryParseDecimal(this string s, CultureInfo cultureInfo = null, decimal? defaultValue = null, Action onEmptyString = null, Action onParseFailed = null)
+        {
+            if(cultureInfo == null)
+                cultureInfo = CultureInfo.InvariantCulture;
+
+            if (string.IsNullOrWhiteSpace(s))
+            {
+                onEmptyString?.Invoke();
+                return defaultValue;
+            }
+
+            if (decimal.TryParse(s, NumberStyles.Any, cultureInfo, out decimal value))
+                return value;
+
+            onParseFailed?.Invoke();
+            return defaultValue;
+        }
+
         public static DateTimeOffset? TryParseDateTimeOffset(this string s, string format = null, DateTimeOffset? defaultValue = null, Action onEmptyString = null, Action onParseFailed = null)
         {
             if (string.IsNullOrWhiteSpace(s))
