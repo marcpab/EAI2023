@@ -1,10 +1,11 @@
-﻿using System;
+﻿using EAI.ModelGenerator;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace EAI.Dataverse.ModelGenerator.Tokens
 {
-    class EntityToken : IToken
+    class EntityToken : IToken, ITokenFileName
     {
         public string Namespace { get; set; }
 
@@ -13,6 +14,10 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
         public string Entity { get; set; }
 
         public IEnumerable<IToken> ChildTokens { get; set; }
+
+        public string Folder => null;
+
+        public string Name => Utils.ExcapeName(Entity);
 
         public void Write(StringBuilder code)
         {
@@ -29,6 +34,9 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
         {
             _code.AppendLine($"namespace {Namespace}");
             _code.AppendLine("{");
+            _code.AppendLine("\tusing System;");
+            _code.AppendLine("\tusing EAI.OData;");
+            _code.AppendLine($"");
             _code.AppendLine($"\t/// <summary>");
             if (!string.IsNullOrEmpty(DisplayName))
                 _code.AppendLine($"\t/// Display name: {Utils.MultilineComment(DisplayName)}");

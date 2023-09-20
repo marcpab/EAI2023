@@ -9,6 +9,7 @@ using EAI.OData;
 using EAI.Dataverse.ModelGeneratorTests.Model;
 using System.Threading.Tasks;
 using System.IO;
+using EAI.ModelGenerator;
 
 namespace EAI.Dataverse.ModelGenerator.Tests
 {
@@ -33,7 +34,7 @@ namespace EAI.Dataverse.ModelGenerator.Tests
                 UseEnumTypeForPicklistProperties = true
             };
 
-            var code = await modelGenerator.GenerateCodeAsync(odataClient, typeof(account).Assembly);
+            var code = await modelGenerator.GenerateTokensAsync(odataClient, typeof(account).Assembly);
 
             ModelWriter.Write(typeof(account).Assembly, code);
         }

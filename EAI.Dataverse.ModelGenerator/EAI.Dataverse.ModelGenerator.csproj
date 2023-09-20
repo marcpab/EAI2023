@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EAI.Dataverse\EAI.Dataverse.csproj" />
+    <ProjectReference Include="..\EAI.ModelGenerator\EAI.ModelGenerator.csproj" />
     <ProjectReference Include="..\EAI.OData\EAI.OData.csproj" />
   </ItemGroup>
 

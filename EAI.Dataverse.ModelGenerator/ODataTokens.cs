@@ -1,6 +1,7 @@
 ﻿
 using EAI.Dataverse.ModelGenerator.Model;
 using EAI.Dataverse.ModelGenerator.Tokens;
+using EAI.ModelGenerator;
 using EAI.OData;
 using System;
 using System.Collections.Generic;
