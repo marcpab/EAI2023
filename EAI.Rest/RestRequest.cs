@@ -13,10 +13,12 @@ namespace EAI.Rest
         private HttpMethod _method;
         private object _path;
         private object _requestData;
+        private Dictionary<string, string> _requestHeaders;
 
         public HttpMethod Method { get => _method; set => _method = value; }
         public object Path { get => _path; set => _path = value; }
         public object Content { get => _requestData; set => _requestData = value; }
+        public Dictionary<string, string> RequestHeaders { get => _requestHeaders; set => _requestHeaders = value; }
 
         public RestRequest()
         {
@@ -29,6 +31,10 @@ namespace EAI.Rest
 
             requestMessage.Content = GetContent(serializerSettings);
             requestMessage.RequestUri = Path == null ? null : new Uri(Path?.ToString(), UriKind.RelativeOrAbsolute);
+
+            if(_requestHeaders != null)
+                foreach(var header  in _requestHeaders)
+                    requestMessage.Headers.Add(header.Key, header.Value);   
 
             return requestMessage;
         }

@@ -1,4 +1,5 @@
 ﻿using EAI.Dataverse.ModelGenerator;
+using EAI.ModelGenerator;
 using EAI.OnPrem.SAPNcoService;
 using EAI.OnPrem.Storage;
 using EAI.SAPNco.IDOC.Metadata;
@@ -40,7 +41,7 @@ namespace EAI.SAPNco.ModelGenerator
                 {
                     IdocName = $"IDOC_{idocMetadata.Header.IDOCTYP}_{idocMetadata.Header.CIMTYP}_{idocMetadata.Header.RELEASED}",
                     Namespace = Namespace,
-                    ChildTokens = idocMetadata.RootSegments.Select(s => CreateSegmentProperty(s)).ToArray()
+                    ChildTokens = idocMetadata.RootSegments.Select(s => CreateSegmentProperty(idocMetadata, s)).ToArray()
                 });
                 
                 foreach(var segement in idocMetadata.Segments)
@@ -49,12 +50,12 @@ namespace EAI.SAPNco.ModelGenerator
                     {
                         var segemtGroupToken = new IdocSegmentGroupToken()
                         {
-                            SegmentName = segement.Name,
+                            SegmentName = $"{idocMetadata.Header.IDOCTYP}_{idocMetadata.Header.CIMTYP}_{idocMetadata.Header.RELEASED}_{segement.Name}",
                             Namespace = Namespace,
                             ChildTokens = 
                                     new[] { new PropertyToken()
                                         {
-                                            CSharpType = $"{segement.Name}?",
+                                            CSharpType = segement.Name,
                                             PropertyName = $"{segement.Name}",
                                             Description = segement.Description
                                         }
@@ -62,7 +63,7 @@ namespace EAI.SAPNco.ModelGenerator
                                     .Union(
                                             segement
                                                 .ChildSegments
-                                                .Select(s => CreateSegmentProperty(s))
+                                                .Select(s => CreateSegmentProperty(idocMetadata, s))
                                     )
                                     .ToArray()
                         };
@@ -89,21 +90,21 @@ namespace EAI.SAPNco.ModelGenerator
             return tokens;
         }
 
-        private PropertyToken CreateSegmentProperty(IdocSegmentMetadata segmentMetadata)
+        private PropertyToken CreateSegmentProperty(IdocMetadata idocMetadata, IdocSegmentMetadata segmentMetadata)
         {
             if(segmentMetadata.IsGroup)
             {
                 if (segmentMetadata.MaxGroupOccurrence > 1)
                     return new PropertyToken()
                         {
-                            CSharpType = $"List<{segmentMetadata.Name}GRP>?",
+                            CSharpType = $"List<{idocMetadata.Header.IDOCTYP}_{idocMetadata.Header.CIMTYP}_{idocMetadata.Header.RELEASED}_{segmentMetadata.Name}GRP>?",
                             PropertyName = $"{segmentMetadata.Name}GRP",
                             Description = segmentMetadata.Description
                         };
                 else
                     return new PropertyToken()
                     {
-                        CSharpType = $"{segmentMetadata.Name}GRP?",
+                        CSharpType = $"{idocMetadata.Header.IDOCTYP}_{idocMetadata.Header.CIMTYP}_{idocMetadata.Header.RELEASED}_{segmentMetadata.Name}GRP?",
                         PropertyName = $"{segmentMetadata.Name}GRP",
                         Description = segmentMetadata.Description
                     };

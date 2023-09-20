@@ -1,4 +1,5 @@
-﻿using EAI.OData;
+﻿using EAI.ModelGenerator;
+using EAI.OData;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,7 +25,7 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             code.AppendLine($"\t\t/// Schema name : {ReferencingRelationshipSchemaName}");
             code.AppendLine($"\t\t/// </summary>");
 
-            code.AppendLine($"\t\tpublic {nameof(ODataBind)} {ReferencingRelationshipReferencingEntityNavigationPropertyName}Lookup;");
+            code.AppendLine($"\t\tpublic {nameof(ODataBind)} {ReferencingRelationshipReferencingEntityNavigationPropertyName}{ODataBind.PropertyPostfix};");
         }
     }
 }

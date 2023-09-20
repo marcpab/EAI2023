@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace EAI.Rest.Fluent
 
         private readonly RestRequest _restRequest;
 
-        public FluentRequest(RestClient restClient, object query, string method, object content)
+        public FluentRequest(RestClient restClient, object query, string method, object content, Dictionary<string, string> requestHeaders = null)
         {
             _restClient = restClient;
 
@@ -28,7 +29,8 @@ namespace EAI.Rest.Fluent
             {
                 Method = new HttpMethod(method),
                 Path = query.ToString(),
-                Content = content
+                Content = content,
+                RequestHeaders = requestHeaders
             };
         }
 

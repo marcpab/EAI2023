@@ -1,4 +1,5 @@
 ﻿using EAI.Dataverse.ModelGenerator.Tokens;
+using EAI.ModelGenerator;
 using EAI.OData;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace EAI.Dataverse.ModelGenerator
         public bool GenerateNavigationProperties { get; set; } = false;
         public bool GenerateDynamicNavigationProperties { get; set; } = false;
 
-        public async Task<string> GenerateCodeAsync(ODataClient cdsclient, Assembly modelAssembly, string oDataV4MetadataPath = null)
+        public async Task<IEnumerable<IToken>> GenerateTokensAsync(ODataClient cdsclient, Assembly modelAssembly, string oDataV4MetadataPath = null)
         {
             var tokenList = new List<IToken>();
 
@@ -30,9 +31,6 @@ namespace EAI.Dataverse.ModelGenerator
                 GenerateNavigationProperties = GenerateNavigationProperties,
                 GenerateDynamicNavigationProperties = GenerateDynamicNavigationProperties,
             };
-
-            tokenList.Add(new UsingToken { Namespace = "System" });
-            tokenList.Add(new UsingToken { Namespace = "EAI.OData" });
 
             tokenList.AddRange(await odataTokens.GetEntityTokensAsync(cdsclient, view));
 
@@ -50,17 +48,17 @@ namespace EAI.Dataverse.ModelGenerator
                 tokenList.AddRange(await meatadataTokens.GetMeatdataTokensAsync(oDataV4MetadataPath, view));
             }
 
-            return CreateCode(tokenList);
+            return tokenList;
         }
 
-        protected static string CreateCode(List<IToken> tokenList)
-        {
-            var code = new StringBuilder();
+        //protected static string CreateCode(List<IToken> tokenList)
+        //{
+        //    var code = new StringBuilder();
 
-            foreach (var token in tokenList)
-                token.Write(code);
+        //    foreach (var token in tokenList)
+        //        token.Write(code);
 
-            return code.ToString();
-        }
+        //    return code.ToString();
+        //}
     }
 }

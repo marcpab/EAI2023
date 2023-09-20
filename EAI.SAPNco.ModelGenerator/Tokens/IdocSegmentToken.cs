@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EAI.ModelGenerator;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,6 +20,7 @@ namespace EAI.SAPNco.ModelGenerator.Tokens
             WriteStart(code);
 
             if (ChildTokens != null)
+
                 foreach (var token in ChildTokens)
                     token.Write(code);
 
