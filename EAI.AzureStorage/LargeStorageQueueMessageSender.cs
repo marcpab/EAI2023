@@ -37,8 +37,9 @@ namespace EAI.AzureStorage
                 throw new EAIException("No storage queue name defined");
             
             storageQueueName = storageQueueName.Replace($"{{{nameof(messageType)}}}", messageType);
-
             storageQueueName = _replaceInvalidQNameChars.Replace(storageQueueName, "-");
+            storageQueueName = storageQueueName.Trim('-');
+            storageQueueName = storageQueueName.ToLower();
 
             var largeMessageQueue = GetQueue(storageQueueName);
 
