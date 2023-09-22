@@ -36,6 +36,7 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             _code.AppendLine("{");
             _code.AppendLine("\tusing System;");
             _code.AppendLine("\tusing EAI.OData;");
+            _code.AppendLine("\tusing Newtonsoft.Json;");
             _code.AppendLine($"");
             _code.AppendLine($"\t/// <summary>");
             if (!string.IsNullOrEmpty(DisplayName))

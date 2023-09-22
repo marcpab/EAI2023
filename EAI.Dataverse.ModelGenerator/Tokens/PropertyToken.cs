@@ -14,10 +14,13 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
         public string AttributeOf { get; set; }
         public string AttributeType { get; set; }
         public int MaxLength { get; set; }
+
+        public string CSharpAttribute { get; set; }
         public string CSharpType { get; set; }
 
         public void Write(StringBuilder _code)
         {
+            _code.AppendLine();
             _code.AppendLine($"\t\t/// <summary>");
             if (!string.IsNullOrEmpty(DisplayName))
                 _code.AppendLine($"\t\t/// Display name: {Utils.MultilineComment(DisplayName)}");
@@ -27,6 +30,9 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
                 _code.AppendLine($"\t\t/// Attribute of: {AttributeOf}");
             _code.AppendLine($"\t\t/// {AttributeType}, length {MaxLength}");
             _code.AppendLine($"\t\t/// </summary>");
+
+            if (!string.IsNullOrEmpty(CSharpAttribute))
+                _code.AppendLine($"\t\t[{CSharpAttribute}]");
 
             _code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(ODataName)};");
         }

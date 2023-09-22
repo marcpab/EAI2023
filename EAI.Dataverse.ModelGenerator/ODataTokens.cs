@@ -43,7 +43,8 @@ namespace EAI.Dataverse.ModelGenerator
                     CSharpType = GetODataCSharpType(a.AttributeType),
                     a.MaxLength,
                     a.Targets,
-                    ReferencingRelationships = entityDefinition.ManyToOneRelationships.Where(r => r.ReferencingEntity == a.EntityLogicalName && r.ReferencingAttribute == a.LogicalName).ToArray()
+                    ReferencingRelationships = entityDefinition.ManyToOneRelationships.Where(r => r.ReferencingEntity == a.EntityLogicalName && r.ReferencingAttribute == a.LogicalName).ToArray(),
+                    DateTimeBehavior = a.DateTimeBehavior?.Value
                 })
                     .Where(a => !view.BaseEntityProperties.Contains(a.ODataName))
                     .OrderBy(a => a.LogicalName);
@@ -136,9 +137,10 @@ namespace EAI.Dataverse.ModelGenerator
                         AttributeOf = a.AttributeOf,
                         AttributeType = a.AttributeType.ToString(),
                         MaxLength = a.MaxLength ?? -1,
+                        CSharpAttribute = GetCSharpAttribute(a.AttributeType, a.DateTimeBehavior),
                         CSharpType = cSharpType,
 
-                    }); ;
+                    });
 
                     entity.ChildTokens = entityTokenList;
                 }
@@ -148,6 +150,19 @@ namespace EAI.Dataverse.ModelGenerator
 
             return tokens;
         }
+
+        private string GetCSharpAttribute(AttributeTypeCode attributeType, string dateTimeBehavior)
+        {
+            switch (attributeType)
+            {
+                case AttributeTypeCode.DateTime:
+                    return $"JsonConverter(typeof(DateTimeConverter{dateTimeBehavior}))";
+                default:
+                    return null;
+            }
+
+        }
+
 
         private async Task<PicklistEnumToken> AppendPicklistEnum(string cdsTypeName, string attributeName)
         {
