@@ -90,7 +90,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.SAPNco.Model", "EAI.SAP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.SAPNco.ModelGenerator", "EAI.SAPNco.ModelGenerator\EAI.SAPNco.ModelGenerator.csproj", "{059476EE-B77D-4A6E-B92E-0A1E5917ECAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EAI.SAPNco.IDOC", "EAI.SAPNco.IDOC\EAI.SAPNco.IDOC.csproj", "{A85D6AAE-53BC-46FD-A6F1-B3C40605FCF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.SAPNco.IDOC", "EAI.SAPNco.IDOC\EAI.SAPNco.IDOC.csproj", "{A85D6AAE-53BC-46FD-A6F1-B3C40605FCF7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.ModelGenerator", "EAI.ModelGenerator\EAI.ModelGenerator.csproj", "{BB9B9CDC-158A-494F-A56A-05F57E377D2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -250,6 +252,10 @@ Global
 		{A85D6AAE-53BC-46FD-A6F1-B3C40605FCF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A85D6AAE-53BC-46FD-A6F1-B3C40605FCF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A85D6AAE-53BC-46FD-A6F1-B3C40605FCF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB9B9CDC-158A-494F-A56A-05F57E377D2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB9B9CDC-158A-494F-A56A-05F57E377D2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB9B9CDC-158A-494F-A56A-05F57E377D2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB9B9CDC-158A-494F-A56A-05F57E377D2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
