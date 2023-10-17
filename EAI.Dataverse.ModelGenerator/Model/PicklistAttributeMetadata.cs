@@ -24,5 +24,27 @@ namespace EAI.Dataverse.ModelGenerator.Model
                     })
                     .ResultAs<PicklistAttributeMetadata>()
                     .ExecuteAsync();
-    }
+
+        public static Task<PicklistAttributeMetadata> GetStateAttributeMetadataAsync(ODataClient odataClient, string entity, string attribute)
+            => odataClient
+                    .Fetch(new ODataQuery()
+                    {
+                        Path = $"EntityDefinitions(LogicalName={ODataQuery.Quote(entity)})/Attributes(LogicalName={ODataQuery.Quote(attribute)})/Microsoft.Dynamics.CRM.StateAttributeMetadata",
+                        Select = "LogicalName",
+                        Expand = "OptionSet"
+                    })
+                    .ResultAs<PicklistAttributeMetadata>()
+                    .ExecuteAsync();   
+
+        public static Task<PicklistAttributeMetadata> GetStatusAttributeMetadataAsync(ODataClient odataClient, string entity, string attribute)
+            => odataClient
+                    .Fetch(new ODataQuery()
+                    {
+                        Path = $"EntityDefinitions(LogicalName={ODataQuery.Quote(entity)})/Attributes(LogicalName={ODataQuery.Quote(attribute)})/Microsoft.Dynamics.CRM.StatusAttributeMetadata",
+                        Select = "LogicalName",
+                        Expand = "OptionSet"
+                    })
+                    .ResultAs<PicklistAttributeMetadata>()
+                    .ExecuteAsync();
+     }
 }

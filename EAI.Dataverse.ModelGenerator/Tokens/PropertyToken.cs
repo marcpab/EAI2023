@@ -34,7 +34,18 @@ namespace EAI.Dataverse.ModelGenerator.Tokens
             if (!string.IsNullOrEmpty(CSharpAttribute))
                 _code.AppendLine($"\t\t[{CSharpAttribute}]");
 
-            _code.AppendLine($"\t\tpublic {CSharpType} {Utils.ExcapeName(ODataName)};");
+            AppendPropertyLine(_code, CSharpType, ODataName);
         }
+
+        internal static void AppendPropertyLine(StringBuilder code, string cSharpType, string oDataName)
+        {
+            //var isInvalidPropertyName = oDataName.StartsWith("get_") || oDataName.StartsWith("set_");
+
+            //if (isInvalidPropertyName)
+                code.AppendLine($"\t\tpublic {cSharpType} {Utils.ExcapeName(oDataName)};");
+            //else
+            //    code.AppendLine($"\t\tpublic {cSharpType} {Utils.ExcapeName(oDataName)} {{ get; set; }}");
+        }
+
     }
 }

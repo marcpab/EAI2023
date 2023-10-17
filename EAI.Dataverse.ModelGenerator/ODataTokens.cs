@@ -126,6 +126,24 @@ namespace EAI.Dataverse.ModelGenerator
                         cSharpType = $"{picklist.EnumName}?";
                     }
 
+                    if (a.AttributeType == AttributeTypeCode.State)
+                    {
+                        entityTokenList.Add(new StateCodeToken() { UseEnumTypeForPicklistProperties = UseEnumTypeForPicklistProperties });
+
+                        var picklist = await AppendStateEnum(entityType.Name, a.ODataName);
+                        entityTokenList.Add(picklist);
+                        cSharpType = $"{picklist.EnumName}?";
+                    }                    
+                    
+                    if (a.AttributeType == AttributeTypeCode.Status)
+                    {
+                        entityTokenList.Add(new StatusCodeToken() { UseEnumTypeForPicklistProperties = UseEnumTypeForPicklistProperties });
+
+                        var picklist = await AppendStatusEnum(entityType.Name, a.ODataName);
+                        entityTokenList.Add(picklist);
+                        cSharpType = $"{picklist.EnumName}?";
+                    }                    
+                    
                     if (!UseEnumTypeForPicklistProperties)
                         cSharpType = a.CSharpType;
 
@@ -167,6 +185,30 @@ namespace EAI.Dataverse.ModelGenerator
         private async Task<PicklistEnumToken> AppendPicklistEnum(string cdsTypeName, string attributeName)
         {
             var picklistAttributes = await PicklistAttributeMetadata.GetPicklistAttributeMetadataAsync(_odataClient, cdsTypeName, attributeName);
+            var options = picklistAttributes.OptionSet.Options.Select(o => new KeyValuePair<string, int?>(o.Label?.UserLocalizedLabel?.Label, o.Value));
+
+            return new PicklistEnumToken()
+            {
+                EnumName = $"{attributeName}Enum",
+                Options = options
+            };
+        }
+
+        private async Task<PicklistEnumToken> AppendStateEnum(string cdsTypeName, string attributeName)
+        {
+            var picklistAttributes = await PicklistAttributeMetadata.GetStateAttributeMetadataAsync(_odataClient, cdsTypeName, attributeName);
+            var options = picklistAttributes.OptionSet.Options.Select(o => new KeyValuePair<string, int?>(o.Label?.UserLocalizedLabel?.Label, o.Value));
+
+            return new PicklistEnumToken()
+            {
+                EnumName = $"{attributeName}Enum",
+                Options = options
+            };
+        }
+
+        private async Task<PicklistEnumToken> AppendStatusEnum(string cdsTypeName, string attributeName)
+        {
+            var picklistAttributes = await PicklistAttributeMetadata.GetStatusAttributeMetadataAsync(_odataClient, cdsTypeName, attributeName);
             var options = picklistAttributes.OptionSet.Options.Select(o => new KeyValuePair<string, int?>(o.Label?.UserLocalizedLabel?.Label, o.Value));
 
             return new PicklistEnumToken()
