@@ -22,11 +22,11 @@ namespace EAI.Dataverse
             SetStateCode(1);
         }
 
-        public virtual int? GetStatusCode() { throw new NotImplementedException(); }
-        public virtual void SetStatusCode(int? value) { throw new NotImplementedException(); }
+        public virtual int? GetStatusCode() { return null; }
+        public virtual void SetStatusCode(int? value) {  }
 
-        public virtual int? GetStateCode() { throw new NotImplementedException(); }
-        public virtual void SetStateCode(int? value) { throw new NotImplementedException(); }
+        public virtual int? GetStateCode() { return null; }
+        public virtual void SetStateCode(int? value) {  }
 
 
         [JsonIgnore]
