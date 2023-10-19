@@ -89,5 +89,17 @@ namespace EAI.General.Extensions
             return stringValue;
         }
 
+        public static IEnumerable<string> Chunkify(this string value, int chunkSize)
+        {
+            if (chunkSize <= 0)
+                throw new ArgumentException(nameof(chunkSize));
+
+            //if (string.IsNullOrEmpty(value) || value.Length <= chunkSize)
+            //    yield break value;
+
+            for (int i = 0; i < value.Length; i += chunkSize)
+                yield return value.Substring(i, Math.Min(chunkSize, value.Length - i));
+        }
+
     }
 }
