@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EAI.General\EAI.General.csproj" />
+    <ProjectReference Include="..\EAI.LoggingV2\EAI.LoggingV2.csproj" />
+    <ProjectReference Include="..\EAI.Messaging.Abstractions\EAI.Messaging.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
