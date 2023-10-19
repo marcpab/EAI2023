@@ -108,6 +108,8 @@ namespace EAI.SAPNco.ModelGenerator
                     return nameof(Decimal);
                 case RfcDataType.CHAR:
                     return nameof(String);
+                case RfcDataType.STRING:
+                    return nameof(String);
                 case RfcDataType.DATE:
                     return nameof(DateTimeOffset);
                 case RfcDataType.TIME:
