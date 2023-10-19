@@ -47,6 +47,14 @@ namespace EAI.OData
             return $"'{value?.Replace("'", "''")}'";
         }
 
+        public static string Quote(DateTimeOffset? value)
+        {
+            if (value == null)
+                return "null";
+
+            return $"'{value.Value:yyyy-MM-ddTHH:mm:ss}'";
+        }
+
         public static string Quote(Guid value)
         {
             return $"{{{value}}}";
