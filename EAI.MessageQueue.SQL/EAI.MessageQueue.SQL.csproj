@@ -2,16 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\EAI.General\EAI.General.csproj" />
     <ProjectReference Include="..\EAI.LoggingV2\EAI.LoggingV2.csproj" />
-    <ProjectReference Include="..\EAI.MessageQueue.SQL\EAI.MessageQueue.SQL.csproj" />
+    <ProjectReference Include="..\EAI.Messaging.Abstractions\EAI.Messaging.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

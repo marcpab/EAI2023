@@ -1,5 +1,9 @@
-﻿using System;
+﻿using EAI.MessageQueue.SQL;
+using EAI.MessageQueue.SQL.Model;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 
 namespace EAI.Sql
@@ -111,6 +115,65 @@ namespace EAI.Sql
             }
         }
 
+        public static async Task<long> AddQueue(Connection conn, string id_process, string stage, string endpointName, QueueMessageStatusEnum idStatus, string messageKey, string? messageType, byte[]? messageHash, string? messageContentType, string? messageContent, DateTimeOffset createdOnUTC)
+        {
+            using (var cmd = conn.CreateCommand("dbo.up_AddQueue"))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
 
+                cmd.AddParameter("@Id_Process", SqlDbType.NVarChar, 50, id_process);
+                cmd.AddParameter("@Stage", SqlDbType.NVarChar, 20, stage ?? string.Empty);
+                cmd.AddParameter("@EndpointName", SqlDbType.NVarChar, 100, endpointName);
+                cmd.AddParameter("@Id_Status", SqlDbType.TinyInt, 0, idStatus);
+                cmd.AddParameter("@MessageKey", SqlDbType.NVarChar, 100, messageKey);
+                cmd.AddParameter("@MessageHash", SqlDbType.Binary, 8, messageHash);
+                cmd.AddParameter("@MessageType", SqlDbType.NVarChar, 250, messageType);
+                cmd.AddParameter("@MessageContentType",
+                                                    SqlDbType.NVarChar, 250, messageContentType);
+                cmd.AddParameter("@MessageContent", SqlDbType.NVarChar, -1, messageContent);
+                cmd.AddParameter("@CreatedOnUTC", SqlDbType.DateTimeOffset, 0, createdOnUTC);
+
+                var id_queue = cmd.AddParameterOutput("@Id_Queue", SqlDbType.BigInt, 0);
+
+                await Command.ExecuteSqlTaskAsync(cmd.ExecuteNonQueryAsync);
+
+                return (long)id_queue.Value;
+            }
+        }
+
+        public static async IAsyncEnumerable<QueueMessage> Dequeue(Connection conn, string stage, string endpointName, QueueMessageStatusEnum idStatusEnqueued, QueueMessageStatusEnum idStatusTimeout, QueueMessageStatusEnum idStatusProcessing, DateTimeOffset createdOnUTC)
+        {
+            using (var cmd = conn.CreateCommand("dbo.up_AddQueue"))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameter("@EndpointName", SqlDbType.NVarChar, 100, endpointName);
+                cmd.AddParameter("@Stage", SqlDbType.NVarChar, 20, stage ?? string.Empty);
+                cmd.AddParameter("@Id_StatusEnqueued", SqlDbType.TinyInt, 0, idStatusEnqueued);
+                cmd.AddParameter("@Id_StatusTimeout", SqlDbType.TinyInt, 0, idStatusTimeout);
+                cmd.AddParameter("@Id_StatusProcessing", SqlDbType.TinyInt, 0, idStatusProcessing);
+                cmd.AddParameter("@CreatedOnUTC", SqlDbType.DateTimeOffset, 0, createdOnUTC);
+
+                var id_queue = cmd.AddParameterOutput("@Id_Queue", SqlDbType.BigInt, 0);
+
+                var reader = await Command.ExecuteSqlTaskAsync(cmd.ExecuteReaderAsync);
+
+                while (await reader.ReadAsync())
+                    yield return new QueueMessage()
+                    {
+                        _messageId = (long)reader["Id"],
+                        _processId = (string)reader["Id_Process"],
+                        _stage = (string)reader["Stage"],
+                        _endpointName = (string)reader["EndpointName"],
+                        _id_status = (QueueMessageStatusEnum)reader["Id_Status"],
+                        _messageKey = (string)reader["MessageKey"],
+                        _messageHash = (byte[])reader["MessageHash"],
+                        _messageType = (string)reader["MessageType"],
+                        _messageContentType = (string)reader["ContentType"],
+                        _messageContent = (string)reader["Content"],
+                        _createdOnUTC = (DateTimeOffset)reader["CreatedOnUTC"],
+                    };
+            }
+        }
     }
 }
