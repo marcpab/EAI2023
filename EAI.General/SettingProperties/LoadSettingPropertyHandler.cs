@@ -16,13 +16,13 @@ namespace EAI.General.SettingProperties
     public class LoadSettingPropertyHandler : ISettingsPropertyFactory
     {
         private readonly JObject _setting;
-        private readonly IBlobStorage _storage;
+        private readonly Func<string, Task<string>> _getBlobAsync;
 
 
-        public LoadSettingPropertyHandler(JObject setting, IBlobStorage storage)
+        public LoadSettingPropertyHandler(JObject setting, Func<string, Task<string>> getBlobAsync)
         {
             _setting = setting;
-            _storage = storage;
+            _getBlobAsync = getBlobAsync;
         }
 
 
@@ -38,7 +38,7 @@ namespace EAI.General.SettingProperties
             foreach (var property in properties)
                 try
                 {
-                    var loadedSetting = await _storage.GetBlobAsStringAsync(property.Value);
+                    var loadedSetting = await _getBlobAsync(property.Value);
 
                     var jLoadedSetting = JObject.Parse(loadedSetting);
 

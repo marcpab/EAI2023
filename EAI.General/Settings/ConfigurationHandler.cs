@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@ namespace EAI.General.Settings
             });
         }
 
-        private async Task<JObject> CreateConfigurationAsync(Type loadForType)
+        private Task<JObject> CreateConfigurationAsync(Type loadForType)
         {
             if (string.IsNullOrEmpty(_storageConfigJson))
             {
@@ -55,46 +56,10 @@ namespace EAI.General.Settings
                 TypeNameHandling = TypeNameHandling.Auto,
             });
 
-            var settingRoot = await GetRootConfigurationAsync(storage, loadForType);
+            var loader = new ConfigurationLoader(storage, loadForType, _storageConfigBlobName);
 
-            var jSettingRoot = JObject.Parse(settingRoot);
-
-            await ProcessConfigurationAsync(jSettingRoot, storage, loadForType); 
-
-            return jSettingRoot;
+            return loader.CreateConfigurationAsync();
         }
-
-        private async Task ProcessConfigurationAsync(JObject jSetting, IBlobStorage storage, Type loadForType)
-        {
-            foreach (var handler in new ISettingsPropertyFactory[]
-                {
-                    new LoadSettingPropertyHandler(jSetting, storage),
-                    new RefSettingPropertyHandler(jSetting),
-                    new EncryptedSettingPropertyHandler(jSetting),
-                    new FilterSettingPropertyHandler(jSetting, loadForType.FullName)
-                })
-                await handler.ExecuteAsync();
-        }
-
-        private async Task<string> GetRootConfigurationAsync(IBlobStorage storage, Type loadForType)
-        {
-            foreach (var blobName in 
-                            GetBlobNames(loadForType)
-                                    .Where(n => !string.IsNullOrWhiteSpace(n))
-                    )
-                if (await storage.ExistsAsync(blobName))
-                    return await storage.GetBlobAsStringAsync(blobName);
-
-            throw new Exception($"No configuration file found ({string.Join(", ", GetBlobNames(loadForType))})");
-        }
-
-        private IEnumerable<string> GetBlobNames(Type loadForType)
-        {
-            yield return $"{loadForType.FullName}.json";
-            yield return $"{new AssemblyName(loadForType.Assembly.FullName).Name}.json";
-            yield return StorageConfigBlobName;
-        }
-
 
         class BlobStorageDefaultConfig
         {
