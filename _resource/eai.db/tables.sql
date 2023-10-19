@@ -7,6 +7,9 @@ IF OBJECT_ID('dbo.tProcess')	IS NOT NULL BEGIN DROP TABLE dbo.tProcess	END
 IF OBJECT_ID('dbo.tLog')		IS NOT NULL BEGIN DROP TABLE dbo.tLog		END
 IF OBJECT_ID('dbo.tMessage')	IS NOT NULL BEGIN DROP TABLE dbo.tMessage	END
 IF OBJECT_ID('dbo.tException')	IS NOT NULL BEGIN DROP TABLE dbo.tException	END
+IF OBJECT_ID('dbo.tQueue')		IS NOT NULL BEGIN DROP TABLE dbo.tQueue		END
+IF OBJECT_ID('dbo.tQueueConfiguration')		
+								IS NOT NULL BEGIN DROP TABLE dbo.tQueueConfiguration		END
 
 */
 
@@ -149,3 +152,76 @@ CREATE TABLE dbo.tException
 )
 GO
 
+CREATE TABLE dbo.tStatus
+(
+	Id					TINYINT			NOT NULL,
+	Name				NVARCHAR(100)	NOT NULL,
+	Description			NVARCHAR(250)	NOT NULL,
+
+	CreatedOnUTC		DATETIME		NOT NULL,
+
+	CONSTRAINT PK_tStatus	PRIMARY KEY	(Id),
+)
+GO
+
+CREATE TABLE dbo.tQueue
+(
+	Id					BIGINT			NOT NULL	IDENTITY (1, 1),
+	Id_Process			NVARCHAR(50)	NOT NULL,
+	Id_Stage			TINYINT			NOT NULL,
+	EndpointName		NVARCHAR(100)	NOT NULL,
+    Id_Status			TINYINT			NOT NULL,
+	
+	MessageType			NVARCHAR(250)	NOT NULL,
+	MessageKey			NVARCHAR(100)	NOT NULL,
+	MessageHash			VARBINARY(20)	NOT NULL,
+	Id_Message			BIGINT			NULL,
+
+	Id_PrevDuplicateKey	BIGINT			NULL,
+	Id_PrevDuplicateHash
+						BIGINT			NULL,
+
+	CreatedOnUTC		DATETIME		NOT NULL,
+	DequeuedOnUTC		DATETIME		NULL,
+	CompletedOnUTC		DATETIME		NULL,
+
+	CONSTRAINT PK_tQueue	PRIMARY KEY	(Id),
+	CONSTRAINT FK_tQueue_PrevDuplicateKey
+							FOREIGN KEY		(Id_PrevDuplicateKey)	
+														REFERENCES	dbo.tQueue		(Id),
+	CONSTRAINT FK_tQueue_PrevDuplicateHash
+							FOREIGN KEY		(Id_PrevDuplicateHash)	
+														REFERENCES	dbo.tQueue		(Id),
+	CONSTRAINT FK_tQueue_tStage
+							FOREIGN KEY		(Id_Stage)	REFERENCES	dbo.tStage		(Id),
+)
+GO
+
+CREATE TABLE dbo.tQueueConfiguration
+(
+	Id					INT				NOT NULL	IDENTITY (1, 1),
+	EndpointName		NVARCHAR(100)	NOT NULL,
+	Id_Stage			TINYINT			NOT NULL,
+	MaxTickets			INT				NOT NULL,
+	TimeoutSeconds		INT				NOT NULL,
+
+	CreatedOnUTC		DATETIME		NOT NULL,
+
+	CONSTRAINT PK_tQueueConfiguration
+							PRIMARY KEY	(Id),
+	CONSTRAINT FK_tQueueConfiguration_tStage
+							FOREIGN KEY		(Id_Stage)	REFERENCES	dbo.tStage		(Id),
+)
+GO
+
+INSERT INTO
+	dbo.tStatus
+	(Id, Name, Description, CreatedOnUTC)
+			SELECT	255,	'created',				'created',					GETUTCDATE()
+UNION ALL	SELECT	0,		'new',					'new',						GETUTCDATE()	
+UNION ALL	SELECT	10,		'processing',			'processing',				GETUTCDATE()	
+UNION ALL	SELECT	51,		'completedSuccess',		'completed success',		GETUTCDATE()	
+UNION ALL	SELECT	52,		'timeout',				'timeout',					GETUTCDATE()	
+UNION ALL	SELECT	99,		'completedWithErrors',	'completed with errors',	GETUTCDATE()	
+UNION ALL	SELECT	100,	'deleted',				'deleted',					GETUTCDATE()	
+GO

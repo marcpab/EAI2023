@@ -142,6 +142,65 @@ AS
 	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_GetService/@Id_Service = ' + ISNULL(LTRIM(@Id_Service), 'NULL'); 
 GO
 
+IF OBJECT_ID('dbo.up_AddMessage') IS NULL
+BEGIN
+	EXEC('
+		
+		CREATE PROCEDURE
+			dbo.up_AddMessage
+		AS
+			PRINT ''up_AddMessage'';
+
+	');
+END
+GO
+
+ALTER PROCEDURE
+	dbo.up_AddMessage
+		@MessageType		NVARCHAR(250)
+		,@MessageHash		BINARY(8)
+		,@MessageContentType
+							NVARCHAR(5)
+		,@MessageContent	NVARCHAR(MAX)
+		,@CreatedOnUTC		DATETIME		
+
+		,@Id_Message		INT					OUTPUT
+
+AS
+
+		PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddMessage/Message'; 
+
+		DECLARE @MessageChecksum INT = BINARY_CHECKSUM(@MessageContent);
+
+		INSERT INTO
+				dbo.tMessage
+				(Type, Hash, Checksum, ContentType, Content, CreatedOnUTC)
+		SELECT	ISNULL(@MessageType, '')
+				,@MessageHash
+				,@MessageChecksum
+				,@MessageContentType
+				,@MessageContent
+				,@CreatedOnUTC
+		WHERE	NOT EXISTS (
+					SELECT	m.Id
+					FROM	dbo.tMessage m
+					WHERE	m.Id > 0
+						AND	m.Hash = @MessageHash
+						AND	m.Checksum = @MessageChecksum
+				);
+
+		SELECT	@Id_Message = ISNULL(
+					SCOPE_IDENTITY(), 				
+					(
+						SELECT	MAX(m.Id)
+						FROM	dbo.tMessage m
+					WHERE	m.Id > 0
+						AND	m.Hash = @MessageHash
+						AND	m.Checksum = @MessageChecksum
+					));
+
+		PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddMessage/@Id_Message = ' + ISNULL(LTRIM(@Id_Message), 'NULL'); 
+GO
 
 IF OBJECT_ID('dbo.up_AddProcess') IS NULL
 BEGIN
@@ -374,46 +433,18 @@ AS
 						= @CreatedOnUTC
 			,@Id_LogLevel= @Id_LogLevel OUTPUT;
 
-	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddLog/@Id_LogLevel = ' + ISNULL(LTRIM(@Id_LogLevel), 'NULL'); 
-
 	if @MessageContent IS NOT NULL
 	BEGIN
 
-		PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddLog/Message'; 
-
-		DECLARE @MessageChecksum INT = BINARY_CHECKSUM(@MessageContent);
-
-		INSERT INTO
-				dbo.tMessage
-				(Type, Hash, Checksum, ContentType, Content, CreatedOnUTC)
-		SELECT	ISNULL(@MessageType, '')
-				,@MessageHash
-				,@MessageChecksum
-				,@MessageContentType
-				,@MessageContent
-				,@CreatedOnUTC
-		WHERE	NOT EXISTS (
-					SELECT	m.Id
-					FROM	dbo.tMessage m
-					WHERE	m.Id > 0
-						AND	m.Hash = @MessageHash
-						AND	m.Checksum = @MessageChecksum
-				);
-
-		SELECT	@Id_Message = ISNULL(
-					SCOPE_IDENTITY(), 				
-					(
-						SELECT	MAX(m.Id)
-						FROM	dbo.tMessage m
-					WHERE	m.Id > 0
-						AND	m.Hash = @MessageHash
-						AND	m.Checksum = @MessageChecksum
-					));
-
-		PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddLog/@Id_Message = ' + ISNULL(LTRIM(@Id_Message), 'NULL'); 
+		EXEC dbo.up_AddMessage 
+				@MessageType		 = @MessageType		
+				,@MessageHash		 = @MessageHash		
+				,@MessageContentType = @MessageContentType
+				,@MessageContent	 = @MessageContent	
+				,@CreatedOnUTC		 = @CreatedOnUTC		
+				,@Id_Message		 = @Id_Message		OUTPUT;
 
 	END
-
 
 	INSERT INTO
 			dbo.tLog
@@ -474,3 +505,266 @@ AS
 			,@CreatedOnUTC;
 
 	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddLog/finish'; 
+GO
+
+IF OBJECT_ID('dbo.up_AddQueue') IS NULL
+BEGIN
+	EXEC('
+		
+		CREATE PROCEDURE
+			dbo.up_AddQueue
+		AS
+			PRINT ''up_AddQueue'';
+
+	');
+END
+GO
+
+ALTER PROCEDURE
+	dbo.up_AddQueue
+		@Id_Process			NVARCHAR(50)
+		,@Stage				NVARCHAR(20)
+		,@EndpointName		NVARCHAR(100)
+		,@Id_Status			TINYINT
+		,@MessageKey		NVARCHAR(100)
+		,@MessageHash		BINARY(8)
+		,@MessageType		NVARCHAR(250)
+		,@MessageContentType
+							NVARCHAR(5)
+		,@MessageContent	NVARCHAR(MAX)
+		,@CreatedOnUTC		DATETIME		
+
+		,@Id_Queue			INT					OUTPUT
+AS
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddQueue/start'; 
+
+	DECLARE @Id_Stage		TINYINT;
+	DECLARE @Id_Message		BIGINT;
+
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddQueue/Stage'; 
+
+	EXEC dbo.up_GetStage
+			@Name		= @Stage
+			,@CreatedOnUTC
+						= @CreatedOnUTC
+			,@Id_Stage	= @Id_Stage OUTPUT;
+
+
+	if @MessageContent IS NOT NULL
+	BEGIN
+
+		EXEC dbo.up_AddMessage 
+				@MessageType		 = @MessageType		
+				,@MessageHash		 = @MessageHash		
+				,@MessageContentType = @MessageContentType
+				,@MessageContent	 = @MessageContent	
+				,@CreatedOnUTC		 = @CreatedOnUTC		
+				,@Id_Message		 = @Id_Message		OUTPUT;
+
+	END
+
+	INSERT INTO
+			dbo.tQueue
+			(Id_Process, Id_Stage, EndpointName, Id_Status, MessageType, MessageKey, MessageHash, Id_Message, Id_PrevDuplicateKey, Id_PrevDuplicateHash, CreatedOnUTC)
+	SELECT	@Id_Process
+			,@Id_Stage
+			,@EndpointName
+			,@Id_Status
+			,@MessageType
+			,@MessageKey
+			,@MessageHash
+			,@Id_Message
+			,(
+				SELECT	MAX(q.Id)
+				FROM	dbo.tQueue q
+				WHERE	q.Id > 0
+					AND	q.EndpointName = @EndpointName
+					AND	q.Id_Stage = @Id_Stage
+					AND	q.MessageKey = @MessageKey
+			)
+			,(
+				SELECT	MAX(q.Id)
+				FROM	dbo.tQueue q
+				WHERE	q.Id > 0
+					AND	q.EndpointName = @EndpointName
+					AND	q.Id_Stage = @Id_Stage
+					AND	q.MessageHash = @MessageHash
+			)
+			,@CreatedOnUTC;
+
+	SELECT	@Id_Queue = SCOPE_IDENTITY();
+	
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_AddQueue/finish'; 
+GO
+
+IF OBJECT_ID('dbo.up_UpdateQueueStatus') IS NULL
+BEGIN
+	EXEC('
+		
+		CREATE PROCEDURE
+			dbo.up_UpdateQueueStatus
+		AS
+			PRINT ''up_UpdateQueueStatus'';
+
+	');
+END
+GO
+
+ALTER PROCEDURE
+	dbo.up_UpdateQueueStatus
+		@Id_Queue			BIGINT
+		,@Id_Status			TINYINT
+
+AS
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_UpdateQueueStatus/start'; 
+
+	UPDATE	q
+	SET		Id_Status = @Id_Status
+	FROM	dbo.tQueue q
+	WHERE	q.Id = @Id_Queue;
+	
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_UpdateQueueStatus/finish'; 
+GO
+
+IF OBJECT_ID('dbo.up_Dequeue') IS NULL
+BEGIN
+	EXEC('
+		
+		CREATE PROCEDURE
+			dbo.up_Dequeue
+		AS
+			PRINT ''up_Dequeue'';
+
+	');
+END
+GO
+
+ALTER PROCEDURE
+	dbo.up_Dequeue
+		@EndpointName		NVARCHAR(100)
+		,@Stage				NVARCHAR(20)
+		,@Id_StatusEnqueued	TINYINT
+		,@Id_StatusTimeout	TINYINT
+		,@Id_StatusProcessing
+							TINYINT
+		,@CreatedOnUTC		DATETIME		
+
+
+AS
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_Dequeue/start'; 
+
+	DECLARE @Id_Stage		TINYINT;
+
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_Dequeue/Stage'; 
+
+	EXEC dbo.up_GetStage
+			@Name		= @Stage
+			,@CreatedOnUTC
+						= @CreatedOnUTC
+			,@Id_Stage	= @Id_Stage OUTPUT;
+
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_Dequeue/timeout'; 
+
+	UPDATE	q
+	SET		Id_Status = @Id_StatusTimeout
+	FROM	dbo.tQueue q
+			JOIN	dbo.tQueueConfiguration qc
+				ON	qc.EndpointName = q.EndpointName
+	WHERE	q.Id > 0
+		AND	q.Id_Status = @Id_StatusProcessing
+		AND	q.EndpointName = @EndpointName
+		AND	q.Id_Stage = @Id_Stage
+		AND	DATEDIFF(SECOND, q.DequeuedOnUTC, GETUTCDATE()) > qc.TimeoutSeconds;
+
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_Dequeue/prepare'; 
+
+	IF OBJECT_ID('tempdb..#q') IS NULL
+	BEGIN
+
+		CREATE TABLE
+			#q
+		(
+			Id				INT		NOT NULL PRIMARY KEY,
+			EndpointName	NVARCHAR(100)
+									NOT NULL,
+			MaxTickets		INT		NOT NULL,
+			TimeoutSeconds	INT		NOT NULL,
+			CurrentTickets	INT		NOT NULL
+		)
+
+	END
+
+	INSERT INTO
+			#q
+			(Id, MaxTickets, TimeoutSeconds, CurrentTickets)
+
+	SELECT	1,
+			qc.MaxTickets,
+			qc.TimeoutSeconds,
+			ISNULL((
+					SELECT	COUNT(*)
+					FROM	dbo.tQueue q
+					WHERE	q.Id > 0
+						AND	q.EndpointName = qc.EndpointName
+			), 0)	CurrentTickets
+	FROM	dbo.tQueueConfiguration qc
+	WHERE	qc.EndpointName = @EndpointName;
+
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_Dequeue/dequeue'; 
+
+	DECLARE @MaxTickets		TINYINT;
+
+	SELECT	@MaxTickets = q.MaxTickets - q.CurrentTickets
+	FROM	#q q
+	WHERE	q.Id = 1;
+
+	WITH dequeue AS (
+		SELECT	TOP (@MaxTickets)
+				q.Id
+		FROM	dbo.tQueue q
+		WHERE	q.Id > 0
+			AND	q.Id_Status = @Id_StatusEnqueued
+			AND	q.EndpointName = @EndpointName
+			AND	q.Id_Stage = @Id_Stage
+			AND	(
+					SELECT	q_key.Id
+					FROM	dbo.tQueue q_key
+					WHERE	q_key.Id = q.Id_PrevDuplicateKey
+						AND	q_key.Id_Status IN (@Id_StatusEnqueued, @Id_StatusProcessing)
+				) IS NULL
+			AND	(
+					SELECT	q_hash.Id
+					FROM	dbo.tQueue q_hash
+					WHERE	q_hash.Id = q.Id_PrevDuplicateHash
+						AND	q_hash.Id_Status IN (@Id_StatusEnqueued, @Id_StatusProcessing)
+				) IS NULL
+		ORDER BY
+				q.Id ASC
+	)
+	UPDATE	q_upd
+	SET		Id_Status = @Id_StatusProcessing
+			,DequeuedOnUTC = @CreatedOnUTC
+	OUTPUT	inserted.Id
+			,inserted.Id_Process
+			,s.Name	Stage
+			,inserted.EndpointName
+			,inserted.Id_Status
+			,inserted.MessageKey
+			,inserted.MessageHash
+			,inserted.MessageType
+			,m.ContentType
+			,m.Content
+			,inserted.CreatedOnUTC
+	FROM	dbo.tQueue q_upd
+			JOIN	dbo.tMessage m
+				ON	m.Id = q_upd.Id_Message
+			JOIN	dbo.tStage s
+				ON	s.Id = q_upd.Id_Stage
+	WHERE	q_upd.Id > 0
+		AND	q_upd.Id IN (
+				SELECT	d.Id
+				FROM	dequeue d
+			)
+	
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/@EndpointName/finish'; 
+GO

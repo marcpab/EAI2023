@@ -89,12 +89,13 @@ GO
 
 SELECT	*
 FROM	dbo.tException
-WHERE	Id_Log = 196
+WHERE	Id_Log = 747
 
 
 SELECT	TOP 100
 		*
 FROM	dbo.vProcess p
+WHERE	p.CreatedOnUTC > '2023-07-13 07:48'
 ORDER BY
 		p.CreatedOnUTC DESC
 
@@ -102,7 +103,8 @@ ORDER BY
 SELECT	TOP 100
 		*
 FROM	dbo.vLog l
-WHERE	l.Id > 0
+WHERE	l.Id > 442
+	AND	l.CreatedOnUTC > '2023-07-13 07:48'
 ORDER BY
 		l.Id DESC
 
