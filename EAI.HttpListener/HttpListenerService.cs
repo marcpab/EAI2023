@@ -37,6 +37,10 @@ namespace EAI.HttpListener
 
                     Log?.Start<Info>(null, null, $"Starting service {GetType().FullName}");
 
+                    Log?.Variable<Info>(nameof(ListenUri), ListenUri);
+                    Log?.Variable<Info>(nameof(Auth), Auth);
+
+
                     ServicePointManager.ServerCertificateValidationCallback += (o, c, ch, er) => true;
 
                     using (var listener = new Net.HttpListener())
@@ -70,6 +74,8 @@ namespace EAI.HttpListener
 
         private Func<Task> CreateHandler(HttpListenerContext ctx)
         {
+            ProcessContext.Restore(_processContext);
+
             var requestHandler = new RequestHandler(_log, _listenUri, _httpListenerDestinations, _auth, ctx);
 
             return requestHandler.ProcessRequestAsync;

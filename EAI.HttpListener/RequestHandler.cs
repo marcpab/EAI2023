@@ -39,26 +39,51 @@ namespace EAI.HttpListener
                 {
                     var originalRequest = _originalContext.Request;
 
-                    _log?.String<Info>($"Received a {originalRequest.HttpMethod} request for " + originalRequest.RawUrl);
+                    _log?.Start<Info>(null, null, $"Received a {originalRequest.HttpMethod} request for " + originalRequest.RawUrl);
 
                     CheckAuthorization();
 
                     var relayRequestMessage = await GetMessageAsync();
 
+                    _log?.Message<Debug>(nameof(relayRequestMessage), relayRequestMessage, "http message");
+
+                    TryLogContent(relayRequestMessage);
+
                     await SendMessageAsync(relayRequestMessage);
+
+                    _log.Success<Info>();
+
                 }
                 catch (UnauthorizedAccessException ex)
                 {
+                    _log?.Failed<Error>(ex);
+
                     SendUnauthorizedResponse();
                 }
                 catch (Exception ex)
                 {
+                    _log?.Failed<Error>(ex);
+
                     SendExceptionResponse(ex);
                 }
                 finally
                 {
                     _originalContext.Response.Close();
                 }
+        }
+
+        private void TryLogContent(HttpMessage relayRequestMessage)
+        {
+            try
+            {
+
+                var utf8StringContent = Encoding.UTF8.GetString(relayRequestMessage._content);
+                _log?.Message<Debug>(nameof(utf8StringContent), utf8StringContent, "http content");
+            }
+            catch (Exception )
+            {
+                // ignore possible decoding errors here
+            }
         }
 
         private Task SendMessageAsync(HttpMessage relayRequestMessage)
