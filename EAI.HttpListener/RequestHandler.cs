@@ -47,7 +47,7 @@ namespace EAI.HttpListener
 
                     _log?.Message<Debug>(nameof(relayRequestMessage), relayRequestMessage, "http message");
 
-                    TryLogContent(relayRequestMessage);
+                    await TryLogContentAsync(relayRequestMessage);
 
                     await SendMessageAsync(relayRequestMessage);
 
@@ -72,13 +72,25 @@ namespace EAI.HttpListener
                 }
         }
 
-        private void TryLogContent(HttpMessage relayRequestMessage)
+        private async Task TryLogContentAsync(HttpMessage relayRequestMessage)
         {
             try
             {
+                using(var stream = new  MemoryStream())
+                {
+                    stream.Write(relayRequestMessage._content);
+                    await stream.FlushAsync();
+                    stream.Position = 0;
+                    using (var content = new StreamContent(stream))
+                    {
+                        foreach(var header in relayRequestMessage._headers)
+                            content.Headers.TryAddWithoutValidation(header.Key, header.Value);
 
-                var utf8StringContent = Encoding.UTF8.GetString(relayRequestMessage._content);
-                _log?.Message<Debug>(nameof(utf8StringContent), utf8StringContent, "http content");
+                        var stringContent = await content.ReadAsStringAsync();
+
+                        _log?.Message<Debug>(nameof(stringContent), stringContent, "http content");
+                    }
+                }
             }
             catch (Exception )
             {
