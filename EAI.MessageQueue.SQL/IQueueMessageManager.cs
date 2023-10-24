@@ -6,7 +6,9 @@ namespace EAI.MessageQueue.SQL
 {
     public interface IQueueMessageManager
     {
-        IAsyncEnumerable<QueueMessage> DequeueMessages(string stage, string endpintName);
-        Task<long> EnqueueMessage(QueueMessage queueMessage);
+        IAsyncEnumerable<QueueMessage> DequeueMessagesAsync(string stage, string endpintName);
+        Task<long> EnqueueMessageAsync(QueueMessage queueMessage);
+        Task FailedAsync(long messageId);
+        Task SuccessAsync(long messageId);
     }
 }

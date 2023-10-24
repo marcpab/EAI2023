@@ -685,8 +685,6 @@ AS
 			#q
 		(
 			Id				INT		NOT NULL PRIMARY KEY,
-			EndpointName	NVARCHAR(100)
-									NOT NULL,
 			MaxTickets		INT		NOT NULL,
 			TimeoutSeconds	INT		NOT NULL,
 			CurrentTickets	INT		NOT NULL
@@ -696,7 +694,7 @@ AS
 
 	INSERT INTO
 			#q
-			(Id, MaxTickets, TimeoutSeconds, CurrentTickets)
+			(Id,  MaxTickets, TimeoutSeconds, CurrentTickets)
 
 	SELECT	1,
 			qc.MaxTickets,
@@ -706,17 +704,21 @@ AS
 					FROM	dbo.tQueue q
 					WHERE	q.Id > 0
 						AND	q.EndpointName = qc.EndpointName
+						AND q.Id_Status = @Id_StatusProcessing
 			), 0)	CurrentTickets
 	FROM	dbo.tQueueConfiguration qc
-	WHERE	qc.EndpointName = @EndpointName;
+	WHERE	qc.EndpointName = @EndpointName
+		AND qc.Id_Stage = @Id_Stage;
 
 	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_Dequeue/dequeue'; 
 
-	DECLARE @MaxTickets		TINYINT;
+	DECLARE @MaxTickets		TINYINT = 0;
 
 	SELECT	@MaxTickets = q.MaxTickets - q.CurrentTickets
 	FROM	#q q
 	WHERE	q.Id = 1;
+
+	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/up_Dequeue/@MaxTickets = ' + LTRIM(@MaxTickets); 
 
 	WITH dequeue AS (
 		SELECT	TOP (@MaxTickets)
@@ -768,3 +770,4 @@ AS
 	
 	PRINT CONVERT(NVARCHAR(29), GETUTCDATE(), 120) + '/@EndpointName/finish'; 
 GO
+

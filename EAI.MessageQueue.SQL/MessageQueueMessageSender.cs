@@ -15,9 +15,11 @@ namespace EAI.MessageQueue.SQL
     public class MessageQueueMessageSender : IMessageSender
     {
         private IMQueue _queue;
+        private string _endpoint;
 
         public IMQueue Queue { get => _queue; set => _queue = value; }
 
+        public string Endpoint { get => _endpoint; set => _endpoint = value; }
 
         public Task SendMessageAsync(object message)
         {
@@ -26,7 +28,7 @@ namespace EAI.MessageQueue.SQL
 
         public Task SendMessageAsync(object message, string messageType, string transactionKey)
         {
-            return _queue.EnqueueAsync(messageType, message, transactionKey);
+            return _queue.EnqueueAsync(_endpoint, message, messageType, transactionKey);
         }
 
         private string GetMessageType(object message)

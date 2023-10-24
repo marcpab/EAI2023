@@ -3,7 +3,9 @@ using EAI.MessageQueue.SQL.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Net.NetworkInformation;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 
 namespace EAI.Sql
@@ -115,7 +117,7 @@ namespace EAI.Sql
             }
         }
 
-        public static async Task<long> AddQueue(Connection conn, string id_process, string stage, string endpointName, QueueMessageStatusEnum idStatus, string messageKey, string? messageType, byte[]? messageHash, string? messageContentType, string? messageContent, DateTimeOffset createdOnUTC)
+        public static async Task<long> AddQueueAsync(Connection conn, string id_process, string stage, string endpointName, QueueMessageStatusEnum idStatus, string messageKey, string? messageType, byte[]? messageHash, string? messageContentType, string? messageContent, DateTimeOffset createdOnUTC)
         {
             using (var cmd = conn.CreateCommand("dbo.up_AddQueue"))
             {
@@ -141,9 +143,9 @@ namespace EAI.Sql
             }
         }
 
-        public static async IAsyncEnumerable<QueueMessage> Dequeue(Connection conn, string stage, string endpointName, QueueMessageStatusEnum idStatusEnqueued, QueueMessageStatusEnum idStatusTimeout, QueueMessageStatusEnum idStatusProcessing, DateTimeOffset createdOnUTC)
+        public static async IAsyncEnumerable<QueueMessage> DequeueAsync(Connection conn, string stage, string endpointName, QueueMessageStatusEnum idStatusEnqueued, QueueMessageStatusEnum idStatusTimeout, QueueMessageStatusEnum idStatusProcessing, DateTimeOffset createdOnUTC)
         {
-            using (var cmd = conn.CreateCommand("dbo.up_AddQueue"))
+            using (var cmd = conn.CreateCommand("dbo.up_Dequeue"))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -153,8 +155,6 @@ namespace EAI.Sql
                 cmd.AddParameter("@Id_StatusTimeout", SqlDbType.TinyInt, 0, idStatusTimeout);
                 cmd.AddParameter("@Id_StatusProcessing", SqlDbType.TinyInt, 0, idStatusProcessing);
                 cmd.AddParameter("@CreatedOnUTC", SqlDbType.DateTimeOffset, 0, createdOnUTC);
-
-                var id_queue = cmd.AddParameterOutput("@Id_Queue", SqlDbType.BigInt, 0);
 
                 var reader = await Command.ExecuteSqlTaskAsync(cmd.ExecuteReaderAsync);
 
@@ -171,8 +171,21 @@ namespace EAI.Sql
                         _messageType = (string)reader["MessageType"],
                         _messageContentType = (string)reader["ContentType"],
                         _messageContent = (string)reader["Content"],
-                        _createdOnUTC = (DateTimeOffset)reader["CreatedOnUTC"],
+                        _createdOnUTC = (DateTime)reader["CreatedOnUTC"],
                     };
+            }
+        }
+
+        internal static async Task UpdateQueueStatusAsync(Connection conn, long messageId, QueueMessageStatusEnum idStatus)
+        {
+            using (var cmd = conn.CreateCommand("dbo.up_UpdateQueueStatus"))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameter("@Id_Queue", SqlDbType.BigInt, 50, messageId);
+                cmd.AddParameter("@Id_Status", SqlDbType.TinyInt, 0, idStatus);
+
+                await Command.ExecuteSqlTaskAsync(cmd.ExecuteNonQueryAsync);
             }
         }
     }

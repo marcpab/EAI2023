@@ -14,6 +14,7 @@ using EAI.LoggingV2;
 using EAI.LoggingV2.Levels;
 using EAI.General.Storage;
 using System.Collections.Generic;
+using System.Net;
 
 namespace EAI.MessageQueue.SQL
 {
@@ -24,14 +25,20 @@ namespace EAI.MessageQueue.SQL
         private IQueueMessageManager _messageManager;
         private IQueueMessageStore _messageStore;
 
-        private TimeSpan _initialWait = new TimeSpan(0, 0, 0, 5);
-        private TimeSpan _maxWait = new TimeSpan(0, 0, 10, 0, 0);
+        private TimeSpan _initialWait = new TimeSpan(0, 0, 0, 1);
+        private TimeSpan _maxWait = new TimeSpan(0, 0, 0, 20);
         private TimeSpan _currentWait;
+        private MessageQueueDestination[] _messageQueueDestinations;
+        private string _stage;
+        private string[] _endpoints;
+        private ProcessContext _processContext;
 
         public LoggerV2 Log { get => _log; set => _log = value; }
         public IQueueMessageManager MessageManager { get => _messageManager; set => _messageManager = value; }
         public IQueueMessageStore MessageStore { get => _messageStore; set => _messageStore = value; }
-        public MessageQueueDestination[] MessageQueueDestinations { get; set; }
+        public MessageQueueDestination[] MessageQueueDestinations { get => _messageQueueDestinations; set => _messageQueueDestinations = value; }
+        public string Stage { get => _stage; set => _stage = value; }
+        public string[] Endpoints { get => _endpoints; set => _endpoints = value; }
 
 
         public async Task<long> EnqueueAsync(string endpointName, object message, string messageType = null, string messageKey = null)
@@ -54,7 +61,7 @@ namespace EAI.MessageQueue.SQL
             if (!string.IsNullOrEmpty(messageKey))
                 queueMessage._messageKey = messageKey;
 
-            queueMessage._messageId = await _messageManager.EnqueueMessage(queueMessage);
+            queueMessage._messageId = await _messageManager.EnqueueMessageAsync(queueMessage);
 
             if (_messageStore != null)
                 await _messageStore.SaveAsync(queueMessage);
@@ -122,6 +129,8 @@ namespace EAI.MessageQueue.SQL
             using (var _ = new ProcessScope(null, null, GetType().FullName))
                 try
                 {
+                    _processContext = ProcessContext.GetCurrent();
+
                     Log?.Start<Info>(null, null, $"Starting service {GetType().FullName}");
 
                     await Task.Run(() => RunLoopAsync(cancellationToken));
@@ -138,6 +147,8 @@ namespace EAI.MessageQueue.SQL
 
         public async Task RunLoopAsync(CancellationToken cancellationToken)
         {
+            ProcessContext.Restore(_processContext);
+
             _currentWait = _initialWait;
 
             while (!cancellationToken.IsCancellationRequested)
@@ -146,34 +157,51 @@ namespace EAI.MessageQueue.SQL
                 {
                     await foreach (var message in DequeueAsync())
                     {
-
-
+                        foreach(var destination in _messageQueueDestinations)
+                        {
+                            if(destination.IsMatch(message._endpointName, message._messageType))
+                                await destination.SendMessageAsync(this, message);
+                        }
 
                         _currentWait = _initialWait;
                     }
-
-                    await Task.Delay(_currentWait);
-
-                    _currentWait += _currentWait * 0.25;
-                    if (_currentWait > _maxWait)
-                        _currentWait = _maxWait;
                 }
-                catch (Exception ignoreException)
+                catch (Exception ex)
                 {
-
+                    Log?.Exception<Error>(ex, "dequeue failed");
                 }
+
+                await Task.Delay(_currentWait);
+
+                _currentWait += _currentWait * 0.25;
+                if (_currentWait > _maxWait)
+                    _currentWait = _maxWait;
             }
         }
 
         private async IAsyncEnumerable<QueueMessage> DequeueAsync()
         {
-            await foreach (var queueMessage in _messageManager.DequeueMessages())
-            {
-                if (_messageStore != null)
-                    await _messageStore.LoadAsync(queueMessage);
+            if (_stage == null || _endpoints == null)
+                yield break;
 
-                yield return queueMessage;
-            }
+            foreach(var endpoint in _endpoints)
+                await foreach (var queueMessage in _messageManager.DequeueMessagesAsync(_stage, endpoint))
+                {
+                    if (_messageStore != null) 
+                        await _messageStore.LoadAsync(queueMessage);
+
+                    yield return queueMessage;
+                }
+        }
+
+        internal Task SuccessAsync(QueueMessage queueMessage)
+        {
+            return _messageManager.SuccessAsync(queueMessage._messageId);
+        }
+
+        internal Task FailedAsync(QueueMessage queueMessage)
+        {
+            return _messageManager.FailedAsync(queueMessage._messageId);
         }
     }
 }

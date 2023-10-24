@@ -12,26 +12,24 @@ namespace EAI.Sql
     {
         public string ConnectionString { get; set; }
 
-        public IAsyncEnumerable<QueueMessage> DequeueMessages(QueueMessageStatusEnum id_status)
-        {
-            throw new NotImplementedException();
-
-            //await using (var conn = await Connection.CreateAndOpenAsync(ConnectionString))
-            //    await foreach(var queueMessage in await EaiDbCommands.Dequeue(conn,
-            //        id_status
-            //            ))
-            //        yield return queueMessage;
-        }
-
-        public IAsyncEnumerable<QueueMessage> DequeueMessages()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<long> EnqueueMessage(QueueMessage queueMessage)
+        public async IAsyncEnumerable<QueueMessage> DequeueMessagesAsync(string stage, string endpintName)
         {
             await using (var conn = await Connection.CreateAndOpenAsync(ConnectionString))
-                return await EaiDbCommands.AddQueue(conn,
+                await foreach(var queueMessage in EaiDbCommands.DequeueAsync(conn,
+                            stage,
+                            endpintName,
+                            QueueMessageStatusEnum.enqueued,
+                            QueueMessageStatusEnum.timeout,
+                            QueueMessageStatusEnum.processing,
+                            DateTimeOffset.UtcNow
+                        ))
+                    yield return queueMessage;
+        }
+
+        public async Task<long> EnqueueMessageAsync(QueueMessage queueMessage)
+        {
+            await using (var conn = await Connection.CreateAndOpenAsync(ConnectionString))
+                return await EaiDbCommands.AddQueueAsync(conn,
                             queueMessage._processId,
                             queueMessage._stage,
                             queueMessage._endpointName,
@@ -45,6 +43,24 @@ namespace EAI.Sql
                             queueMessage._messageContent,
 
                             queueMessage._createdOnUTC
+                        );
+        }
+
+        public async Task FailedAsync(long messageId)
+        {
+            await using (var conn = await Connection.CreateAndOpenAsync(ConnectionString))
+                await EaiDbCommands.UpdateQueueStatusAsync(conn,
+                            messageId,
+                            QueueMessageStatusEnum.error
+                        );
+        }
+
+        public async Task SuccessAsync(long messageId)
+        {
+            await using (var conn = await Connection.CreateAndOpenAsync(ConnectionString))
+                await EaiDbCommands.UpdateQueueStatusAsync(conn,
+                            messageId,
+                            QueueMessageStatusEnum.success
                         );
         }
     }
