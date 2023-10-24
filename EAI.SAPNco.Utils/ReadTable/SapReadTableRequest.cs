@@ -40,7 +40,7 @@ namespace EAI.SAPNco.Utils.ReadTable
                     GET_SORTED = "",
                     USE_ET_DATA_4_RETURN = "",
                     OPTIONS = _where
-                                .Chunkify(144)
+                                .Chunkify(72)
                                 .Select(c => new RFC_DB_OPT() { TEXT = c })
                                 .ToList()
                 }
