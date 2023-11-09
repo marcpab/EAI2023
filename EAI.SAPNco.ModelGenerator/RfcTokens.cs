@@ -105,33 +105,33 @@ namespace EAI.SAPNco.ModelGenerator
             switch(rfcDataType)
             {
                 case RfcDataType.BCD:
-                    return nameof(Decimal);
+                    return $"{nameof(Decimal)}?";
                 case RfcDataType.CHAR:
-                    return nameof(String);
+                    return $"{nameof(String)}?";
                 case RfcDataType.STRING:
-                    return nameof(String);
+                    return $"{nameof(String)}?";
                 case RfcDataType.DATE:
-                    return nameof(DateTimeOffset);
+                    return $"{nameof(DateTimeOffset)}?";
                 case RfcDataType.TIME:
-                    return nameof(DateTimeOffset);
+                    return $"{nameof(DateTimeOffset)}?";
                 case RfcDataType.NUM:
-                    return nameof(Decimal);
+                    return $"{nameof(Decimal)}?";
                 case RfcDataType.INT8:
-                    return nameof(Int64);
+                    return $"{nameof(Int64)}?";
                 case RfcDataType.INT4:
-                    return nameof(Int32);
+                    return $"{nameof(Int32)}?";
                 case RfcDataType.INT2:
-                    return nameof(Int16);
+                    return $"{nameof(Int16)}?";
                 case RfcDataType.INT1:
-                    return nameof(SByte);
+                    return $"{nameof(SByte)}?";
                 case RfcDataType.DECF16:
-                    return nameof(Single);
+                    return $"{nameof(Single)}?";
                 case RfcDataType.DECF34:
-                    return nameof(Double);
+                    return $"{nameof(Double)}?";
                 case RfcDataType.FLOAT:
-                    return nameof(Double);
+                    return $"{nameof(Double)}?";
                 case RfcDataType.BYTE:
-                    return $"{nameof(Byte)}[]";
+                    return $"{nameof(Byte)}[]?";
                 case RfcDataType.STRUCTURE:
                     {
                         var structureToken = GenerateRfcStructure(structureMetadata);
