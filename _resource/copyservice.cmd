@@ -1,0 +1,1 @@
+xcopy "C:\!work\EAI.Azure.2023\EAI.GenericServerHost\bin\Debug\net6.0" "%CD%" /S /E /I /R /V /Y
