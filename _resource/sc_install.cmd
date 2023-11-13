@@ -1,0 +1,1 @@
+echo sc create "EAI.GenericServer" start=auto binpath="%CD%\EAI.GenericServerHost.exe -service"
