@@ -1,18 +1,15 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
 using EAI.General;
 using EAI.General.Extensions;
 using EAI.General.SettingJson;
 using EAI.LoggingV2.Model;
-using Json = Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using Json = Newtonsoft.Json;
 
 namespace EAI.LoggingV2
 {
@@ -75,7 +72,7 @@ namespace EAI.LoggingV2
         {
             Create<U>(LogActionEnum.logRecord, ex.GetExceptionInformation(), null, null, ex);
 
-            if(text != null)
+            if (text != null)
                 Create<U>(LogActionEnum.logRecord, FormatString(text, args), null, null, null);
         }
 
@@ -128,7 +125,7 @@ namespace EAI.LoggingV2
             }
 
 
-            var logData = logText != null || messageContent != null || ex != null ? 
+            var logData = logText != null || messageContent != null || ex != null ?
                 new LogData()
                 {
                     _logLevel = typeof(U).Name,
@@ -139,7 +136,7 @@ namespace EAI.LoggingV2
 
                     _exceptions = GetExceptionData(ex),
                     _exception = ex
-                } 
+                }
                 : null;
 
             var logRecord = new LogRecord()
@@ -235,5 +232,6 @@ namespace EAI.LoggingV2
         {
             return LogQueueV2.Instance.FlushAsync();
         }
+
     }
 }
