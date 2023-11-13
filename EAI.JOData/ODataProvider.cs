@@ -359,6 +359,7 @@ OData-Version: 4.0
             {
                 // create request
                 var request = ODataProvider.BuildFetch(enumerableEntity, filter, top, isLink)!;
+                request.Last?.AddAfterSelf(new JProperty("custom", filter));
                 request.Last?.AddAfterSelf(new JProperty(CtrlTokens.EnumerableEntity, enumerableEntity));
                 // fetch
                 var response = (ODataResponse)await Fetch(request);
