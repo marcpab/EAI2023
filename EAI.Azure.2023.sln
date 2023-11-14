@@ -78,7 +78,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{ABCC14
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.AzureFunctions", "EAI.AzureFunctions\EAI.AzureFunctions.csproj", "{352424E5-4FF0-490A-87C6-DF5800CCD233}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EAI.General.SAPECC", "EAI.General.SAPECC\EAI.General.SAPECC.csproj", "{F21D9E76-DF54-4090-9B14-16CF33D7744B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.General.SAPECC", "EAI.General.SAPECC\EAI.General.SAPECC.csproj", "{F21D9E76-DF54-4090-9B14-16CF33D7744B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EAI.JOData", "EAI.JOData\EAI.JOData.csproj", "{3E00C4EA-FA0E-4C1A-83E4-DD2D63BA9A42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -214,6 +216,10 @@ Global
 		{F21D9E76-DF54-4090-9B14-16CF33D7744B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F21D9E76-DF54-4090-9B14-16CF33D7744B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F21D9E76-DF54-4090-9B14-16CF33D7744B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E00C4EA-FA0E-4C1A-83E4-DD2D63BA9A42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E00C4EA-FA0E-4C1A-83E4-DD2D63BA9A42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E00C4EA-FA0E-4C1A-83E4-DD2D63BA9A42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E00C4EA-FA0E-4C1A-83E4-DD2D63BA9A42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
