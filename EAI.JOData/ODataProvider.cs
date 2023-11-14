@@ -194,11 +194,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await client?.SendAsync(request)!;
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -223,11 +223,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -242,11 +242,11 @@ OData-Version: 4.0
             var uri = new Uri($"{_odataUri}/{entity}({id})/Microsoft.Dynamics.CRM.{action}", UriKind.Relative);
 
             if (string.IsNullOrWhiteSpace(entity))
-                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException($"record"), _jToken, ResponseContentType.Entity);
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException($"record"), _jToken);
             if (id == Guid.Empty)
-                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException($"id"), _jToken, ResponseContentType.Entity);
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException($"id"), _jToken);
             if (string.IsNullOrWhiteSpace(action))
-                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException($"action"), _jToken, ResponseContentType.Entity);
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException($"action"), _jToken);
 
 #pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Post, uri))
@@ -259,11 +259,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -274,9 +274,9 @@ OData-Version: 4.0
             var uri = new Uri($"{_odataUri}/{enumerableEntity}({id})", UriKind.Relative);
 
             if (string.IsNullOrWhiteSpace(enumerableEntity))
-                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(enumerableEntity)), _jToken, ResponseContentType.Entity);
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(enumerableEntity)), _jToken);
             if (id == Guid.Empty)
-                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(id)), _jToken, ResponseContentType.Entity);
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentNullException(nameof(id)), _jToken);
 
 #pragma warning disable IDE0063 // Use simple 'using' statement
             using (var request = new HttpRequestMessage(HttpMethod.Delete, uri))
@@ -286,11 +286,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -332,7 +332,7 @@ OData-Version: 4.0
 
                 // process response
                 if (!response.IsSuccess || response.Content is null || !response.Content.Contains("value"))
-                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response?.Response, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response?.Response, _jToken, false);
 
                 records.Merge(response.Content["value"] as JArray);
                 
@@ -342,7 +342,7 @@ OData-Version: 4.0
                     isLink = true;
                 }
                 else
-                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response.Response, _jToken, ResponseContentType.EntityList, true);
+                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response.Response, _jToken, true);
             }
         }
 
@@ -366,7 +366,7 @@ OData-Version: 4.0
 
                 // process response
                 if (!response.IsSuccess)
-                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response.Response, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response.Response, _jToken, false);
 
                 records.Merge(response.Content?["value"] as JArray);
 
@@ -377,7 +377,7 @@ OData-Version: 4.0
                     isLink = true;
                 }
                 else
-                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response.Response, _jToken, ResponseContentType.EntityList, true);
+                    return new ODataResponse((JToken)records, new Uri(response.Endpoint, UriKind.RelativeOrAbsolute), response.Response, _jToken, true);
             }
         }
 
@@ -396,11 +396,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -419,11 +419,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -437,7 +437,7 @@ OData-Version: 4.0
             var preProcess = ValidateRecord(record);
 
             if (!preProcess.IsValid)
-                return new ODataResponse((HttpResponseMessage?)null, _odataUri, new ArgumentException($"{preProcess.Error}"), _jToken, ResponseContentType.EntityList);
+                return new ODataResponse((HttpResponseMessage?)null, _odataUri, new ArgumentException($"{preProcess.Error}"), _jToken);
 
             var entity = preProcess.Tokens[CtrlTokens.EnumerableEntity].Value<string>();
             var uri = new Uri($"{_odataUri}/{entity}", UriKind.Relative);
@@ -462,7 +462,7 @@ OData-Version: 4.0
                 isLink = true;
 
             if (string.IsNullOrWhiteSpace(filter) && string.IsNullOrWhiteSpace(custom))
-                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentException($"record missing field 'filter' or 'custom'!"), _jToken, ResponseContentType.EntityList);
+                return new ODataResponse((HttpResponseMessage?)null, uri, new ArgumentException($"record missing field 'filter' or 'custom'!"), _jToken);
 
             // filter is a paging link?
             if (isLink)
@@ -485,11 +485,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -510,11 +510,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.EntityList);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement
@@ -534,11 +534,11 @@ OData-Version: 4.0
             try
             {
                 var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                return new ODataResponse(response, uri, null, _jToken, ResponseContentType.LocalOptionSet);
+                return new ODataResponse(response, uri, null, _jToken);
             }
             catch (Exception ex)
             {
-                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.LocalOptionSet);
+                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
             }
         }
 
@@ -556,11 +556,11 @@ OData-Version: 4.0
             try
             {
                 var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Status);
+                return new ODataResponse(response, uri, null, _jToken);
             }
             catch (Exception ex)
             {
-                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Status);
+                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
             }
         }
 
@@ -578,11 +578,11 @@ OData-Version: 4.0
             try
             {
                 var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                return new ODataResponse(response, uri, null, _jToken, ResponseContentType.LocalOptionSet);
+                return new ODataResponse(response, uri, null, _jToken);
             }
             catch (Exception ex)
             {
-                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.LocalOptionSet);
+                return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
             }
         }
 
@@ -594,7 +594,7 @@ OData-Version: 4.0
             var preProcess = ValidateRecord(record, true);
 
             if (!preProcess.IsValid)
-                return new ODataResponse((HttpResponseMessage?)null, _odataUri, new ArgumentException($"{preProcess.Error}"), _jToken, ResponseContentType.Entity);
+                return new ODataResponse((HttpResponseMessage?)null, _odataUri, new ArgumentException($"{preProcess.Error}"), _jToken);
 
             var entity = preProcess.Tokens[CtrlTokens.EnumerableEntity].Value<string>();
             string id;
@@ -610,7 +610,7 @@ OData-Version: 4.0
                 }
                 catch (Exception)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, _odataUri, new ArgumentException($"cannot parse record id token as string nor as guid!"), _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, _odataUri, new ArgumentException($"cannot parse record id token as string nor as guid!"), _jToken);
                 }
             }
             string? impersonation = null;
@@ -633,11 +633,11 @@ OData-Version: 4.0
                 try
                 {
                     var response = await (await GetAuthenticatedClientAsync()).SendAsync(request);
-                    return new ODataResponse(response, uri, null, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse(response, uri, null, _jToken);
                 }
                 catch (Exception ex)
                 {
-                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken, ResponseContentType.Entity);
+                    return new ODataResponse((HttpResponseMessage?)null, uri, ex, _jToken);
                 }
             }
 #pragma warning restore IDE0063 // Use simple 'using' statement

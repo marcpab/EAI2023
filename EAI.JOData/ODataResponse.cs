@@ -1,13 +1,29 @@
 ﻿using EAI.JOData.Base;
 using Newtonsoft.Json.Linq;
 using System.Net;
+using System.Net.Mime;
+using System.Text.Json.Serialization;
 
 namespace EAI.JOData
 {
     public class ODataResponse
     {
+        [JsonIgnore]
+        private ResponseContentType _contentType;
+
         public RestResponse? Response { get; set; }
-        public ResponseContentType ContentType { get; private set; }
+        public ResponseContentType ContentType { 
+            get 
+            {
+                return _contentType;
+            }
+            private set
+            {
+                _contentType = value;
+                ContentTypeName = _contentType.ToString();
+            }
+        }
+        public string ContentTypeName { get; private set; } = "Undefined";
         public string Endpoint { get; set; }
         public HttpStatusCode? StatusCode { get; private set; }
         public string? StatusReason { get; private set; }
@@ -17,157 +33,150 @@ namespace EAI.JOData
         public JToken Token { get; set; }
         public Dictionary<string, string> Headers { get; private set; } = new Dictionary<string, string>();
         public IEnumerable<ExceptionEntry>? Exception { get; private set; }
+        public string? ClientError { get; set; }
+        public string? ServerError { get; set; }
         public string? Error { get; set; }
-        public string SoftError { get; set; }
         public bool IsSuccess { get; set; } = false;
         public bool IsJsonResponse { get; private set; } = false;
 
-
-        private static ResponseContentType SetContentType(Uri endpoint, ResponseContentType type = ResponseContentType.Undefined)
+        public static (ResponseContentType ContentType, JToken? Content, string? Error, bool IsJson) ParseContent(JToken? jContent)
         {
-            if (type != ResponseContentType.Undefined)
-                return type;
-            if (endpoint.ToString().Contains("Microsoft.Dynamics.CRM.PicklistAttributeMetadata?"))
-                return ResponseContentType.LocalOptionSet;
-            else if (endpoint.ToString().Contains("Microsoft.Dynamics.CRM.StatusAttributeMetadata?"))
-                return ResponseContentType.Status;
+            var contentType = ResponseContentType.Undefined;
+            var isJson = false;
+            var errorMsg = (string?)null;
 
-            return ResponseContentType.EntityList;
+            if (jContent is null)
+            {
+                return (contentType, jContent, errorMsg, isJson);
+            }
+            
+            isJson = true;
+            contentType = ResponseContentType.Json;
+
+            if (jContent.SelectToken("error") is not null)
+            {
+                contentType = ResponseContentType.Error;
+                var errcode = jContent.SelectToken("error")?.SelectToken("code");
+                var errmsg = jContent.SelectToken("error")?.SelectToken("message");
+                errorMsg = $"{errcode}: {errmsg}";
+
+                return (contentType, jContent, errorMsg, isJson);
+            }
+            
+            // is this a odata response?
+            var odataCtxt = jContent.SelectToken("['@odata.context']")?.ToObject<Uri>();
+            if (odataCtxt is null)
+            {
+                return (contentType, jContent, errorMsg, isJson);
+            }
+
+            contentType = ResponseContentType.OData;
+
+            // test if we have a single record response
+            if ((odataCtxt.Fragment?.EndsWith("$entity") ?? false))
+            {
+                contentType = ResponseContentType.Entity;
+
+                if (odataCtxt.AbsolutePath.Contains("PicklistAttributeMetadata"))
+                    contentType = ResponseContentType.LocalOptionSet;
+                else if (odataCtxt.AbsolutePath.Contains("StatusAttributeMetadata"))
+                    contentType = ResponseContentType.Status;
+
+                return (contentType, jContent, errorMsg, isJson);
+            }
+
+            // test if we have a multiple record response
+            if (jContent?.SelectToken("value") is not null)
+            {
+                contentType = ResponseContentType.EntityList;
+            }
+
+            return (contentType, jContent, errorMsg, isJson);
         }
 
-        public ODataResponse(HttpResponseMessage? msg, Uri endpoint, Exception? ex, JToken token, ResponseContentType type = ResponseContentType.Undefined)
+        public static (ResponseContentType ContentType, JToken? Content, string? Error, bool IsJson) ParseContent(string? content)
         {
-            Response = new RestResponse(msg, endpoint, ex);
-            Endpoint = $"{endpoint}";
-            StatusCode = msg?.StatusCode;
-            StatusReason = msg?.ReasonPhrase;
-            StatusText = msg?.ToString();
-            Message = Response.Content;
-            Token = token ?? JToken.Parse("{}");
-            SoftError = string.Empty;
-
-            ContentType = SetContentType(endpoint, type);
-
             try
             {
-                if (Response?.Content is not null)
+                if (!string.IsNullOrWhiteSpace(content))
                 {
-                    Content = JToken.Parse(Response.Content);
-                    IsJsonResponse = true;
-
-                    if (Content.SelectToken("error") is not null)
-                    {
-                        var errcode = Content.SelectToken("error")?.SelectToken("code");
-                        var errmsg = Content.SelectToken("error")?.SelectToken("message");
-                        SoftError = $"{errcode}: {errmsg}";
-                    }
+                    return ParseContent(JToken.Parse(content));
                 }
             }
-            catch (Exception) { IsJsonResponse = false; }
-
-            if (Response?.Headers is not null)
+            catch (Exception) 
             {
-                foreach (var h in Response.Headers)
-                    Headers.Add(h.Key, h.Value.Last());
             }
 
-            Exception = Response?.Exception;
-            Error = Response?.Error;
-            IsSuccess = Response?.IsSuccess ?? false;
+            return (ResponseContentType.Undefined, JToken.Parse("{}"), (string?)null, false);
         }
 
-        public ODataResponse(string content, Uri endpoint, Exception ex, JToken token, ResponseContentType type = ResponseContentType.Undefined)
-            : this(content, endpoint, new RestResponse(null, endpoint, ex), token, type) { }
-
-        public ODataResponse(string content, Uri endpoint, RestResponse response, JToken token, ResponseContentType type = ResponseContentType.Undefined)
-        {
-            Response = response;
-            Endpoint = $"{endpoint}";
-            StatusCode = Response.StatusCode;
-            StatusReason = Response.StatusReason;
-            StatusText = Response.StatusText;
-            Token = token ?? JToken.Parse("{}");
-            SoftError = string.Empty;
-
-            ContentType = SetContentType(endpoint, type);
-
-            Message = content;
-            if (string.IsNullOrWhiteSpace(content))
-                Message = Response.Content;
-
-            try
-            {
-                if (Response?.Content is not null)
-                {
-                    Content = JToken.Parse(Response.Content);
-                    IsJsonResponse = true;
-
-                    if (Content.SelectToken("error") is not null)
-                    {
-                        var errcode = Content.SelectToken("error")?.SelectToken("code");
-                        var errmsg = Content.SelectToken("error")?.SelectToken("message");
-                        SoftError = $"{errcode}: {errmsg}";
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                IsJsonResponse = false;
-            }
-
-            Exception = Response?.Exception;
-            Error = Response?.Error;
-            IsSuccess = Response?.IsSuccess ?? false;
-        }
-
-        public ODataResponse(JToken content, Uri endpoint, Exception ex, JToken token, ResponseContentType type = ResponseContentType.Undefined)
-            : this(content, endpoint, new RestResponse(null, endpoint, ex), token, type) { }
-
-        public ODataResponse(JToken content, Uri endpoint, RestResponse? response, JToken token, ResponseContentType type = ResponseContentType.Undefined, bool overrideContent = false)
+        public ODataResponse(RestResponse? response, string? message, Uri endpoint, JToken authToken)
         {
             Response = response;
             Endpoint = $"{endpoint}";
             StatusCode = Response?.StatusCode ?? 0;
             StatusReason = Response?.StatusReason ?? "";
             StatusText = Response?.StatusText ?? "";
-            Token = token ?? JToken.Parse("{}");
-            SoftError = string.Empty;
+            Message = string.IsNullOrWhiteSpace(message) ? Response?.Content : message;
+            Token = authToken ?? JToken.Parse("{}");
 
-            ContentType = SetContentType(endpoint, type);
+            Exception = Response?.Exception;
+            Error = ClientError = Response?.Error;
+            IsSuccess = Response?.IsSuccess ?? false;
 
+            (ContentType, Content, ServerError, IsJsonResponse) = ParseContent(Response?.Content);
+
+            if (!string.IsNullOrWhiteSpace(ClientError) ||
+                (int)ContentType < 10)
+            {
+                IsSuccess = false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(ServerError))
+            {
+                IsSuccess = false;
+                Error = ServerError;
+            }
+
+            if (Response?.Headers is not null)
+            {
+                foreach (var h in Response.Headers)
+                    Headers.Add(h.Key, h.Value.Last());
+            }
+        }
+
+        public ODataResponse(HttpResponseMessage? msg, Uri endpoint, Exception? ex, JToken authToken)
+            : this(new RestResponse(msg, endpoint, ex), null, endpoint, authToken) { }
+
+        public ODataResponse(string message, Uri endpoint, Exception? ex, JToken authToken)
+            : this(new RestResponse(null, endpoint, ex), message, endpoint, authToken) { }
+                
+        public ODataResponse(JToken? content, Uri endpoint, Exception ex, JToken authToken)
+            : this(content, endpoint, new RestResponse(null, endpoint, ex), authToken, false) { }
+                
+        public ODataResponse(JToken? content, Uri endpoint, RestResponse? response, JToken token, bool isOverrideContent)
+            : this(response, null, endpoint, token)
+        {
+            var reparse = true;
             Message = content?.ToString();
             Content = content;
 
             if (content is null || !content.HasValues)
             {
-                if (!overrideContent && Response?.Content is not null)
+                if (!isOverrideContent && Response?.Content is not null)
                 {
-                    try
-                    {
-                        Content = JToken.Parse(Response.Content);
-                        IsJsonResponse = true;
-                        Message = response?.Content;
-
-                        if (Content.SelectToken("error") is not null)
-                        {
-                            var errcode = Content.SelectToken("error")?.SelectToken("code");
-                            var errmsg = Content.SelectToken("error")?.SelectToken("message");
-                            SoftError = $"{errcode}: {errmsg}";
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        IsJsonResponse = false;
-                    }
+                    reparse = false;
                 }
             }
 
-            IsJsonResponse = true;
+            if(reparse)
+                (ContentType, Content, Error, IsJsonResponse) = ParseContent(content);
 
             Exception = Response?.Exception;
             Error = Response?.Error;
             IsSuccess = Response?.IsSuccess ?? false;
         }
+        
 
         /// <summary>
         /// returns null when not an os result set
@@ -287,8 +296,17 @@ namespace EAI.JOData
 
         public List<JToken>? ToValueList()
         {
-            if (Content?.SelectToken("value") is not null)
+            if (ContentType == ResponseContentType.EntityList)
                 return Content?["value"]?.Children().ToList();
+
+            if (ContentType == ResponseContentType.Entity)
+                return new List<JToken>() { Content ?? JToken.Parse("{}") };
+
+            if (ContentType == ResponseContentType.LocalOptionSet)
+                return Content?.SelectTokens("['OptionSet']['Options']")?.Children().ToList();
+
+            if (ContentType == ResponseContentType.Status)
+                return Content?.SelectTokens("['GlobalOptionSet']['Options']")?.Children().ToList();
 
             return null;
         }
