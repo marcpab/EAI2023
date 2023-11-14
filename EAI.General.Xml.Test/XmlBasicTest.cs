@@ -41,6 +41,29 @@ namespace EAI.General.Xml.Test
         }
 
         [Fact]
+        public void TestToDynamicXml01b()
+        {
+            var data = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
+
+            var idocNullNode = data
+                .ToXmlDocument()
+                .ToDynamic(NodeDefaultBehavior.EmptyToNull)
+                .Receives;
+
+            var idoc = data
+                .ToXmlDocument()
+                .ToDynamic(NodeDefaultBehavior.EmptyToNull)
+                .Receive;
+
+            var xNN = (XmlNode?)idocNullNode;
+
+            Assert.Null(idocNullNode.Value);
+            Assert.Null(xNN);
+
+            Assert.NotNull(idoc.Value);
+        }
+
+        [Fact]
         public void TestToDynamicXml02()
         {
             var data = ResourceHelper.ZDebmas07_SampleChemicalIndustry01;
